@@ -1,0 +1,79 @@
+{
+	"common": {
+		"name": "wled",
+		"version": "0.1.0",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "WLED",
+		"titleLang": {
+			"en": "WLED",
+			"de": "WLED",
+			"ru": "WLED",
+			"pt": "WLED",
+			"nl": "WLED",
+			"fr": "WLED",
+			"it": "WLED",
+			"es": "WLED",
+			"pl": "WLED",
+			"zh-cn": "白光LED"
+		},
+		"desc": {
+			"en": "A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!",
+			"de": "Eine schnelle und funktionsreiche Implementierung eines ESP8266 / ESP32-Webservers zur Steuerung von NeoPixel-LEDs (WS2812B, WS2811, SK6812, APA102)!",
+			"ru": "Быстрая и многофункциональная реализация веб-сервера ESP8266 / ESP32 для управления светодиодами NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+			"pt": "Uma implementação rápida e rica em recursos de um servidor da web ESP8266 / ESP32 para controlar os LEDs NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+			"nl": "Een snelle en veelzijdige implementatie van een ESP8266 / ESP32 webserver om NeoPixel (WS2812B, WS2811, SK6812, APA102) LED's te bedienen!",
+			"fr": "Une implémentation rapide et riche en fonctionnalités d'un serveur Web ESP8266 / ESP32 pour contrôler les LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+			"it": "Un'implementazione veloce e ricca di funzionalità di un server web ESP8266 / ESP32 per controllare i LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+			"es": "¡Una implementación rápida y rica en funciones de un servidor web ESP8266 / ESP32 para controlar los LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+			"pl": "Szybka i bogata w funkcje implementacja serwera ESP8266 / ESP32 do sterowania diodami LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+			"zh-cn": "ESP8266 / ESP32网络服务器的快速且功能丰富的实现，用于控制NeoPixel（WS2812B，WS2811，SK6812，APA102）LED！"
+		},
+		"authors": [
+			"DutchmanNL <rdrozda86@gmail.com>"
+		],
+		"keywords": [
+			"WLED",
+			"WS2812b",
+			"RGB",
+			"RGBW"
+		],
+		"license": "MIT",
+		"platform": "Javascript/Node.js",
+		"main": "main.js",
+		"icon": "wled.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.wled/master/admin/wled.png",
+		"readme": "https://github.com/iobroker-community-adapters/ioBroker.wled/blob/master/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "lighting",
+		"compact": true,
+		"connectionType": "local",
+		"dataSource": "poll",
+		"materialize": true,
+		"dependencies": [
+			{
+				"js-controller": ">=1.4.2"
+			}
+		]
+	},
+	"native": {
+		"Time_Sync": 30,
+		"Time_Scan": 60
+	},
+	"objects": [],
+	"instanceObjects": []
+}

@@ -1,9 +1,21 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.0",
+		"version": "0.1.1",
 		"news": {
-			"0.0.1": {
+			"0.1.1": {
+				"en": "States hidden from JSON-API implemented : tt / psave / nn / time",
+				"de": "Aus der JSON-API ausgeblendete Zustände implementiert: tt / psave / nn / time",
+				"ru": "Состояния, скрытые от JSON-API: tt / psave / nn / time",
+				"pt": "Estados ocultos da API JSON implementada: tt / psave / nn / time",
+				"nl": "Staten verborgen voor JSON-API geïmplementeerd: tt / psave / nn / time",
+				"fr": "États masqués de l'API JSON implémentée: tt / psave / nn / time",
+				"it": "Stati nascosti dall'API JSON implementati: tt / psave / nn / time",
+				"es": "Estados ocultos de JSON-API implementados: tt / psave / nn / time",
+				"pl": "Zaimplementowane stany ukryte przed JSON-API: tt / psave / nn / time",
+				"zh-cn": "隐藏在JSON-API中的状态已实现：tt / psave / nn /时间"
+			},
+			"0.1.0": {
 				"en": "initial release",
 				"de": "Erstveröffentlichung",
 				"ru": "Начальная версия",

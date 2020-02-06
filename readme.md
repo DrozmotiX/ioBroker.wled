@@ -43,6 +43,10 @@ If you like my work, please feel free to provide a personal donation
 
 ## Changelog
 
+### 0.1.1
+* (DutchmanNL) Implemented states hidden from JSON-API : tt / psave / nn / time
+* (DutchmanNL) Improve logging issue
+
 ### 0.1.0
 * (DutchmanNL) initial release
 

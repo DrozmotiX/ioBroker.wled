@@ -82,7 +82,7 @@ class Wled extends utils.Adapter {
 			this.log.debug('values ' + JSON.stringify(values));
 			// Send command for state changes
 			if (deviceId[4] === undefined) {
-				this.log.info('Send state');
+				this.log.debug('Send state');
 				values = {
 					[deviceId[3]]:state.val
 				};
@@ -362,6 +362,12 @@ class Wled extends utils.Adapter {
 					}
 				}
 			}
+
+			// Create additional  states not included in JSON-API of WLED
+			this.create_state(device_id + '.tt','tt',null,true);
+			this.create_state(device_id + '.psave','psave',null,true);
+			this.create_state(device_id + '.udpn.nn','nn',null,true);
+			this.create_state(device_id + '.time','time',null,true);
 
 		} catch (error) {
 			

@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.1",
+		"version": "0.1.2",
 		"news": {
+			"0.1.2": {
+				"en": "Drop down menu for effects Implemented",
+				"de": "Dropdown-Menü für Effekte implementiert",
+				"ru": "Выпадающее меню для эффектов Реализовано",
+				"pt": "Menu suspenso para efeitos Implementado",
+				"nl": "Vervolgkeuzelijst voor geïmplementeerde effecten",
+				"fr": "Menu déroulant pour les effets implémentés",
+				"it": "Menu a discesa per gli effetti implementati",
+				"es": "Menú desplegable para efectos Implementado",
+				"pl": "Rozwijane menu efektów",
+				"zh-cn": "已实现效果的下拉菜单"
+			},
 			"0.1.1": {
 				"en": "States hidden from JSON-API implemented : tt / psave / nn / time",
 				"de": "Aus der JSON-API ausgeblendete Zustände implementiert: tt / psave / nn / time",
@@ -83,6 +95,7 @@
 		]
 	},
 	"native": {
+		"devices": [],
 		"Time_Sync": 30,
 		"Time_Scan": 60
 	},

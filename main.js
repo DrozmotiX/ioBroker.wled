@@ -31,6 +31,7 @@ class Wled extends utils.Adapter {
 		this.on('stateChange', this.onStateChange.bind(this));
 		this.on('unload', this.onUnload.bind(this));
 		this.devices = {};
+		this.effects = {};
 	}
 
 	/**
@@ -202,6 +203,13 @@ class Wled extends utils.Adapter {
 
 			// Update device workig state
 			await this.create_state(device_id + '._info' + '._online', 'online', true);
+			
+			// build effects array
+
+			for (const i in objArray.effects) {
+
+				this.effects[i] = objArray.effects[i];
+			}
 
 			// Read info Channel
 			for (const i in objArray['info']){
@@ -384,6 +392,7 @@ class Wled extends utils.Adapter {
 		// Reset timer (if running) and start new one for next polling intervall
 		( ()  => {if (polling) {clearTimeout(polling); polling = null;}})();
 		polling = setTimeout( () => {
+			
 			for (const i in this.devices) {
 				// ( ()  => {if (polling[this.devices[i]]) {clearTimeout(polling[this.devices[i]]); polling[this.devices[i]] = null;}})();
 		
@@ -462,7 +471,6 @@ class Wled extends utils.Adapter {
 
 	async create_state(state, name, value, expire){
 		this.log.debug('Create_state called for : ' + state + ' with value : ' + value);
-		this.log.debug('Create_state called for : ' + name	 + ' with value : ' + value);
 
 		try {
 
@@ -488,6 +496,19 @@ class Wled extends utils.Adapter {
 			});
 
 			await this.setState(state, {val: value, ack: true, expire: ((this.config.Time_Sync * 1000 ) * 2)});
+
+			if (name === 'fx') {
+
+				this.log.debug('Create special drop donwn state with value ' + JSON.stringify(this.effects));
+
+				await this.extendObjectAsync(state, {
+					type: 'state',
+					common: {
+						states : this.effects
+					}
+				});
+
+			}
 
 			// Subscribe on state changes if writable
 			if (writable === true) {this.subscribeStates(state);}

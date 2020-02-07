@@ -30,8 +30,8 @@ Known issues : Networks with VLAN seperation mostly don't route broadcast traffi
 ## To-Do
 
 * [ ] configurable devices (currenly only autodetect by bonjour)
-* [ ] special commands not included in rest-api (like save presets)
 * [ ] investigate better way of stay change announcement, currentl polly supported
+* [x] special commands not included in rest-api (like save presets)
 * [x] control segments
 * [x] color changes
 
@@ -42,6 +42,9 @@ If you like my work, please feel free to provide a personal donation
 
 
 ## Changelog
+
+### 0.1.2
+- (DutchmanNL) Implement drop down menu for effect list
 
 ### 0.1.1
 * (DutchmanNL) Implemented states hidden from JSON-API : tt / psave / nn / time

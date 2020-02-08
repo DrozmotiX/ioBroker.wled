@@ -15,7 +15,7 @@ const bonjour = require('bonjour')();
 // const fs = require('fs');
 
 let polling; // Polling timer
-let scan_timer; 
+let scan_timer, reload = false; 
 
 class Wled extends utils.Adapter {
 
@@ -31,7 +31,9 @@ class Wled extends utils.Adapter {
 		this.on('stateChange', this.onStateChange.bind(this));
 		this.on('unload', this.onUnload.bind(this));
 		this.devices = {};
+		this.devices_test = {};
 		this.effects = {};
+		this.palettes = {};
 	}
 
 	/**
@@ -116,15 +118,33 @@ class Wled extends utils.Adapter {
 						
 							let color_primary = await  this.getStateAsync(color_root + '.0');
 							if(!color_primary)  return;
-							color_primary = color_primary.val.split(',').map(s => parseInt(s));
+							this.log.debug('Primmary color before split : ' + color_primary.val);
+							try {
+								color_primary = color_primary.val.split(',').map(s => parseInt(s));
+							} catch (error) {
+								if(!color_primary)  return;
+								color_primary = color_primary.val;
+							}
 	
 							let color_secondary = await  this.getStateAsync(color_root + '.1');
 							if(!color_secondary)  return;
-							color_secondary = color_secondary.val;
+							this.log.debug('Secondary color : ' + color_secondary.val);
+							try {
+								color_secondary = color_secondary.val.split(',').map(s => parseInt(s));
+							} catch (error) {
+								if(!color_secondary)  return;
+								color_secondary = color_secondary.val;
+							}
 	
 							let color_tertiary = await  this.getStateAsync(color_root + '.2');
 							if(!color_tertiary)  return;
-							color_tertiary = color_tertiary.val;
+							this.log.debug('Tertary color : ' + color_tertiary.val);
+							try {
+								color_tertiary = color_tertiary.val.split(',').map(s => parseInt(s));
+							} catch (error) {
+								if(!color_tertiary)  return;
+								color_tertiary = color_tertiary.val;
+							}
 	
 							this.log.debug('Color values from states : ' + color_primary + ' : ' + color_secondary + ' : ' + color_tertiary);
 							
@@ -155,18 +175,23 @@ class Wled extends utils.Adapter {
 				}
 			}  
 
-			this.log.debug('Prepare API call for device : ' + device + ' and values + ' + values); 
+			this.log.debug('Prepare API call for device : ' + device + ' and values + ' + values); 			
+			let device_ip = await this.getForeignObjectAsync('wled.' + this.instance + '.' + deviceId[2]);
+			if (!device_ip) return;	
+			device_ip = device_ip.native.ip;
 
 			// Only make API call when values are correct
-			if (values !== null) {
+			if (values !== null && device_ip !== null) {					
+
 				// Send API Post command
-				const result = await this.postAPI('http://' +  device + '/json', values);
+				const result = await this.postAPI('http://' +  device_ip + '/json', values);
 				if (!result) return;
 
 				this.log.debug('API feedback' + JSON.stringify(result));
 				if (result.success === true){
 					// Set state aknowledgement if  API call was succesfully
 					this.setState(id, {ack : true});
+					this.read_data(deviceId[2]);
 				}
 			}
 
@@ -176,7 +201,7 @@ class Wled extends utils.Adapter {
 		}
 	}
 
-	async read_data(device){
+	async read_data(index){
 		
 		// Handle object arrays from WLED API
 		/** @type {Record<string, any>[]} */
@@ -185,7 +210,7 @@ class Wled extends utils.Adapter {
 		// Error handling needed!
 		try {
 
-			const objArray = await this.getAPI('http://' + this.devices[device] + '/json');
+			const objArray = await this.getAPI('http://' + index + '/json');
 			const device_id = objArray['info'].mac;	
 			this.log.debug ('Data received from WLED device ' + device_id + ' : ' + JSON.stringify(objArray));
 
@@ -196,6 +221,19 @@ class Wled extends utils.Adapter {
 					name: objArray['info'].name,
 				},
 				native: {},
+			});
+
+			// Ensure relevant information for polling and instance configuration is part of device object
+			await this.extendObjectAsync(device_id, {
+				type: 'device',
+				common: {
+					name : objArray['info'].name
+				},
+				native: { 
+					ip : index,
+					mac : objArray['info'].mac,
+					name : objArray['info'].name
+				}
 			});
 
 			// Update adapter workig state, set connection state to true if at least  1 device is connected
@@ -209,6 +247,11 @@ class Wled extends utils.Adapter {
 			for (const i in objArray.effects) {
 
 				this.effects[i] = objArray.effects[i];
+			}
+
+			for (const i in objArray.palettes) {
+
+				this.palettes[i] = objArray.palettes[i];
 			}
 
 			// Read info Channel
@@ -380,7 +423,7 @@ class Wled extends utils.Adapter {
 		} catch (error) {
 			
 			// Set alive state to false if device is not reachable
-			this.setState(device + '._info' + '._online', {val : false, ack : true});
+			this.setState(this.devices[index] + '._info' + '._online', {val : false, ack : true});
 		
 		}
 		
@@ -389,17 +432,19 @@ class Wled extends utils.Adapter {
 	async polling_timer(){
 
 		this.log.debug('polling timer for  devices : ' + JSON.stringify(this.devices));
+
+		// Loop true device array and start data polling
+		for (const i in this.devices) {
+			// ( ()  => {if (polling[this.devices[i]]) {clearTimeout(polling[this.devices[i]]); polling[this.devices[i]] = null;}})();
+	
+			this.read_data(i);
+			this.log.debug('Getting data for ' + this.devices[i]);
+			
+		}
+
 		// Reset timer (if running) and start new one for next polling intervall
 		( ()  => {if (polling) {clearTimeout(polling); polling = null;}})();
 		polling = setTimeout( () => {
-			
-			for (const i in this.devices) {
-				// ( ()  => {if (polling[this.devices[i]]) {clearTimeout(polling[this.devices[i]]); polling[this.devices[i]] = null;}})();
-		
-				this.read_data(i);
-				this.log.debug('Getting data for ' + i);
-				
-			}
 			this.polling_timer();
 		}, (this.config.Time_Sync * 1000));
 		
@@ -444,19 +489,27 @@ class Wled extends utils.Adapter {
 			const ip = service.referer.address;
 
 			// Check if device is already know
-			if (this.devices[id] === undefined) {
+			if (this.devices[ip] === undefined) {
 				this.log.info('Device ' + service.name + ' found on IP ' + service.referer.address);
+
 				//  Add device to polling array
-				this.devices[id] = ip;
+				// this.devices[id] = ip;
+				this.devices[ip] = id;
+
+				this.log.info('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
+				// this.log.info('Devices array from bonjour scan : ' + JSON.stringify(this.devices_test));
+
+				// Send signal to admin for refresh configuration page
+				// To-Do
+
 				// Initialize device
-				this.read_data(id);
+				this.polling_timer();
 			} else {
 				// Update memory with current ip address
-				this.devices[id] = ip;
+				this.devices[ip] = id;
 			}
 
 			this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
-			this.polling_timer();
 		});
 
 		// Rerun scan every minute
@@ -505,6 +558,17 @@ class Wled extends utils.Adapter {
 					type: 'state',
 					common: {
 						states : this.effects
+					}
+				});
+
+			} else if (name === 'pal') {
+
+				this.log.debug('Create special drop donwn state with value ' + JSON.stringify(this.effects));
+
+				await this.extendObjectAsync(state, {
+					type: 'state',
+					common: {
+						states : this.palettes
 					}
 				});
 

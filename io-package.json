@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.2",
+		"version": "0.1.4",
 		"news": {
+			"0.1.4": {
+				"en": "New configuration page + color palettes drop down menu",
+				"de": "Neue Konfigurationsseite + Dropdown-Menü für Farbpaletten",
+				"ru": "Новая страница конфигурации + раскрывающееся меню цветовых палитр",
+				"pt": "Nova página de configuração + paletas de cores no menu suspenso",
+				"nl": "Nieuwe configuratiepagina + kleurenpaletten vervolgkeuzemenu",
+				"fr": "Nouvelle page de configuration + menu déroulant de palettes de couleurs",
+				"it": "Nuova pagina di configurazione + menu a discesa tavolozze colori",
+				"es": "Nueva página de configuración + menú desplegable de paletas de colores",
+				"pl": "Nowa strona konfiguracji + rozwijane menu palet kolorów",
+				"zh-cn": "新的配置页+调色板下拉菜单"
+			},
 			"0.1.2": {
 				"en": "Drop down menu for effects Implemented",
 				"de": "Dropdown-Menü für Effekte implementiert",

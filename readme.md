@@ -14,7 +14,7 @@
 
 A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!
 
-[WLED - Github Project](https://www.youtube.com/watch?v=6eCE2BpLaUQ) by @Aircoookie
+[WLED - Github Project](https://github.com/Aircoookie/WLED) by @Aircoookie
 
 ## Instructions
 
@@ -42,9 +42,12 @@ If you like my work, please feel free to provide a personal donation
 
 
 ## Changelog
+### 0.1.4
+- (DutchmanNL) Implement drop down menu for color pallets
+- (DutchmanNL) New configuration page
 
 ### 0.1.2
-- (DutchmanNL) Implement drop down menu for effect list
+- (DutchmanNL) Implement drop down menu for effects
 
 ### 0.1.1
 * (DutchmanNL) Implemented states hidden from JSON-API : tt / psave / nn / time

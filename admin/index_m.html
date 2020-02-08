@@ -18,45 +18,31 @@
 
 	<script type="text/javascript">
 
-		let device_array;
 		let _onChange;
 
-		// Create secrect for encrypted password storage
-		function encrypt(key, value) {
-			let result = '';
-			for(let i = 0; i < value.length; ++i) {
-				result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
-			}
-			return result;
-		}
-		function decrypt(key, value) {
-			let result = '';
-			for(let i = 0; i < value.length; ++i) {
-				result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ value.charCodeAt(i));
-			}
-			return result;
-		}
 
-		function getTableValues(settings){
-			// add loop 
-			loadTable(settings.devices, settings);
-		}
 
 		function loadTable(obj){
 			let  index = 1;
 			let text = '';
 
+			// console.log('Data for table ' + JSON.stringify(obj))
             for(i in obj) {
-                let m = obj[i].Password;
-                console.log(m);
-                    text += '<tr id="' + index + '"><td><span id="' + index + '-index">' + index + '</span></td>'
-                    text += '<td> <input id="' + index + '-ip" type="text" class="center-align input-field" value="' + obj[i].ip + '"></td>'
-                    text += '<td>' + '' +
-                        '<a id="' + index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
-                    text += '</select></td></tr>';
+				if (obj[i] !== undefined) {
+                        // index = obj[i].value.native.ip
+                        // text += '<tr id="' + index + '"><td><span id="' + index + '-index">' + index + '</span></td>'
+                        text += '<tr id="' + obj[i].value.native.ip + '"><td><span id="' + obj[i].value.native.ip + '-index">' + obj[i].value.native.ip + '</span></td>'
+						text += '<td> <input id="'+ index + '-Name" type="text" disabled="true" class="center-align input-field" value=' + obj[i].value.native.name + '></td>'
+						text += '<td> <input id="' + index + '-ip" type="text" disabled="true" class="center-align input-field" value="' + obj[i].value.native.ip + '"></td>'
+						// text += '<td>' + '' +
+						// 	'<a id="' + index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
+						text += '</select></td></tr>';
 
-                    index = (index + 1);
-                }
+						index = (index + 1);
+					}
+
+				}
+
                 $('#devices').append(text);
 
                 $('input, .delete-device').each(function () {
@@ -76,20 +62,24 @@
                 });
 		}
 
+
 		function add_row(){
-			let index = $('tr').length;
+            let index = $('tr').length;
+            // index = ""
 			//TODO: add overwrite protection for existing index number if a previous device was removed from the list
 
 			let text = '';
 
-					text += '<tr id="' + index+ '" class="delete-device"><td><span id="'+ index + '-index">' + index + '</span></td>'
+					text += '<tr id="' + index + '" class="delete-device"><td><span id="'+ index + '-index">' + index + '</span></td>'
+					text += '<td> <input id="'+ index + '-Name" type="text" disabled="true" class="center-align input-field" value="<will be automatically detected>"></td>'
 					text += '<td> <input id="'+ index + '-ip" type="text" class="center-align input-field" value="192.168.xxx.xxx"></td>'
-					text += '<td> <input id="'+ index + '-port" type="number" class="center-align input-field" value="80"></td>'
-					text += '<td>' + '' +
-						'<a id="'+ index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
+					// text += '<td>' + '' +
+					// 	'<a id="'+ index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
 					text += '</select></td></tr>';
 
-			$('#devices').append(text);
+            $('#devices').append(text);
+            
+            $('#devices_new').append(text);
 
 
             $('input').each(function () {
@@ -113,34 +103,40 @@
 
 
 		// This will be called by the admin adapter when the settings page loads
-		function load(settings, onChange) {	
-			device_array = settings.devices;
-			_onChange = onChange;
-
-			if (!settings) return;
-
-			socket.emit('getObject', 'system.config', function (err, obj) {
-             secret = (obj.native ? obj.native.secret : '') || 'Zgfr56gFe87jJOM';
-             getTableValues(settings);
-		   });
-
-
-			 
+        function load(settings, onChange) {
+            _onChange = onChange;
+            // example: select elements with id=key and class=value and insert value
+            if (!settings) return;
+            $('.value').each(function () {
+                let $key = $(this);
+                let id = $key.attr('id');
+                if ($key.attr('type') === 'checkbox') {
+                    // do not call onChange direct, because onChange could expect some arguments
+                    $key.prop('checked', settings[id])
+                        .on('change', () => onChange())
+                        ;
+                } else {
+                    // do not call onChange direct, because onChange could expect some arguments
+                    $key.val(settings[id])
+                        .on('change', () => onChange())
+                        .on('keyup', () => onChange())
+                }
+			});
+            emitDevices();
+			onChange(false);
+			
 			$('#add-device').click(function(){
 			add_row();
 			});
-
-            $(document).on('click', '[id$=-delete]', function(obj){
-               let id = obj.currentTarget.id;
-               id = id.replace('-delete', '');
-               $('#' + id).remove();
-               onChange();
-           });
-
-			onChange(false);
-			// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
-			M.updateTextFields();
-		}
+			$(document).on('click', '[id$=-delete]', function(obj){
+                let id = obj.currentTarget.id;
+                id = id.replace('-delete', '');
+                $('#' + id).remove();
+                onChange();
+            });
+            // reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
+            M.updateTextFields();
+        }
 
 		// This will be called by the admin adapter when the user presses the save button
 		function save(callback) {
@@ -148,17 +144,17 @@
             let i = 0;
             $('tbody > tr').each(function(){
                 i = i+1;
-                let username = $('#' + i + '-username').val();
-                let password = $('#' + i + '-password').val();
                 let ip = $('#' + i + '-ip').val();
-                let port = $('#' + i + '-port').val();
+                console.log('IP : ' + JSON.stringify(ip));
 
                 // let encrypted = encrypt(secret, password);
 
                 if(!obj.devices){
-                    obj.devices = {1:{ip: ip, port: port}};
+                    obj.devices = {1:{ip: ip}};
+                    obj.devices = {[ip]:{ip: ip}};
+                    // obj.devices[ip] = {ip: ip};
                 }else{
-                    obj.devices[i] = {ip: ip, port: port};
+                    obj.devices[ip] = {ip: ip};
                 }
 
                 console.log(JSON.stringify(obj));
@@ -167,7 +163,20 @@
 
 
         callback(obj);
- 	 }
+	  }
+
+	  function emitDevices(){
+            socket.emit('getObjectView', 'system', 'device', { startkey: 'wled.' + instance + '.',  endkey: 'wled.' + instance + '.\u9999', include_docs: true }, function (err, _devices) {
+                socket.emit('getStates', function (err, _values) {
+                    let namespace = 'wled.' + instance + '.';
+					let len = namespace.length;
+                    if (_devices && _devices.rows && _devices.rows.length) {
+						console.log('Loopje : ' + len );
+						loadTable(_devices.rows);
+                    }
+                });
+            });
+        }
 
 	</script>
 
@@ -183,29 +192,32 @@
 			</div>
 		</div>
 		<div class="section">
-			<h6 class="translate">Devices are automatically detected !</h6>
-		</div>
-		<!--
+			<h6 class="translate">Devices are automatically detected and listend here! To-Do : Add manually</h6>
+            <!--
 		<div class="row">
 				<a id="add-device" class="table-button-add waves-effect waves-light btn blue translate"><i class="large left material-icons">add_circle</i>Add Device</a>
 		</div>
-		<div class="col s10 m10 l10 xl10 row">
+            -->
+        <div class="col s10 m10 l10 xl10 row">
 			<div class="table-values-div">
                 <table class="table-values centered">
                     <thead>
 						<tr>
-							<th class="translate" > </th>
-							<th class="translate" >IP</th>
-							<th class="translate">Remove</th>
+							<th class="translate" >ID</th>
+							<th class="translate" >Name</th>
+                            <th class="translate" >IP</th>
+                            <!--
+                            <th class="translate">Remove</th>
+                            -->
 						</tr>
                     </thead>
 					<tbody id="devices"></tbody>	
                 </table>
 			</div>
 		</div>
-		-->
+
 	</div>
 
 </body>
 
-</html>
+</html>	

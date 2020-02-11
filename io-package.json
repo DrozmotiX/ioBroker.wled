@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.4",
+		"version": "0.1.5",
 		"news": {
+			"0.1.5 ": {
+				"en": "Stable beta release from now installable by ioBroker admin interface.",
+				"de": "Stabile Beta-Version ab sofort über die ioBroker-Administrationsoberfläche installierbar.",
+				"ru": "Стабильная бета-версия теперь устанавливается через интерфейс администратора ioBroker.",
+				"pt": "Versão beta estável a partir de agora instalável pela interface de administração do ioBroker.",
+				"nl": "Stabiele bètaversie vanaf nu te installeren door ioBroker-beheerinterface.",
+				"fr": "Version bêta stable désormais installable par l'interface d'administration ioBroker.",
+				"it": "Versione beta stabile da ora installabile dall'interfaccia di amministrazione di ioBroker.",
+				"es": "Versión beta estable a partir de ahora instalable por la interfaz de administración ioBroker.",
+				"pl": "Stabilna wersja beta od teraz do zainstalowania przez interfejs administracyjny ioBroker.",
+				"zh-cn": "现在可以通过ioBroker管理界面安装稳定的beta版本。"
+			},
 			"0.1.4": {
 				"en": "New configuration page + color palettes drop down menu",
 				"de": "Neue Konfigurationsseite + Dropdown-Menü für Farbpaletten",
@@ -92,7 +104,7 @@
 		"icon": "wled.png",
 		"enabled": true,
 		"extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.wled/master/admin/wled.png",
-		"readme": "https://github.com/iobroker-community-adapters/ioBroker.wled/blob/master/README.md",
+		"readme": "https://github.com/iobroker-community-adapters/ioBroker.wled/blob/master/readme.md",
 		"loglevel": "info",
 		"mode": "daemon",
 		"type": "lighting",

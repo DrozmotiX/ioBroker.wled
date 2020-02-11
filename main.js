@@ -40,8 +40,17 @@ class Wled extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
+		// Create Info channel
+		await this.setObjectNotExistsAsync('info', {
+			type: 'channel',
+			common: {
+				name: 'Basic information',
+			},
+			native: {},
+		});
+
 		// Connection state should be zero at lunch, only true if at least 1 device is connected
-		this.setState('info.connection', true, true);
+		this.create_state('info.connection', 'Connection', false);
 
 		// Run Autodetect (Bonjour - Service, mDNS to be handled)
 		await this.scan_devices();
@@ -52,12 +61,17 @@ class Wled extends utils.Adapter {
 	 * @param {() => void} callback
 	 */
 	onUnload(callback) {
+		
+		// Clear running polling timers
+		if (scan_timer) {clearTimeout(scan_timer); scan_timer = null;}
+		if (polling) {clearTimeout(polling); polling = null;}
 		try {
 			this.log.debug('cleaned everything up...');
 			this.setState('info.connection', false, true);
 			callback();
-		} catch (e) {
+		} catch (error) {
 			callback();
+			this.log.error('Error at adapter stop : ' + error);
 		}
 	}
 
@@ -214,16 +228,7 @@ class Wled extends utils.Adapter {
 			const device_id = objArray['info'].mac;	
 			this.log.debug ('Data received from WLED device ' + device_id + ' : ' + JSON.stringify(objArray));
 
-			// Create Device, channel id by MAC-Adress
-			await this.setObjectNotExistsAsync(device_id, {
-				type: 'device',
-				common: {
-					name: objArray['info'].name,
-				},
-				native: {},
-			});
-
-			// Ensure relevant information for polling and instance configuration is part of device object
+			// Create Device, channel id by MAC-Adress and ensure relevant information for polling and instance configuration is part of device object
 			await this.extendObjectAsync(device_id, {
 				type: 'device',
 				common: {

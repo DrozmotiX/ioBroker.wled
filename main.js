@@ -429,6 +429,7 @@ class Wled extends utils.Adapter {
 			
 			// Set alive state to false if device is not reachable
 			this.setState(this.devices[index] + '._info' + '._online', {val : false, ack : true});
+			this.log.error('Read  Data error : ' + error);
 		
 		}
 		

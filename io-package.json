@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.5",
+		"version": "0.1.6",
 		"news": {
+			"0.1.6 ": {
+				"en": "HEX color states implemented",
+				"de": "HEX-Farbzustände implementiert",
+				"ru": "Реализовано цветовое состояние HEX",
+				"pt": "Estados de cores HEX implementados",
+				"nl": "HEX-kleurtoestanden geïmplementeerd",
+				"fr": "États de couleur HEX implémentés",
+				"it": "Stati di colore esadecimali implementati",
+				"es": "Estados de color HEX implementados",
+				"pl": "Zaimplementowano stany kolorów HEX",
+				"zh-cn": "十六进制颜色状态已实现"
+			},
 			"0.1.5 ": {
 				"en": "Stable beta release from now installable by ioBroker admin interface.",
 				"de": "Stabile Beta-Version ab sofort über die ioBroker-Administrationsoberfläche installierbar.",
@@ -124,5 +136,27 @@
 		"Time_Scan": 60
 	},
 	"objects": [],
-	"instanceObjects": []
+	"instanceObjects": [
+		{
+			"_id": "info",
+			"type": "channel",
+			"common": {
+				"name": "Information"
+			},
+			"native": {}
+		},
+		{
+			"_id": "info.connection",
+			"type": "state",
+			"common": {
+				"role": "indicator.connected",
+				"name": "WLED service ready to connecto to devices",
+				"type": "boolean",
+				"read": true,
+				"write": false,
+				"def": false
+			},
+			"native": {}
+		}
+	]
 }

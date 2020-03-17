@@ -42,9 +42,11 @@ If you like my work, please feel free to provide a personal donation
 
 
 ## Changelog
-### 0.1.4
-- (DutchmanNL) Implement drop down menu for color pallets
-- (DutchmanNL) New configuration page
+
+### 0.1.6 HEX color states implemented
+- (DutchmanNL) HEX color states implemented
+
+### 0.1.5 Stable Beta release
 
 ### 0.1.2
 - (DutchmanNL) Implement drop down menu for effects

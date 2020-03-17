@@ -10,12 +10,16 @@ const utils = require('@iobroker/adapter-core');
 
 // Load your modules here, e.g.:
 const axios = require('axios');
-const state_attr = require(__dirname + '/lib/state_attr.js');
+const rgbHex = require('rgb-hex'); // Lib to translate rgb to hex
+const hexRgb = require('hex-rgb'); // Lib to translate hex to rgb
+
+const stateAttr = require(__dirname + '/lib/stateAttr.js');
 const bonjour = require('bonjour')();
 // const fs = require('fs');
 
 let polling; // Polling timer
-let scan_timer, reload = false; 
+let scan_timer; // reload = false;
+let timeout = null;
 
 class Wled extends utils.Adapter {
 
@@ -40,20 +44,12 @@ class Wled extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
-		// Create Info channel
-		await this.setObjectNotExistsAsync('info', {
-			type: 'channel',
-			common: {
-				name: 'Basic information',
-			},
-			native: {},
-		});
-
-		// Connection state should be zero at lunch, only true if at least 1 device is connected
-		this.create_state('info.connection', 'Connection', false);
 
 		// Run Autodetect (Bonjour - Service, mDNS to be handled)
 		await this.scan_devices();
+
+		// Connection state to online when adapter is ready to connect devices
+		this.setState('info.connection', true, true);
 	}
 
 	/**
@@ -128,52 +124,87 @@ class Wled extends utils.Adapter {
 						// const valAsNumbers = state.val.split(',').map(s => parseInt(s));
 						const  color_root = deviceId[2] + '.' + deviceId[3] + '.' + deviceId[4] + '.' + deviceId[5];
 						this.log.debug(color_root);
-						try {
-						
-							let color_primary = await  this.getStateAsync(color_root + '.0');
-							if(!color_primary)  return;
-							this.log.debug('Primmary color before split : ' + color_primary.val);
-							try {
-								color_primary = color_primary.val.split(',').map(s => parseInt(s));
-							} catch (error) {
-								if(!color_primary)  return;
-								color_primary = color_primary.val;
-							}
-	
-							let color_secondary = await  this.getStateAsync(color_root + '.1');
-							if(!color_secondary)  return;
-							this.log.debug('Secondary color : ' + color_secondary.val);
-							try {
-								color_secondary = color_secondary.val.split(',').map(s => parseInt(s));
-							} catch (error) {
-								if(!color_secondary)  return;
-								color_secondary = color_secondary.val;
-							}
-	
-							let color_tertiary = await  this.getStateAsync(color_root + '.2');
-							if(!color_tertiary)  return;
-							this.log.debug('Tertary color : ' + color_tertiary.val);
-							try {
-								color_tertiary = color_tertiary.val.split(',').map(s => parseInt(s));
-							} catch (error) {
-								if(!color_tertiary)  return;
-								color_tertiary = color_tertiary.val;
-							}
-	
-							this.log.debug('Color values from states : ' + color_primary + ' : ' + color_secondary + ' : ' + color_tertiary);
-							
-							const rgb_all = [color_primary , color_secondary , color_tertiary];
-														
-	
-							values = {
-								'seg': {
-									'id': valAsNumbers, 
-									'col':rgb_all
-								}};
+						if (deviceId[6] === '0_HEX' || deviceId[6] === '1_HEX' || deviceId[6] === '2_HEX') {
 
+							this.log.debug('HEX color change initiated, convert to RGB and send data');
+
+							try {
+								
+								const colorPrimaryHex = await  this.getStateAsync(color_root + '.0_HEX');
+								if(!colorPrimaryHex)  return;
+								const colorSecondaryHex = await  this.getStateAsync(color_root + '.1_HEX');
+								if(!colorSecondaryHex)  return;
+								const colorTertiaryHex = await  this.getStateAsync(color_root + '.1_HEX');
+								if(!colorTertiaryHex)  return;
+
+								const colorPrimaryRGB = hexRgb(colorPrimaryHex.val);
+								const colorSecondaryRGB = hexRgb(colorSecondaryHex.val);
+								const colorTertiaryRGB = hexRgb(colorTertiaryHex.val);
 									
-						} catch (error) {
-							this.log.error(error);
+								const rgb_all = [[colorPrimaryRGB.red,colorPrimaryRGB.green,colorPrimaryRGB.blue] , [colorSecondaryRGB.red,colorSecondaryRGB.green,colorSecondaryRGB.blue] , [colorTertiaryRGB.red,colorTertiaryRGB.green,colorTertiaryRGB.blue]];
+
+								this.log.debug('Converted RGB values of HEX input : ' + colorPrimaryRGB + ' : ' + colorSecondaryRGB + ' : ' + colorTertiaryRGB);
+
+								values = {
+									'seg': {
+										'id': valAsNumbers, 
+										'col':rgb_all
+									}};
+									
+							} catch (error) {
+								this.log.error('Hex conversion issue : ' + error);
+							}
+
+						} else if ((deviceId[6] === '0' || deviceId[6] === '1' || deviceId[6] === '2') ){
+
+							this.log.debug('RGB color change initiated, convert to RGB and send data');
+
+							try {
+							
+								let color_primary = await  this.getStateAsync(color_root + '.0');
+								if(!color_primary)  return;
+								this.log.debug('Primmary color before split : ' + color_primary.val);
+								try {
+									color_primary = color_primary.val.split(',').map(s => parseInt(s));
+								} catch (error) {
+									if(!color_primary)  return;
+									color_primary = color_primary.val;
+								}
+		
+								let color_secondary = await  this.getStateAsync(color_root + '.1');
+								if(!color_secondary)  return;
+								this.log.debug('Secondary color : ' + color_secondary.val);
+								try {
+									color_secondary = color_secondary.val.split(',').map(s => parseInt(s));
+								} catch (error) {
+									if(!color_secondary)  return;
+									color_secondary = color_secondary.val;
+								}
+		
+								let color_tertiary = await  this.getStateAsync(color_root + '.2');
+								if(!color_tertiary)  return;
+								this.log.debug('Tertary color : ' + color_tertiary.val);
+								try {
+									color_tertiary = color_tertiary.val.split(',').map(s => parseInt(s));
+								} catch (error) {
+									if(!color_tertiary)  return;
+									color_tertiary = color_tertiary.val;
+								}
+		
+								this.log.debug('Color values from states : ' + color_primary + ' : ' + color_secondary + ' : ' + color_tertiary);
+								
+								const rgb_all = [color_primary , color_secondary , color_tertiary];
+															
+								values = {
+									'seg': {
+										'id': valAsNumbers, 
+										'col':rgb_all
+									}};
+
+										
+							} catch (error) {
+								this.log.error(error);
+							}
 						}
 					} else {
 
@@ -205,7 +236,11 @@ class Wled extends utils.Adapter {
 				if (result.success === true){
 					// Set state aknowledgement if  API call was succesfully
 					this.setState(id, {ack : true});
-					this.read_data(deviceId[2]);
+					(function () {if (timeout) {clearTimeout(timeout); timeout = null;}})();
+					timeout = setTimeout( () => {
+						this.read_data(deviceId[2]);
+					}, 500);
+					
 				}
 			}
 
@@ -223,214 +258,231 @@ class Wled extends utils.Adapter {
 
 		// Error handling needed!
 		try {
-
 			const objArray = await this.getAPI('http://' + index + '/json');
 			const device_id = objArray['info'].mac;	
 			this.log.debug ('Data received from WLED device ' + device_id + ' : ' + JSON.stringify(objArray));
 
-			// Create Device, channel id by MAC-Adress and ensure relevant information for polling and instance configuration is part of device object
-			await this.extendObjectAsync(device_id, {
-				type: 'device',
-				common: {
-					name : objArray['info'].name
-				},
-				native: { 
-					ip : index,
-					mac : objArray['info'].mac,
-					name : objArray['info'].name
-				}
-			});
+			try {
 
-			// Update adapter workig state, set connection state to true if at least  1 device is connected
-			await this.create_state('info.connection', 'connection', true);
-
-			// Update device workig state
-			await this.create_state(device_id + '._info' + '._online', 'online', true);
-			
-			// build effects array
-
-			for (const i in objArray.effects) {
-
-				this.effects[i] = objArray.effects[i];
-			}
-
-			for (const i in objArray.palettes) {
-
-				this.palettes[i] = objArray.palettes[i];
-			}
-
-			// Read info Channel
-			for (const i in objArray['info']){
-
-				this.log.debug('Datatype : ' + typeof(objArray['info'][i]));
-
-				// Create Info channel
-				await this.setObjectNotExistsAsync(device_id + '._info', {
-					type: 'channel',
+				// Create Device, channel id by MAC-Adress and ensure relevant information for polling and instance configuration is part of device object
+				await this.extendObjectAsync(device_id, {
+					type: 'device',
 					common: {
-						name: 'Basic information',
+						name : objArray['info'].name
 					},
-					native: {},
+					native: { 
+						ip : index,
+						mac : objArray['info'].mac,
+						name : objArray['info'].name
+					}
 				});
 
-				// Create Chanels for led and  wifi configuration
-				switch (i) {
-					case ('leds'):
-						this.setObjectNotExistsAsync(device_id + '._info.leds', {
-							type: 'channel',
-							common: {
-								name: 'LED stripe configuration	',
-							},
-							native: {},
-						});
-						
-						break;
+				// Update adapter workig state, set connection state to true if at least  1 device is connected
+				await this.create_state('info.connection', 'connection', true);
 
-					case ('wifi'):
-						this.setObjectNotExistsAsync(device_id + '._info.wifi', {
-							type: 'channel',
-							common: {
-								name: 'Wifi configuration	',
-							},
-							native: {},
-						});
-						
-						break;
+				// Update device workig state
+				await this.create_state(device_id + '._info' + '._online', 'online', true);
+				
+				// build effects array
 
-					default:
-						
+				for (const i in objArray.effects) {
+
+					this.effects[i] = objArray.effects[i];
 				}
 
-				// Create states, ensure object structures are reflected in tree
-				if (typeof(objArray['info'][i]) !== 'object'){
+				for (const i in objArray.palettes) {
 
-					// Default channel creation
-					this.log.debug('State created : ' +i + ' : ' + JSON.stringify(objArray['info'][i]));
-					this.create_state(device_id + '._info.' + i ,i,objArray['info'][i],true);
-
-				} else {
-					for (const y in objArray['info'][i]){
-						this.log.debug('State created : ' + y + ' : ' + JSON.stringify(objArray['info'][i][y]));
-						this.create_state(device_id + '._info.' + i + '.' + y,y,objArray['info'][i][y],true);
-					}
+					this.palettes[i] = objArray.palettes[i];
 				}
 
-			}
-			
-			// Read state Channel
-			for (const i in objArray['state']){
+				// Read info Channel
+				for (const i in objArray['info']){
 
-				this.log.debug('Datatype : ' + typeof(objArray['state'][i]));
+					this.log.debug('Datatype : ' + typeof(objArray['info'][i]));
 
-				// Create Chanels for led and  wifi configuration
-				switch (i) {
-					case ('ccnf'):
-						this.setObjectNotExistsAsync(device_id + '.ccnf', {
-							type: 'channel',
-							common: {
-								name: 'ccnf',
-							},
-							native: {},
-						});
-						
-						break;
+					// Create Info channel
+					await this.setObjectNotExistsAsync(device_id + '._info', {
+						type: 'channel',
+						common: {
+							name: 'Basic information',
+						},
+						native: {},
+					});
 
-					case ('nl'):
-						this.setObjectNotExistsAsync(device_id + '.nl', {
-							type: 'channel',
-							common: {
-								name: 'Nightlight',
-							},
-							native: {},
-						});
-						
-						break;
-
-					case ('udpn'):
-						this.setObjectNotExistsAsync(device_id + '.udpn', {
-							type: 'channel',
-							common: {
-								name: 'Broadcast (UDP sync)',
-							},
-							native: {},
-						});
-						
-						break;
-
-					case ('seg'):
-
-						this.log.debug('Segment Array : ' + JSON.stringify(objArray['state'][i]));
-
-						this.setObjectNotExistsAsync(device_id + '.seg', {
-							type: 'channel',
-							common: {
-								name: 'Segmentation',
-							},
-							native: {},
-						});
-
-						for (const y in objArray['state'][i]){
-
-							this.setObjectNotExistsAsync(device_id + '.seg.' + y, {
+					// Create Chanels for led and  wifi configuration
+					switch (i) {
+						case ('leds'):
+							this.setObjectNotExistsAsync(device_id + '._info.leds', {
 								type: 'channel',
 								common: {
-									name: 'Segment ' + y,
+									name: 'LED stripe configuration	',
+								},
+								native: {},
+							});
+							
+							break;
+
+						case ('wifi'):
+							this.setObjectNotExistsAsync(device_id + '._info.wifi', {
+								type: 'channel',
+								common: {
+									name: 'Wifi configuration	',
+								},
+								native: {},
+							});
+							
+							break;
+
+						default:
+							
+					}
+
+					// Create states, ensure object structures are reflected in tree
+					if (typeof(objArray['info'][i]) !== 'object'){
+
+						// Default channel creation
+						this.log.debug('State created : ' +i + ' : ' + JSON.stringify(objArray['info'][i]));
+						this.create_state(device_id + '._info.' + i ,i,objArray['info'][i],true);
+
+					} else {
+						for (const y in objArray['info'][i]){
+							this.log.debug('State created : ' + y + ' : ' + JSON.stringify(objArray['info'][i][y]));
+							this.create_state(device_id + '._info.' + i + '.' + y,y,objArray['info'][i][y],true);
+						}
+					}
+
+				}
+				
+				// Read state Channel
+				for (const i in objArray['state']){
+
+					this.log.debug('Datatype : ' + typeof(objArray['state'][i]));
+
+					// Create Chanels for led and  wifi configuration
+					switch (i) {
+						case ('ccnf'):
+							this.setObjectNotExistsAsync(device_id + '.ccnf', {
+								type: 'channel',
+								common: {
+									name: 'ccnf',
+								},
+								native: {},
+							});
+							
+							break;
+
+						case ('nl'):
+							this.setObjectNotExistsAsync(device_id + '.nl', {
+								type: 'channel',
+								common: {
+									name: 'Nightlight',
+								},
+								native: {},
+							});
+							
+							break;
+
+						case ('udpn'):
+							this.setObjectNotExistsAsync(device_id + '.udpn', {
+								type: 'channel',
+								common: {
+									name: 'Broadcast (UDP sync)',
+								},
+								native: {},
+							});
+							
+							break;
+
+						case ('seg'):
+
+							this.log.debug('Segment Array : ' + JSON.stringify(objArray['state'][i]));
+
+							this.setObjectNotExistsAsync(device_id + '.seg', {
+								type: 'channel',
+								common: {
+									name: 'Segmentation',
 								},
 								native: {},
 							});
 
-							for (const x in objArray['state'][i][y]){
-								this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(objArray['state'][i][y]));
+							for (const y in objArray['state'][i]){
 
-								if ( x !== 'col'){
+								this.setObjectNotExistsAsync(device_id + '.seg.' + y, {
+									type: 'channel',
+									common: {
+										name: 'Segment ' + y,
+									},
+									native: {},
+								});
 
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x , x,objArray['state'][i][y][x],true);
+								for (const x in objArray['state'][i][y]){
+									this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(objArray['state'][i][y]));
 
-								} else {
-									this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(objArray['state'][i][y][x][0]));
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color',objArray['state'][i][y][x][0],true);	
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color (background)',objArray['state'][i][y][x][1],true);
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color',objArray['state'][i][y][x][2],true);
+									if ( x !== 'col'){
+
+										this.create_state(device_id + '.' + i + '.' + y + '.' + x , x,objArray['state'][i][y][x],true);
+
+									} else {
+										this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(objArray['state'][i][y][x][0]));
+										let primaryHex = objArray['state'][i][y][x][0].toString().split(',');
+										primaryHex = rgbHex(parseInt(primaryHex[0]),parseInt(primaryHex[1]),parseInt(primaryHex[2]));
+										let secondaryHex = objArray['state'][i][y][x][1].toString().split(',');
+										secondaryHex = rgbHex(parseInt(secondaryHex[0]),parseInt(secondaryHex[1]),parseInt(secondaryHex[2]));
+										let tertiaryHex = objArray['state'][i][y][x][2].toString().split(',');
+										tertiaryHex = rgbHex(parseInt(tertiaryHex[0]),parseInt(tertiaryHex[1]),parseInt(tertiaryHex[2]));
+										
+										this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB',objArray['state'][i][y][x][0],true);
+										this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0_HEX', 'Primary Color HEX','#' + primaryHex,true);		
+										this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color RGB (background)',objArray['state'][i][y][x][1],true);
+										this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1_HEX', 'Secondary Color HEX (background)','#' + secondaryHex,true);
+										this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color RGB',objArray['state'][i][y][x][2],true);
+										this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2_HEX', 'Tertiary Color HEX','#' + tertiaryHex,true);
+									}
 								}
 							}
-						}
+							
+							break;
+
+						default:
+							
+					}
+
+					// Create states, ensure object structures are reflected in tree
+					if (typeof(objArray['state'][i]) !== 'object'){
+
+						// Default channel creation
+						this.log.debug('Default state created : ' +i + ' : ' + JSON.stringify(objArray['state'][i]));
+						this.create_state(device_id + '.' + i ,i,objArray['state'][i],true);
+
+					} else {
 						
-						break;
-
-					default:
-						
-				}
-
-				// Create states, ensure object structures are reflected in tree
-				if (typeof(objArray['state'][i]) !== 'object'){
-
-					// Default channel creation
-					this.log.debug('Default state created : ' +i + ' : ' + JSON.stringify(objArray['state'][i]));
-					this.create_state(device_id + '.' + i ,i,objArray['state'][i],true);
-
-				} else {
-					
-					for (const y in objArray['state'][i]){
-						if (typeof(objArray['state'][i][y]) !== 'object'){
-							this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(objArray['state'][i][y]));
-							this.create_state(device_id + '.' + i + '.' + y,y,objArray['state'][i][y],true);
+						for (const y in objArray['state'][i]){
+							if (typeof(objArray['state'][i][y]) !== 'object'){
+								this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(objArray['state'][i][y]));
+								this.create_state(device_id + '.' + i + '.' + y,y,objArray['state'][i][y],true);
+							}
 						}
 					}
 				}
+
+				// Create additional  states not included in JSON-API of WLED
+				this.create_state(device_id + '.tt','tt',null,true);
+				this.create_state(device_id + '.psave','psave',null,true);
+				this.create_state(device_id + '.udpn.nn','nn',null,true);
+				this.create_state(device_id + '.time','time',null,true);
+
+			} catch (error) {
+				
+				// Set alive state to false if device is not reachable
+				this.setState(this.devices[index] + '._info' + '._online', {val : false, ack : true});
+				this.log.error('Read Data error : ' + error);
+				this.log.error ('Debug information for developer : ' + JSON.stringify(objArray));
+			
 			}
 
-			// Create additional  states not included in JSON-API of WLED
-			this.create_state(device_id + '.tt','tt',null,true);
-			this.create_state(device_id + '.psave','psave',null,true);
-			this.create_state(device_id + '.udpn.nn','nn',null,true);
-			this.create_state(device_id + '.time','time',null,true);
-
 		} catch (error) {
-			
-			// Set alive state to false if device is not reachable
-			this.setState(this.devices[index] + '._info' + '._online', {val : false, ack : true});
-			this.log.error('Read  Data error : ' + error);
-		
+			this.log.error('API call failed : ' + error);
+			return;
 		}
 		
 	}
@@ -489,6 +541,7 @@ class Wled extends utils.Adapter {
 	// Scan network  with Bonjour service and build array for data-polling
 	async scan_devices(){
 		// browse for all wled devices
+		this.log.debug('Sending Bonjour broadcast for device discovery');
 		await bonjour.find({'type': 'wled'}, (service) => {
 		
 			const id = service.txt.mac;
@@ -534,12 +587,12 @@ class Wled extends utils.Adapter {
 		try {
 
 			// Try to get details from state lib, if not use defaults. throw warning is states is not known in attribute list
-			if((state_attr[name] === undefined)){this.log.warn('State attribute definition missing for + ' + name);}
-			const writable = (state_attr[name] !== undefined) ?  state_attr[name].write || false : false;
-			const state_name = (state_attr[name] !== undefined) ?  state_attr[name].name || name : name;
-			const role = (state_attr[name] !== undefined) ?  state_attr[name].role || 'state' : 'state';
-			const type = (state_attr[name] !== undefined) ?  state_attr[name].type || 'mixed' : 'mixed';
-			const unit = (state_attr[name] !== undefined) ?  state_attr[name].unit || '' : '';
+			if((stateAttr[name] === undefined)){this.log.warn('State attribute definition missing for + ' + name);}
+			const writable = (stateAttr[name] !== undefined) ?  stateAttr[name].write || false : false;
+			const state_name = (stateAttr[name] !== undefined) ?  stateAttr[name].name || name : name;
+			const role = (stateAttr[name] !== undefined) ?  stateAttr[name].role || 'state' : 'state';
+			const type = (stateAttr[name] !== undefined) ?  stateAttr[name].type || 'mixed' : 'mixed';
+			const unit = (stateAttr[name] !== undefined) ?  stateAttr[name].unit || '' : '';
 			this.log.debug('Write value : ' + writable);
 
 			await this.setObjectNotExistsAsync(state, {

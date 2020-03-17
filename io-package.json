@@ -1,9 +1,21 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.6",
+		"version": "0.1.7",
 		"news": {
-			"0.1.6 ": {
+			"0.1.7": {
+				"en": "Fixed error when API call fails",
+				"de": "Fehler behoben, wenn der API-Aufruf fehlschlägt",
+				"ru": "Исправлена ошибка при сбое вызова API",
+				"pt": "Corrigido o erro quando a chamada da API falha",
+				"nl": "Vaste fout wanneer API-aanroep mislukt",
+				"fr": "Correction d'une erreur lorsque l'appel d'API échoue",
+				"it": "Risolto errore in caso di errore nella chiamata API",
+				"es": "Se corrigió el error cuando falla la llamada a la API",
+				"pl": "Naprawiono błąd, gdy połączenie API nie powiedzie się",
+				"zh-cn": "修复了API调用失败时的错误"
+			},		
+			"0.1.6": {
 				"en": "HEX color states implemented",
 				"de": "HEX-Farbzustände implementiert",
 				"ru": "Реализовано цветовое состояние HEX",
@@ -15,7 +27,7 @@
 				"pl": "Zaimplementowano stany kolorów HEX",
 				"zh-cn": "十六进制颜色状态已实现"
 			},
-			"0.1.5 ": {
+			"0.1.5": {
 				"en": "Stable beta release from now installable by ioBroker admin interface.",
 				"de": "Stabile Beta-Version ab sofort über die ioBroker-Administrationsoberfläche installierbar.",
 				"ru": "Стабильная бета-версия теперь устанавливается через интерфейс администратора ioBroker.",

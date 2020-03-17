@@ -43,6 +43,9 @@ If you like my work, please feel free to provide a personal donation
 
 ## Changelog
 
+### 0.1.7 bugfix
+- (DutchmanNL) Fixed error when API call fails (write warning to log and retry at intervall time)
+
 ### 0.1.6 HEX color states implemented
 - (DutchmanNL) HEX color states implemented
 

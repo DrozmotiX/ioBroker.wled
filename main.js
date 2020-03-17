@@ -259,11 +259,15 @@ class Wled extends utils.Adapter {
 		// Error handling needed!
 		try {
 			const objArray = await this.getAPI('http://' + index + '/json');
-			const device_id = objArray['info'].mac;	
-			this.log.debug ('Data received from WLED device ' + device_id + ' : ' + JSON.stringify(objArray));
+			if(!objArray) {
+				this.log.warn('API call error, will retry in shedule interval !');
+				return;
+			} else {
+				this.log.debug('Data received from WLED device ' + JSON.stringify(objArray));
+			}
 
 			try {
-
+				const device_id = objArray['info'].mac;	
 				// Create Device, channel id by MAC-Adress and ensure relevant information for polling and instance configuration is part of device object
 				await this.extendObjectAsync(device_id, {
 					type: 'device',

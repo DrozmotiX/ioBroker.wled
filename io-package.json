@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.8",
+		"version": "0.1.9",
 		"news": {
+			"0.1.9": {
+				"en": "Code optimization",
+				"de": "Codeoptimierung",
+				"ru": "Оптимизация кода",
+				"pt": "Otimização de código",
+				"nl": "Code optimalisatie",
+				"fr": "Optimisation du code",
+				"it": "Ottimizzazione del codice",
+				"es": "Optimización de código",
+				"pl": "Optymalizacja kodu",
+				"zh-cn": "代码优化"
+			},	
 			"0.1.8": {
 				"en": "Solved incorrect formated API call at state changes causing warning message",
 				"de": "Ein falsch formatierter API-Aufruf bei Statusänderungen, die eine Warnmeldung verursachten, wurde behoben",

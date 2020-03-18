@@ -46,7 +46,7 @@ class Wled extends utils.Adapter {
 	async onReady() {
 
 		// Run Autodetect (Bonjour - Service, mDNS to be handled)
-		await this.scan_devices();
+		await this.scanDevices();
 
 		// Connection state to online when adapter is ready to connect devices
 		this.setState('info.connection', true, true);
@@ -499,7 +499,7 @@ class Wled extends utils.Adapter {
 		for (const i in this.devices) {
 			// ( ()  => {if (polling[this.devices[i]]) {clearTimeout(polling[this.devices[i]]); polling[this.devices[i]] = null;}})();
 	
-			this.read_data(i);
+			this.readData(i);
 			this.log.debug('Getting data for ' + this.devices[i]);
 			
 		}
@@ -543,17 +543,20 @@ class Wled extends utils.Adapter {
 	}
 	
 	// Scan network  with Bonjour service and build array for data-polling
-	async scan_devices(){
+	async scanDevices(){
 		// browse for all wled devices
-		this.log.debug('Sending Bonjour broadcast for device discovery');
-		await bonjour.find({'type': 'wled'}, (service) => {
-		
-			const id = service.txt.mac;
-			const ip = service.referer.address;
+		this.log.debug('Starting Bonjour service listening to new WLED devices');
+
+		const browser =  await bonjour.find({'type': 'wled'});
+
+		// Event listener if new devices are detected
+		browser.on('up', (data) => {
+			const id = data.txt.mac;
+			const ip = data.referer.address;
 
 			// Check if device is already know
 			if (this.devices[ip] === undefined) {
-				this.log.info('Device ' + service.name + ' found on IP ' + service.referer.address);
+				this.log.info('Device ' + data.name + ' found on IP ' + data.referer.address);
 
 				//  Add device to polling array
 				// this.devices[id] = ip;
@@ -574,18 +577,10 @@ class Wled extends utils.Adapter {
 
 			this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
 		});
-
-		// Rerun scan every minute
-		(function () {if (scan_timer) {clearTimeout(scan_timer); scan_timer = null;}})();
-		scan_timer = setTimeout( () => {
-			this.scan_devices();
-
-			// intervall should be configurable
-		}, (this.config.Time_Scan * 1000));
  
 	}
 
-	async create_state(state, name, value, expire){
+	async create_state(state, name, value){
 		this.log.debug('Create_state called for : ' + state + ' with value : ' + value);
 
 		try {

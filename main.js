@@ -239,7 +239,7 @@ class Wled extends utils.Adapter {
 					(function () {if (timeout) {clearTimeout(timeout); timeout = null;}})();
 					timeout = setTimeout( () => {
 						this.read_data(device_ip);
-					}, 50);
+					}, 150);
 					
 				}
 			}

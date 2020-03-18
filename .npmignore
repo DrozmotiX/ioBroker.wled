@@ -26,3 +26,11 @@ admin/i18n
 
 # maintenance scripts
 maintenance/**
+
+# Type checking configuration
+tsconfig.json
+tsconfig.*.json
+
+# ESLint configuration
+.eslintrc.json
+.eslintrc.js

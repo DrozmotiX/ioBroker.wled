@@ -238,8 +238,8 @@ class Wled extends utils.Adapter {
 					this.setState(id, {ack : true});
 					(function () {if (timeout) {clearTimeout(timeout); timeout = null;}})();
 					timeout = setTimeout( () => {
-						this.read_data(deviceId[2]);
-					}, 500);
+						this.read_data(device_ip);
+					}, 50);
 					
 				}
 			}
@@ -251,7 +251,7 @@ class Wled extends utils.Adapter {
 	}
 
 	async read_data(index){
-		
+		this.log.debug('Read data called : ' + JSON.stringify(index));
 		// Handle object arrays from WLED API
 		/** @type {Record<string, any>[]} */
 		// const objArray = JSON.parse(body);

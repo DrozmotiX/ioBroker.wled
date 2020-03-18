@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.7",
+		"version": "0.1.8",
 		"news": {
+			"0.1.8": {
+				"en": "Solved incorrect formated API call at state changes causing warning message",
+				"de": "Ein falsch formatierter API-Aufruf bei Statusänderungen, die eine Warnmeldung verursachten, wurde behoben",
+				"ru": "Исправлен некорректный форматированный вызов API при изменениях состояния, вызывающих предупреждение",
+				"pt": "Chamada de API formatada incorreta resolvida em alterações de estado, causando mensagem de aviso",
+				"nl": "Opgelost onjuist geformuleerde API-aanroep bij statuswijzigingen die een waarschuwingsbericht veroorzaakten",
+				"fr": "Appel d'API formaté incorrect lors des changements d'état provoquant un message d'avertissement",
+				"it": "Risolto il problema della chiamata API formattata errata alle modifiche di stato che causavano un messaggio di avviso",
+				"es": "Resuelto llamada de API formateada incorrecta en cambios de estado que causan mensaje de advertencia",
+				"pl": "Rozwiązano niepoprawnie sformatowane wywołanie API przy zmianach stanu powodujące komunikat ostrzegawczy",
+				"zh-cn": "解决了状态更改时格式错误的API调用导致警告消息的问题"
+			},	
 			"0.1.7": {
 				"en": "Fixed error when API call fails",
 				"de": "Fehler behoben, wenn der API-Aufruf fehlschlägt",

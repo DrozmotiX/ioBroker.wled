@@ -291,7 +291,7 @@ class Wled extends utils.Adapter {
 		// Read WLED API, trow warning in case of issues
 		const objArray = await this.getAPI('http://' + index + '/json');
 		if (!objArray) {
-			this.log.warn('API call error, will retry in shedule interval !');
+			this.log.debug('API call error, will retry in shedule interval !');
 			return;
 		} else {
 			this.log.debug('Data received from WLED device ' + JSON.stringify(objArray));

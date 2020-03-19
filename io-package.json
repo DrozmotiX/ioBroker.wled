@@ -152,7 +152,7 @@
 		"icon": "wled.png",
 		"enabled": true,
 		"extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.wled/master/admin/wled.png",
-		"readme": "https://github.com/iobroker-community-adapters/ioBroker.wled/blob/master/readme.md",
+		"readme": "https://github.com/iobroker-community-adapters/ioBroker.wled/blob/master/README.md",
 		"loglevel": "info",
 		"mode": "daemon",
 		"type": "lighting",

@@ -33,6 +33,7 @@ class Wled extends utils.Adapter {
 		this.on('ready', this.onReady.bind(this));
 		this.on('stateChange', this.onStateChange.bind(this));
 		this.on('unload', this.onUnload.bind(this));
+		this.on('message', this.onMessage.bind(this));
 		this.devices = {};
 		this.effects = {};
 		this.palettes = {};
@@ -284,15 +285,47 @@ class Wled extends utils.Adapter {
 		}
 	}
 
+	/**
+	 * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
+	 * Using this method requires "common.message" property to be set to true in io-package.json
+	 * @param {ioBroker.Message} obj
+	 */
+	async onMessage(obj) {
+
+		// responds to the adapter that sent the original message
+		function respond(response, that) {
+			if (obj.callback)
+				that.sendTo(obj.from, obj.command, response, obj.callback);
+		}
+
+		this.log.debug('Data from configuration received : ' + JSON.stringify(obj));
+		
+		switch(obj.command){
+			case 'addDevice':
+				this.devices[obj.message] = 'xxx';
+				// Disable check of const declaration in case function
+				// eslint-disable-next-line no-case-declarations
+				const result = await this.readData(obj.message);
+				this.log.debug('Response from Read Data : ' + JSON.stringify(result));
+				if (result === 'success') {
+					respond('success', this);	
+				} else {
+					respond('failed', this);		
+				}
+				break;
+		}
+		
+	}
+
 	// Read WLED API of device and store all values in states
 	async readData(index) {
-		this.log.debug('Read data called : ' + JSON.stringify(index));
+		this.log.info('Read data called : ' + JSON.stringify(index));
 
 		// Read WLED API, trow warning in case of issues
 		const objArray = await this.getAPI('http://' + index + '/json');
 		if (!objArray) {
-			this.log.debug('API call error, will retry in shedule interval !');
-			return;
+			this.log.info('API call error, will retry in shedule interval !');
+			return 'failed';
 		} else {
 			this.log.debug('Data received from WLED device ' + JSON.stringify(objArray));
 		}
@@ -312,9 +345,6 @@ class Wled extends utils.Adapter {
 					name: objArray['info'].name
 				}
 			});
-
-			// Update adapter workig state, set connection state to true if at least  1 device is connected
-			await this.create_state('info.connection', 'connection', true);
 
 			// Update device workig state
 			await this.create_state(device_id + '._info' + '._online', 'online', true);
@@ -348,7 +378,7 @@ class Wled extends utils.Adapter {
 				// Create Channels for led and  wifi configuration
 				switch (i) {
 					case ('leds'):
-						this.setObjectNotExistsAsync(device_id + '._info.leds', {
+						await this.setObjectNotExistsAsync(device_id + '._info.leds', {
 							type: 'channel',
 							common: {
 								name: 'LED stripe configuration	',
@@ -358,7 +388,7 @@ class Wled extends utils.Adapter {
 						break;
 
 					case ('wifi'):
-						this.setObjectNotExistsAsync(device_id + '._info.wifi', {
+						await this.setObjectNotExistsAsync(device_id + '._info.wifi', {
 							type: 'channel',
 							common: {
 								name: 'Wifi configuration	',
@@ -376,12 +406,12 @@ class Wled extends utils.Adapter {
 
 					// Default channel creation
 					this.log.debug('State created : ' + i + ' : ' + JSON.stringify(objArray['info'][i]));
-					this.create_state(device_id + '._info.' + i, i, objArray['info'][i]);
+					await this.create_state(device_id + '._info.' + i, i, objArray['info'][i]);
 
 				} else {
 					for (const y in objArray['info'][i]) {
 						this.log.debug('State created : ' + y + ' : ' + JSON.stringify(objArray['info'][i][y]));
-						this.create_state(device_id + '._info.' + i + '.' + y, y, objArray['info'][i][y]);
+						await this.create_state(device_id + '._info.' + i + '.' + y, y, objArray['info'][i][y]);
 					}
 				}
 
@@ -395,7 +425,7 @@ class Wled extends utils.Adapter {
 				// Create Channels for nested states
 				switch (i) {
 					case ('ccnf'):
-						this.setObjectNotExistsAsync(device_id + '.ccnf', {
+						await this.setObjectNotExistsAsync(device_id + '.ccnf', {
 							type: 'channel',
 							common: {
 								name: 'ccnf',
@@ -405,7 +435,7 @@ class Wled extends utils.Adapter {
 						break;
 
 					case ('nl'):
-						this.setObjectNotExistsAsync(device_id + '.nl', {
+						await this.setObjectNotExistsAsync(device_id + '.nl', {
 							type: 'channel',
 							common: {
 								name: 'Nightlight',
@@ -415,7 +445,7 @@ class Wled extends utils.Adapter {
 						break;
 
 					case ('udpn'):
-						this.setObjectNotExistsAsync(device_id + '.udpn', {
+						await this.setObjectNotExistsAsync(device_id + '.udpn', {
 							type: 'channel',
 							common: {
 								name: 'Broadcast (UDP sync)',
@@ -428,7 +458,7 @@ class Wled extends utils.Adapter {
 
 						this.log.debug('Segment Array : ' + JSON.stringify(objArray['state'][i]));
 
-						this.setObjectNotExistsAsync(device_id + '.seg', {
+						await this.setObjectNotExistsAsync(device_id + '.seg', {
 							type: 'channel',
 							common: {
 								name: 'Segmentation',
@@ -438,7 +468,7 @@ class Wled extends utils.Adapter {
 
 						for (const y in objArray['state'][i]) {
 
-							this.setObjectNotExistsAsync(device_id + '.seg.' + y, {
+							await this.setObjectNotExistsAsync(device_id + '.seg.' + y, {
 								type: 'channel',
 								common: {
 									name: 'Segment ' + y,
@@ -451,7 +481,7 @@ class Wled extends utils.Adapter {
 
 								if (x !== 'col') {
 
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x, x, objArray['state'][i][y][x]);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x, x, objArray['state'][i][y][x]);
 
 								} else {
 									this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(objArray['state'][i][y][x][0]));
@@ -465,12 +495,12 @@ class Wled extends utils.Adapter {
 									const tertiaryHex = rgbHex(parseInt(tertiaryRGB[0]), parseInt(tertiaryRGB[1]), parseInt(tertiaryRGB[2]));
 
 									// Write RGB and HEX information to states
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB', objArray['state'][i][y][x][0]);
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0_HEX', 'Primary Color HEX', '#' + primaryHex);
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color RGB (background)', objArray['state'][i][y][x][1]);
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1_HEX', 'Secondary Color HEX (background)', '#' + secondaryHex);
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color RGB', objArray['state'][i][y][x][2]);
-									this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2_HEX', 'Tertiary Color HEX', '#' + tertiaryHex);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB', objArray['state'][i][y][x][0]);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0_HEX', 'Primary Color HEX', '#' + primaryHex);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color RGB (background)', objArray['state'][i][y][x][1]);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1_HEX', 'Secondary Color HEX (background)', '#' + secondaryHex);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color RGB', objArray['state'][i][y][x][2]);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2_HEX', 'Tertiary Color HEX', '#' + tertiaryHex);
 								}
 							}
 						}
@@ -486,35 +516,37 @@ class Wled extends utils.Adapter {
 
 					// Default channel creation
 					this.log.debug('Default state created : ' + i + ' : ' + JSON.stringify(objArray['state'][i]));
-					this.create_state(device_id + '.' + i, i, objArray['state'][i]);
+					await  this.create_state(device_id + '.' + i, i, objArray['state'][i]);
 
 				} else {
 
 					for (const y in objArray['state'][i]) {
 						if (typeof (objArray['state'][i][y]) !== 'object') {
 							this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(objArray['state'][i][y]));
-							this.create_state(device_id + '.' + i + '.' + y, y, objArray['state'][i][y]);
+							await this.create_state(device_id + '.' + i + '.' + y, y, objArray['state'][i][y]);
 						}
 					}
 				}
 			}
 
 			// Create additional states not included in JSON-API of WLED but available as SET command
-			this.create_state(device_id + '.tt', 'tt', null);
-			this.create_state(device_id + '.psave', 'psave', null);
-			this.create_state(device_id + '.udpn.nn', 'nn', null);
-			this.create_state(device_id + '.time', 'time', null);
+			await this.create_state(device_id + '.tt', 'tt', null);
+			await this.create_state(device_id + '.psave', 'psave', null);
+			await this.create_state(device_id + '.udpn.nn', 'nn', null);
+			await this.create_state(device_id + '.time', 'time', null);
+
+			return 'success';
 
 		} catch (error) {
 
 			// Set alive state to false if data read fails
-			this.setState(this.devices[index] + '._info' + '._online', {
+			await this.setStateAsync(this.devices[index] + '._info' + '._online', {
 				val: false,
 				ack: true
 			});
 			this.log.error('Read Data error : ' + error);
 			this.log.error('Debug information for developer : ' + JSON.stringify(objArray));
-
+			return 'failed';
 		}
 	}
 

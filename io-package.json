@@ -1,7 +1,7 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.9",
+		"version": "0.1.9b",
 		"news": {
 			"0.1.9": {
 				"en": "Code optimization",
@@ -160,6 +160,7 @@
 		"connectionType": "local",
 		"dataSource": "poll",
 		"materialize": true,
+		"messagebox": true,
 		"dependencies": [
 			{
 				"js-controller": ">=1.4.2"

@@ -1,108 +1,104 @@
 <html>
 
 <head>
-	<!-- Load ioBroker scripts and styles-->
-	<link rel="stylesheet" type="text/css" href="../../css/adapter.css" />
-	<link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
+    <!-- Load ioBroker scripts and styles-->
+    <link rel="stylesheet" type="text/css" href="../../css/adapter.css" />
+    <link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
 
-	<script type="text/javascript" src="../../lib/js/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="../../socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="../../lib/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="../../socket.io/socket.io.js"></script>
 
-	<script type="text/javascript" src="../../js/translate.js"></script>
-	<script type="text/javascript" src="../../lib/js/materialize.js"></script>
-	<script type="text/javascript" src="../../js/adapter-settings.js"></script>
+    <script type="text/javascript" src="../../js/translate.js"></script>
+    <script type="text/javascript" src="../../lib/js/materialize.js"></script>
+    <script type="text/javascript" src="../../js/adapter-settings.js"></script>
 
-	<!-- Load our own files -->
-	<link rel="stylesheet" type="text/css" href="style.css" />
-	<script type="text/javascript" src="words.js"></script>
+    <!-- Load our own files -->
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="words.js"></script>
 
-	<script type="text/javascript">
+    <script type="text/javascript">
 
-		let _onChange;
+        let _onChange;
 
+        function loadTable(obj) {
+            let index = 1;
+            let text = '';
+            console.log('Data for table ' + JSON.stringify(obj))
+            for (i in obj) {
+                if (obj[i] !== undefined) {
+                    // index = obj[i].value.native.ip
+                    // text += '<tr id="' + index + '"><td><span id="' + index + '-index">' + index + '</span></td>'
+                    text += '<tr id="' + obj[i].value.native.ip + '"><td><span id="' + obj[i].value.native.ip + '-index">' + obj[i].value.native.mac + '</span></td>'
+                    text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value=' + obj[i].value.native.name + '></td>'
+                    text += '<td> <input id="' + index + '-ip" type="text" disabled="true" class="center-align input-field" value="' + obj[i].value.native.ip + '"></td>'
+                    // text += '<td>' + '' +
+                    // 	'<a id="' + index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
+                    text += '</select></td></tr>';
 
+                    index = (index + 1);
+                }
 
-		function loadTable(obj){
-			let  index = 1;
-			let text = '';
-
-			// console.log('Data for table ' + JSON.stringify(obj))
-            for(i in obj) {
-				if (obj[i] !== undefined) {
-                        // index = obj[i].value.native.ip
-                        // text += '<tr id="' + index + '"><td><span id="' + index + '-index">' + index + '</span></td>'
-                        text += '<tr id="' + obj[i].value.native.ip + '"><td><span id="' + obj[i].value.native.ip + '-index">' + obj[i].value.native.ip + '</span></td>'
-						text += '<td> <input id="'+ index + '-Name" type="text" disabled="true" class="center-align input-field" value=' + obj[i].value.native.name + '></td>'
-						text += '<td> <input id="' + index + '-ip" type="text" disabled="true" class="center-align input-field" value="' + obj[i].value.native.ip + '"></td>'
-						// text += '<td>' + '' +
-						// 	'<a id="' + index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
-						text += '</select></td></tr>';
-
-						index = (index + 1);
-					}
-
-				}
-
-                $('#devices').append(text);
-
-                $('input, .delete-device').each(function () {
-                    let $key = $(this);
-
-                    $key.on('click', function () {
-                        _onChange();
-                    }).keyup(function () {
-                        _onChange();
-                    });
-
-                    $key.change(function () {
-                        _onChange();
-                    }).keyup(function () {
-                        _onChange();
-                    });
-                });
-		}
-
-
-		function add_row(){
-            let index = $('tr').length;
-            // index = ""
-			//TODO: add overwrite protection for existing index number if a previous device was removed from the list
-
-			let text = '';
-
-					text += '<tr id="' + index + '" class="delete-device"><td><span id="'+ index + '-index">' + index + '</span></td>'
-					text += '<td> <input id="'+ index + '-Name" type="text" disabled="true" class="center-align input-field" value="<will be automatically detected>"></td>'
-					text += '<td> <input id="'+ index + '-ip" type="text" class="center-align input-field" value="192.168.xxx.xxx"></td>'
-					// text += '<td>' + '' +
-					// 	'<a id="'+ index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
-					text += '</select></td></tr>';
+            }
 
             $('#devices').append(text);
-            
-            $('#devices_new').append(text);
 
+            $('input, .delete-device').each(function () {
+                let $key = $(this);
+
+                $key.on('click', function () {
+                    _onChange();
+                }).keyup(function () {
+                    _onChange();
+                });
+
+                $key.change(function () {
+                    _onChange();
+                }).keyup(function () {
+                    _onChange();
+                });
+            });
+        }
+
+
+        function add_row() {
+            let index = $('tr').length;
+            // index = ""
+            //TODO: add overwrite protection for existing index number if a previous device was removed from the list
+
+            let text = '';
+
+            text += '<tr id="' + index + '" class="delete-device"><td><span id="' + index + '-index">' + index + '</span></td>'
+            text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value="<will be automatically detected>"></td>'
+            text += '<td> <input id="' + index + '-ip" type="text" class="center-align input-field" value="192.168.xxx.xxx"></td>'
+            // text += '<td>' + '' +
+            // 	'<a id="'+ index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
+            text += '</select></td></tr>';
+
+            $('#devices').append(text);
+
+            $('#devices_new').append(text);
 
             $('input').each(function () {
                 let $key = $(this);
 
-                $key.on('click', function(){
+                $key.on('click', function () {
                     _onChange();
-                }).keyup(function() {
+                }).keyup(function () {
                     _onChange();
                 });
 
-                $key.change(function() {
+                $key.change(function () {
                     _onChange();
-                }).keyup(function() {
+                }).keyup(function () {
                     _onChange();
                 });
             });
 
             M.updateTextFields();
-		}
+        }
 
 
-		// This will be called by the admin adapter when the settings page loads
+        // This will be called by the admin adapter when the settings page loads
         function load(settings, onChange) {
             _onChange = onChange;
             // example: select elements with id=key and class=value and insert value
@@ -121,14 +117,28 @@
                         .on('change', () => onChange())
                         .on('keyup', () => onChange())
                 }
-			});
+            });
             emitDevices();
-			onChange(false);
-			
-			$('#add-device').click(function(){
-			add_row();
-			});
-			$(document).on('click', '[id$=-delete]', function(obj){
+            onChange(false);
+
+            // initalize modal
+            $('.modal').modal();
+
+            $("#btn-add-device").on("click", () => {
+                console.log("Add device button executed");
+                sendTo(null, "addDevice", $("#device-ip").val(), (data) => {
+                    console.log('Message from backend : ' + data);
+                    if (data === 'success') {
+                        $("#devices > tr").remove();
+                        emitDevices(); 
+                    } else {
+                        $("#modal-error-message").modal("open");
+                    }
+
+                })
+            });
+
+            $(document).on('click', '[id$=-delete]', function (obj) {
                 let id = obj.currentTarget.id;
                 id = id.replace('-delete', '');
                 $('#' + id).remove();
@@ -138,23 +148,23 @@
             M.updateTextFields();
         }
 
-		// This will be called by the admin adapter when the user presses the save button
-		function save(callback) {
-			let obj = {};
+        // This will be called by the admin adapter when the user presses the save button
+        function save(callback) {
+            let obj = {};
             let i = 0;
-            $('tbody > tr').each(function(){
-                i = i+1;
+            $('tbody > tr').each(function () {
+                i = i + 1;
                 let ip = $('#' + i + '-ip').val();
                 console.log('IP : ' + JSON.stringify(ip));
 
                 // let encrypted = encrypt(secret, password);
 
-                if(!obj.devices){
-                    obj.devices = {1:{ip: ip}};
-                    obj.devices = {[ip]:{ip: ip}};
+                if (!obj.devices) {
+                    obj.devices = { 1: { ip: ip } };
+                    obj.devices = { [ip]: { ip: ip } };
                     // obj.devices[ip] = {ip: ip};
-                }else{
-                    obj.devices[ip] = {ip: ip};
+                } else {
+                    obj.devices[ip] = { ip: ip };
                 }
 
                 console.log(JSON.stringify(obj));
@@ -162,62 +172,99 @@
             console.log('index: ' + i);
 
 
-        callback(obj);
-	  }
+            callback(obj);
+        }
 
-	  function emitDevices(){
-            socket.emit('getObjectView', 'system', 'device', { startkey: 'wled.' + instance + '.',  endkey: 'wled.' + instance + '.\u9999', include_docs: true }, function (err, _devices) {
+        function emitDevices() {
+            socket.emit('getObjectView', 'system', 'device', { startkey: 'wled.' + instance + '.', endkey: 'wled.' + instance + '.\u9999', include_docs: true }, function (err, _devices) {
                 socket.emit('getStates', function (err, _values) {
                     let namespace = 'wled.' + instance + '.';
-					let len = namespace.length;
+                    let len = namespace.length;
                     if (_devices && _devices.rows && _devices.rows.length) {
-						console.log('Loopje : ' + len );
-						loadTable(_devices.rows);
+                        console.log('Loopje : ' + len);
+                        loadTable(_devices.rows);
                     }
                 });
             });
         }
 
-	</script>
+    </script>
 
 </head>
 
 <body>
 
-	<div class="m adapter-container">
+    <div class="m adapter-container">
 
-		<div class="row">
-			<div class="input-field col s6 m4 l6">
-				<img src="wled.png" class="logo">
-			</div>
-		</div>
-		<div class="section">
-			<h6 class="translate">Devices are automatically detected and listend here! To-Do : Add manually</h6>
-            <!--
-		<div class="row">
-				<a id="add-device" class="table-button-add waves-effect waves-light btn blue translate"><i class="large left material-icons">add_circle</i>Add Device</a>
-		</div>
-            -->
-        <div class="col s10 m10 l10 xl10 row">
-			<div class="table-values-div">
-                <table class="table-values centered">
-                    <thead>
-						<tr>
-							<th class="translate" >ID</th>
-							<th class="translate" >Name</th>
-                            <th class="translate" >IP</th>
-                            <!--
+        <div class="row">
+            <div class="input-field col s6 m4 l6">
+                <img src="wled.png" class="logo">
+            </div>
+        </div>
+        <div class="section">
+            <h6 class="translate">Devices are automatically detected and listend here! To-Do : Add manually</h6>
+
+            <div class="row">
+                <a id="add-device" class="table-button-add waves-effect waves-light btn blue modal-trigger translate"
+                    data-target="modal-add-device"><i class="large left material-icons">add_circle</i>Add Device</a>
+            </div>
+
+            <div class="col s10 m10 l10 xl10 row">
+                <div class="table-values-div">
+                    <table class="table-values centered">
+                        <thead>
+                            <tr>
+                                <th class="translate">ID</th>
+                                <th class="translate">Name</th>
+                                <th class="translate">IP</th>
+                                <!--
                             <th class="translate">Remove</th>
                             -->
-						</tr>
-                    </thead>
-					<tbody id="devices"></tbody>	
-                </table>
-			</div>
-		</div>
+                            </tr>
+                        </thead>
+                        <tbody id="devices"></tbody>
+                    </table>
+                </div>
+            </div>
 
-	</div>
+            <!-- Modal for manual ip input -->
+            <div id="modal-add-device" class="modal">
+                <div class="modal-content">
+                    <h5 class="translate center">Add device manualy</h5>
+                    <div class="row center">
+                        <div class="input-field col s3">
+                            <input placeholder="192.168.0.1" class="value" id="device-ip" type="text"></input>
+                            <label for="device-ip" class="translate">IP</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-add-device" class="btn waves-effect waves-light modal-close modal-action translate">Add</button>
+                    <button class="btn waves-effect waves-light modal-close modal-action translate"
+                        href="#!">Close</button>
+                </div>
+            </div>
+            <!-- Modal for manual ip input -->
+
+            <!-- Modal for error message -->
+            <div id="modal-error-message" class="modal">
+                <div class="content">
+                    <h5 class="translate center red">Error</h5>
+                    <div class="row center">
+                       <p class="translate">Device add failed, please enter correct IP and ensure device is reachable </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="center"> 
+                        <button class="btn waves-effect center waves-light modal-close modal-action translate"
+                        href="#!">Close</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal for error message -->
+
+        </div>
 
 </body>
 
-</html>	
+</html>

@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.1.9",
+		"version": "0.2.0",
 		"news": {
+			"0.2.0": {
+				"en": "Possibility to add devices by IP-adress implemented. (Needed for situations were autoscan fails)",
+				"de": "Möglichkeit zum Hinzufügen von Geräten per IP-Adresse implementiert. (Wird für Situationen benötigt, in denen der Autoscan fehlschlägt.)",
+				"ru": "Реализована возможность добавления устройств по IP-адресу. (Требуется для ситуаций, когда автосканирование не удается)",
+				"pt": "Possibilidade de adicionar dispositivos por endereço IP implementado. (Necessário para situações em que a verificação automática falha)",
+				"nl": "Mogelijkheid om apparaten toe te voegen via IP-adres geïmplementeerd. (Nodig voor situaties waarin autoscan mislukt)",
+				"fr": "Possibilité d'ajouter des appareils par adresse IP implémentée. (Nécessaire pour les situations où l'analyse automatique échoue)",
+				"it": "Possibilità di aggiungere dispositivi per indirizzo IP implementato. (Necessario per situazioni in cui la scansione automatica non riesce)",
+				"es": "Posibilidad de agregar dispositivos por dirección IP implementada. (Necesario para situaciones en las que el escaneo automático falla)",
+				"pl": "Wdrożono możliwość dodawania urządzeń według adresu IP. (Potrzebne w sytuacjach, gdy automatyczne skanowanie kończy się niepowodzeniem)",
+				"zh-cn": "可以通过IP地址添加设备。 （需要自动扫描失败的情况）"
+			},	
 			"0.1.9": {
 				"en": "Code optimization",
 				"de": "Codeoptimierung",

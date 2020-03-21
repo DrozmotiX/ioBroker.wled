@@ -41,6 +41,12 @@ If you like my work, please feel free to provide a personal donation
 
 ## Changelog
 
+### 0.2.0 Possibility to add devices by IP-adress
+- (DutchmanNL) Bugfix io-package
+- (DutchmanNL) Improved logging at adapter start
+- (DutchmanNL) Possibility to add devices by IP-adress implemented. (Needed for situations were autoscan fails)
+- (DutchmanNL) Ensure known devices get connected immediatly after adapter start instead of waiting for network scan
+
 ### 0.1.9 Code improvements
 - (DutchmanNL) Code cleanup and optimalisation
 - (DutchmanNL) FIX memory leak by proper handling of bonjour service

@@ -1,6 +1,6 @@
 {
   "name": "iobroker.wled",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!",
   "author": {
     "name": "DutchmanNL",
@@ -9,6 +9,9 @@
   "contributors": [
     {
       "name": "Aircoookie"
+    },
+    {
+      "name": "Jey-Cee"
     }
   ],
   "homepage": "https://github.com/iobroker-community-adapters/ioBroker.wled",

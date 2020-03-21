@@ -7,4 +7,29 @@
 	overflow: initial;
 }
 
+.center-led {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.led-green {
+	background-color: #86d686;
+}
+
+.led-gray {
+	background-color: #bababa;
+}
+
+.led-red {
+	background-color: #ff0000;
+}
+
+.led-all {
+	border-radius: 50%;
+    box-shadow: #555d0d 0 0 1px 1px, #446f44 0 0 0, inset #e44949 0 0 0;
+    height: .9em;
+    width: .9em;
+}
+
 /* Add your styles here */

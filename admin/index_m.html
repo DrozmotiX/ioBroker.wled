@@ -20,6 +20,7 @@
 
         let _onChange;
 
+        // Build table based on devices known in instanze
         function loadTable(obj) {
             let index = 1;
             let text = '';
@@ -28,13 +29,15 @@
                 if (obj[i] !== undefined) {
                     // index = obj[i].value.native.ip
                     // text += '<tr id="' + index + '"><td><span id="' + index + '-index">' + index + '</span></td>'
-                    text += '<tr id="' + obj[i].value.native.ip + '"><td><span id="' + obj[i].value.native.ip + '-index">' + obj[i].value.native.mac + '</span></td>'
+                    text += '<tr id="' + obj[i].value.native.mac + '"><td><span id="' + obj[i].value.native.mac + '-index">' + obj[i].value.native.mac + '</span></td>'
                     text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value=' + obj[i].value.native.name + '></td>'
                     text += '<td> <input id="' + index + '-ip" type="text" disabled="true" class="center-align input-field" value="' + obj[i].value.native.ip + '"></td>'
+                    text += '<td> <div class="led-all center-led led-gray"></div></td>'
+                    // text += '<td> <div class="led-green"> </div></td>'
                     // text += '<td>' + '' +
                     // 	'<a id="' + index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
-                    text += '</select></td></tr>';
-
+                    // text += '</select></td></tr>';
+                    text += '</tr>';
                     index = (index + 1);
                 }
 
@@ -42,6 +45,7 @@
 
             $('#devices').append(text);
 
+            getConnectedState();
             $('input, .delete-device').each(function () {
                 let $key = $(this);
 
@@ -97,6 +101,41 @@
             M.updateTextFields();
         }
 
+        // Get value of connection state
+        function getConnectedState() {
+
+            socket.emit('getObjectView', 'system', 'device', { startkey: 'wled.' + instance + '.', endkey: 'wled.' + instance + '.\u9999', include_docs: true }, function (err, _devices) {
+                let namespace = 'wled.' + instance + '.';
+                let len = namespace.length;
+                console.log('Return of  all devices : ' + JSON.stringify(_devices));
+                if (_devices && _devices.rows && _devices.rows.length) {
+
+                    for (const i in _devices.rows) {
+                        getState(_devices.rows[i].id + '._info._online', (err, state) => {
+                            console.log(JSON.stringify('Connection value for device : ' + _devices.rows[i].id + ' value ' + state.val));
+                            let connectState = null;
+                            if (state.val === true) {
+                                connectState = 'led-green';
+                            } else {
+                                connectState = 'led-red';
+                            }
+
+                            console.log(connectState);
+                            let tableRow = $("td").filter((index, e) => {
+                                console.log(e);
+                                return $(e).text() == _devices.rows[i].value.native.mac;
+                            }).closest("tr");
+
+                            console.log($(tableRow).attr("id"))
+                            $("#" + $(tableRow).attr("id") + "> td > .led-all").removeClass("led-gray");
+                            $("#" + $(tableRow).attr("id") + "> td > .led-all").addClass(connectState);
+                        });
+                    }
+                }
+            });
+
+        }
+
 
         // This will be called by the admin adapter when the settings page loads
         function load(settings, onChange) {
@@ -130,7 +169,7 @@
                     console.log('Message from backend : ' + data);
                     if (data === 'success') {
                         $("#devices > tr").remove();
-                        emitDevices(); 
+                        emitDevices();
                     } else {
                         $("#modal-error-message").modal("open");
                     }
@@ -175,11 +214,13 @@
             callback(obj);
         }
 
+        // Read all devices from instance
         function emitDevices() {
             socket.emit('getObjectView', 'system', 'device', { startkey: 'wled.' + instance + '.', endkey: 'wled.' + instance + '.\u9999', include_docs: true }, function (err, _devices) {
                 socket.emit('getStates', function (err, _values) {
                     let namespace = 'wled.' + instance + '.';
                     let len = namespace.length;
+                    console.log('Return of  all devices : ' + JSON.stringify(_devices));
                     if (_devices && _devices.rows && _devices.rows.length) {
                         console.log('Loopje : ' + len);
                         loadTable(_devices.rows);
@@ -217,6 +258,7 @@
                                 <th class="translate">ID</th>
                                 <th class="translate">Name</th>
                                 <th class="translate">IP</th>
+                                <th class="translate">Connected</th>
                                 <!--
                             <th class="translate">Remove</th>
                             -->
@@ -239,7 +281,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="btn-add-device" class="btn waves-effect waves-light modal-close modal-action translate">Add</button>
+                    <button id="btn-add-device"
+                        class="btn waves-effect waves-light modal-close modal-action translate">Add</button>
                     <button class="btn waves-effect waves-light modal-close modal-action translate"
                         href="#!">Close</button>
                 </div>
@@ -251,13 +294,14 @@
                 <div class="content">
                     <h5 class="translate center red">Error</h5>
                     <div class="row center">
-                       <p class="translate">Device add failed, please enter correct IP and ensure device is reachable </p>
+                        <p class="translate">Device add failed, please enter correct IP and ensure device is reachable
+                        </p>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="center"> 
+                    <div class="center">
                         <button class="btn waves-effect center waves-light modal-close modal-action translate"
-                        href="#!">Close</button>
+                            href="#!">Close</button>
                     </div>
                 </div>
             </div>

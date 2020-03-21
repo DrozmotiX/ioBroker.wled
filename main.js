@@ -323,13 +323,14 @@ class Wled extends utils.Adapter {
 	}
 
 	// Read WLED API of device and store all values in states
-	async readData(index) {
+	async readData(index, mac) {
 		this.log.debug('Read data called : ' + JSON.stringify(index));
 
 		// Read WLED API, trow warning in case of issues
 		const objArray = await this.getAPI('http://' + index + '/json');
 		if (!objArray) {
 			this.log.debug('API call error, will retry in shedule interval !');
+			await this.create_state(mac + '._info' + '._online', 'online', false);
 			return 'failed';
 		} else {
 			this.log.debug('Data received from WLED device ' + JSON.stringify(objArray));
@@ -615,7 +616,7 @@ class Wled extends utils.Adapter {
 
 		const knownDevices = await this.getDevicesAsync();
 		if (!knownDevices) return; // exit function if no known device are detected
-		this.log.debug('Try to contact known devices');
+		this.log.info('Try to contact known devices');
 
 		// Get IP-Adress of known devices and start reading data
 		for (const i in knownDevices){
@@ -626,7 +627,7 @@ class Wled extends utils.Adapter {
 			// Add IP adress to polling
 			this.devices[knownDevices[i].native.ip] = deviceMac;
 			// Refresh information
-			const result = await this.readData(deviceIP);
+			const result = await this.readData(deviceIP, deviceMac);
 			
 			// Error handling
 			if (!result || result === 'failed') {
@@ -703,7 +704,7 @@ class Wled extends utils.Adapter {
 			await this.setState(state, {
 				val: value,
 				ack: true,
-				expire: ((this.config.Time_Sync * 1000) * 2)
+				expire: ((this.config.Time_Sync) * 2)
 			});
 
 			if (name === 'fx') {

@@ -4,7 +4,7 @@ const { tests } = require('@iobroker/testing');
 // Run unit tests - See https://github.com/ioBroker/testing for a detailed explanation and further options
 tests.unit(path.join(__dirname, ".."),{
     defineMockBehavior(db, adapter) {
-        adapter.getDevicesAsync.returns([[
+        adapter.getDevicesAsync.returns([
             {
               "from": "system.adapter.wled.0",
               "user": "system.user.admin",
@@ -45,6 +45,6 @@ tests.unit(path.join(__dirname, ".."),{
                 "ownerGroup": "system.group.administrator"
               }
             }
-          ]]);
+          ]);
     }
 });

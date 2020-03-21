@@ -44,11 +44,15 @@ class Wled extends utils.Adapter {
 	 */
 	async onReady() {
 
+		// Read already known devices
+		await this.tryKnownDevices();
+
 		// Run Autodetect (Bonjour - Service, mDNS to be handled)
 		await this.scanDevices();
 
 		// Connection state to online when adapter is ready to connect to devices
 		this.setState('info.connection', true, true);
+		this.log.info('WLED initialisation finalized, ready to do my job have fun !');
 
 	}
 
@@ -302,13 +306,14 @@ class Wled extends utils.Adapter {
 		
 		switch(obj.command){
 			case 'addDevice':
-				this.devices[obj.message] = 'xxx';
 				// Disable check of const declaration in case function
 				// eslint-disable-next-line no-case-declarations
 				const result = await this.readData(obj.message);
 				this.log.debug('Response from Read Data : ' + JSON.stringify(result));
 				if (result === 'success') {
-					respond('success', this);	
+					respond('success', this);
+					// Add new device to array ensuring data polling at intervall time
+					this.devices[obj.message] = 'xxx';
 				} else {
 					respond('failed', this);		
 				}
@@ -319,12 +324,12 @@ class Wled extends utils.Adapter {
 
 	// Read WLED API of device and store all values in states
 	async readData(index) {
-		this.log.info('Read data called : ' + JSON.stringify(index));
+		this.log.debug('Read data called : ' + JSON.stringify(index));
 
 		// Read WLED API, trow warning in case of issues
 		const objArray = await this.getAPI('http://' + index + '/json');
 		if (!objArray) {
-			this.log.info('API call error, will retry in shedule interval !');
+			this.log.debug('API call error, will retry in shedule interval !');
 			return 'failed';
 		} else {
 			this.log.debug('Data received from WLED device ' + JSON.stringify(objArray));
@@ -579,7 +584,7 @@ class Wled extends utils.Adapter {
 	async getAPI(url) {
 		this.log.debug('GET API called for : ' + url);
 		try {
-			const response = await axios.get(url);
+			const response = await axios.get(url, {timeout: 1000});
 			this.log.debug(JSON.stringify('API response data : ' + response.data));
 			return response.data;
 		} catch (error) {
@@ -605,13 +610,40 @@ class Wled extends utils.Adapter {
 		}
 	}
 
+	// Try to contact to contact and read data of already known devices
+	async tryKnownDevices(){
+
+		const knownDevices = await this.getDevicesAsync();
+		if (!knownDevices) return; // exit function if no known device are detected
+		this.log.debug('Try to contact known devices');
+
+		// Get IP-Adress of known devices and start reading data
+		for (const i in knownDevices){
+			const deviceName = knownDevices[i].native.name;
+			const deviceIP = knownDevices[i].native.ip;
+			const deviceMac = knownDevices[i].native.mac;
+			this.log.info('Try to contact : "' + deviceName + '" on IP : ' + deviceIP);
+			// Add IP adress to polling
+			this.devices[knownDevices[i].native.ip] = deviceMac;
+			// Refresh information
+			const result = await this.readData(deviceIP);
+			
+			// Error handling
+			if (!result || result === 'failed') {
+				this.log.warn('Unable to connect to device : ' + deviceName + ' on IP : ' + deviceIP + ' Will retry at intervall time');
+			} else {
+				this.log.info('Device : "' + deviceName + '" Successfully connected on IP : ' + deviceIP);
+			}
+		}
+	}
+
 	// Scan network  with Bonjour service and build array for data-polling
 	async scanDevices() {
 		// Browse and listen for WLED devices
-		this.log.debug('Starting Bonjour service listening to new WLED devices');
 		const browser = await bonjour.find({
 			'type': 'wled'
 		});
+		this.log.info('Bonjour service startet, new  devices  will  be detected automatically :-) ');
 
 		// Event listener if new devices are detected
 		browser.on('up', (data) => {
@@ -620,14 +652,11 @@ class Wled extends utils.Adapter {
 
 			// Check if device is already know
 			if (this.devices[ip] === undefined) {
-				this.log.info('Device ' + data.name + ' found on IP ' + data.referer.address);
+				this.log.info('New WLED  device found ' + data.name + ' on IP ' + data.referer.address);
 
 				//  Add device to array
 				this.devices[ip] = id;
 				this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
-
-				// Send signal to admin for refresh configuration page
-				// To-Do
 
 				// Initialize device
 				this.polling_timer();

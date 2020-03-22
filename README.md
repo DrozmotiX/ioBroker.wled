@@ -38,6 +38,11 @@ If you like my work, please feel free to provide a personal donation
 
 ## Changelog
 
+### 0.3.0 Bugfix : Correct handling of polling timer
+* (DutchmanNL  & Jey-Cee) Bugfix : Polling timer not saved
+* (DutchmanNL) Bugfix : Correct handling of "online" state
+* (DutchmanNL) Bugfix : Polling timer (offline devices did not reconnect)
+
 ### 0.2.6 Bugfix : Hex state value change
 * (DutchmanNL) Bugfix : Hex state value change
 

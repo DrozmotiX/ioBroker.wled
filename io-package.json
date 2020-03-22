@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.2.6",
+		"version": "0.3.0",
 		"news": {
+			"0.3.0": {
+				"en": "Bugfix : Correct handling of polling timer",
+				"de": "Bugfix: Korrekter Umgang mit dem Polling Timer",
+				"ru": "Исправлено: правильная обработка таймера опроса",
+				"pt": "Correção de erros: Manuseio correto do temporizador de polling",
+				"nl": "Bugfix: Correcte afhandeling van pollingtimer",
+				"fr": "Correctif: gestion correcte du temporisateur d'interrogation",
+				"it": "Bugfix: corretta gestione del timer di polling",
+				"es": "Corrección de errores: manejo correcto del temporizador de sondeo",
+				"pl": "Bugfix: Prawidłowa obsługa licznika odpytywania",
+				"zh-cn": "错误修正：正确处理轮询计时器"
+			},	
 			"0.2.6": {
 				"en": "Bugfix : Hex state value change"
 			},	

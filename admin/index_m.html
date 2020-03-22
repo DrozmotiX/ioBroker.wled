@@ -100,8 +100,7 @@
                 if ($key.attr('type') === 'checkbox') {
                     // do not call onChange direct, because onChange could expect some arguments
                     $key.prop('checked', settings[id])
-                        .on('change', () => onChange())
-                        ;
+                        .on('change', () => onChange());
                 } else {
                     // do not call onChange direct, because onChange could expect some arguments
                     $key.val(settings[id])
@@ -161,6 +160,19 @@
             });
             console.log('index: ' + i);
 
+            $('.value').each(function () {
+                var $this = $(this);
+                var id = $this.attr('id');
+                if ($this.attr('type') === 'checkbox') {
+                    obj[id] = $this.prop('checked');
+                } else {
+                    var value = $this.val();
+                    if (id === 'Password') {
+                        value = encrypt(secret, value);
+                    }
+                    obj[id] = value;
+                }
+            });
 
             callback(obj);
         }
@@ -168,13 +180,13 @@
         // Read all devices from instance
         function emitDevices() {
             socket.emit('getObjectView', 'system', 'device', { startkey: 'wled.' + instance + '.', endkey: 'wled.' + instance + '.\u9999', include_docs: true }, function (err, _devices) {
-                    let namespace = 'wled.' + instance + '.';
-                    let len = namespace.length;
-                    console.log('Return of  all devices : ' + JSON.stringify(_devices));
-                    if (_devices && _devices.rows && _devices.rows.length) {
-                        console.log('Loopje : ' + len);
-                        loadTable(_devices.rows);
-                    }
+                let namespace = 'wled.' + instance + '.';
+                let len = namespace.length;
+                console.log('Return of  all devices : ' + JSON.stringify(_devices));
+                if (_devices && _devices.rows && _devices.rows.length) {
+                    console.log('Loopje : ' + len);
+                    loadTable(_devices.rows);
+                }
             });
         }
 
@@ -196,9 +208,17 @@
             </h6>
 
             <div class="row">
-                <a id="add-device"
-                    class="table-button-add col s2 waves-effect waves-light btn blue modal-trigger translate"
-                    data-target="modal-add-device"><i class="large left material-icons">add_circle</i>Add Device</a>
+
+                <div class="input-field">
+                    <a id="add-device"
+                        class="table-button-add col s2 waves-effect waves-light btn btn-large blue modal-trigger translate"
+                        data-target="modal-add-device"><i class="large left material-icons">add_circle</i>Add Device</a>
+                </div>
+
+                <div class="input-field col s2 right">
+                    <input type="number" id="Time_Sync" class="value center" min="0" max="65565" />
+                    <label for="Time_Sync" class="translate">Intervall in seconds</label>
+                </div>
             </div>
 
             <div class="col s10 m10 l10 xl10 row">
@@ -217,13 +237,6 @@
                         </thead>
                         <tbody id="devices"></tbody>
                     </table>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="input-field col s2 right">
-                    <input type="number" id="Time_Sync" class="value center" min="0" max="65565" />
-                    <label for="Time_Sync" class="translate">Intervall in seconds</label>
                 </div>
             </div>
 

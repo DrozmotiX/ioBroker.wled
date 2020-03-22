@@ -18,7 +18,8 @@ const bonjour = require('bonjour')(); // load Bonjour library
 
 let polling = null; // Polling timer
 let scan_timer = null; // reload = false;
-let timeout = null;
+let timeout = null; // Refresh delay for send state
+const stateExpire = {}; // Timers to reset online state of device
 
 class Wled extends utils.Adapter {
 
@@ -53,6 +54,9 @@ class Wled extends utils.Adapter {
 		// Connection state to online when adapter is ready to connect to devices
 		this.setState('info.connection', true, true);
 		this.log.info('WLED initialisation finalized, ready to do my job have fun !');
+
+		// Start Polling timer
+		this.polling_timer(); 
 
 	}
 
@@ -567,7 +571,7 @@ class Wled extends utils.Adapter {
 		// Run true array of known devices and initiate API calls retrieving all information 
 		for (const i in this.devices) {
 
-			this.readData(i);
+			const result =  await this.readData(i);
 			this.log.debug('Getting data for ' + this.devices[i]);
 
 		}
@@ -666,7 +670,7 @@ class Wled extends utils.Adapter {
 				this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
 
 				// Initialize device
-				this.polling_timer();
+				this.readData(ip);
 			} else {
 				// Update memory with current ip address
 				this.devices[ip] = id;
@@ -706,19 +710,30 @@ class Wled extends utils.Adapter {
 				native: {},
 			});
 
-			// Set expire only on online  state
-			let expire;
-			if (name === '_online') {
-				expire = this.config.Time_Sync * 2;
-			}
-
 			// Set value to state including expiration time
 			await this.setState(state, {
 				val: value,
 				ack: true,
-				expire: expire
 			});
 
+			// Timer  to set online state to  FALSE when not uppdated during  2 time-sync intervals
+			if (name === 'online') {
+				// Clear running timer
+				(function () {if (stateExpire[state]) {clearTimeout(stateExpire[state]); stateExpire[state] = null;}})();
+				// timer
+				stateExpire[state] = setTimeout( async () => {
+					// Set value to state including expiration time
+					await this.setState(state, {
+						val: false,
+						ack: true,
+					});
+					this.log.debug('Online state expired for ' + state);
+				}, this.config.Time_Sync * 2000);
+				this.log.debug('Expire time set for state : ' +  name + ' with time in seconds : ' + this.config.Time_Sync * 2);
+			}
+
+
+			// Extend effects and color pallet  with dropdown menu
 			if (name === 'fx') {
 
 				this.log.debug('Create special drop donwn state with value ' + JSON.stringify(this.effects));

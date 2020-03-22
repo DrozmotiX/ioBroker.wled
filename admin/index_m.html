@@ -168,7 +168,6 @@
         // Read all devices from instance
         function emitDevices() {
             socket.emit('getObjectView', 'system', 'device', { startkey: 'wled.' + instance + '.', endkey: 'wled.' + instance + '.\u9999', include_docs: true }, function (err, _devices) {
-                socket.emit('getStates', function (err, _values) {
                     let namespace = 'wled.' + instance + '.';
                     let len = namespace.length;
                     console.log('Return of  all devices : ' + JSON.stringify(_devices));
@@ -176,7 +175,6 @@
                         console.log('Loopje : ' + len);
                         loadTable(_devices.rows);
                     }
-                });
             });
         }
 

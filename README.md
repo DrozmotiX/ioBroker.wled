@@ -38,6 +38,9 @@ If you like my work, please feel free to provide a personal donation
 
 ## Changelog
 
+### 0.2.6 Bugfix : Hex state value change
+* (DutchmanNL) Bugfix : Hex state value change
+
 ### 0.2.5 Stable release candidate
 * (DutchmanNL) Code cleanup
 * (DutchmanNL) Improved logging information

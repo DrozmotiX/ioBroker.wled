@@ -9,9 +9,9 @@
 const utils = require('@iobroker/adapter-core');
 
 // Load your modules here, e.g.:
-const { default: axios } = require('axios'); // Lib to handle http requests
 const rgbHex = require('rgb-hex'); // Lib to translate rgb to hex
 const hexRgb = require('hex-rgb'); // Lib to translate hex to rgb
+const { default: axios } = require('axios'); // Lib to handle http requests
 
 const stateAttr = require('./lib/stateAttr.js'); // Load attribute library
 const bonjour = require('bonjour')(); // load Bonjour library
@@ -230,15 +230,15 @@ class Wled extends utils.Adapter {
 								return;
 							}
 
-							// Build JSON string to be send to WLED, cancell function if 
-							values = {
-								'seg': {
-									'id': valAsNumbers,
-									'col': rgb_all
-								}
-							};
-
 						}
+
+						// Build JSON string to be send to WLED, cancell function if 
+						values = {
+							'seg': {
+								'id': valAsNumbers,
+								'col': rgb_all
+							}
+						};
 
 					} else {
 

@@ -1,8 +1,11 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.2.5",
+		"version": "0.2.6",
 		"news": {
+			"0.2.6": {
+				"en": "Bugfix : Hex state value change"
+			},	
 			"0.2.5": {
 				"en": "Stable release candidate",
 				"de": "Stabiler Release-Kandidat",

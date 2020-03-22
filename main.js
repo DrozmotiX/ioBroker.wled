@@ -9,15 +9,15 @@
 const utils = require('@iobroker/adapter-core');
 
 // Load your modules here, e.g.:
-const axios = require('axios'); // Lib to handle http requests
+const { default: axios } = require('axios'); // Lib to handle http requests
 const rgbHex = require('rgb-hex'); // Lib to translate rgb to hex
 const hexRgb = require('hex-rgb'); // Lib to translate hex to rgb
 
 const stateAttr = require('./lib/stateAttr.js'); // Load attribute library
 const bonjour = require('bonjour')(); // load Bonjour library
 
-let polling; // Polling timer
-let scan_timer; // reload = false;
+let polling = null; // Polling timer
+let scan_timer = null; // reload = false;
 let timeout = null;
 
 class Wled extends utils.Adapter {
@@ -78,6 +78,11 @@ class Wled extends utils.Adapter {
 			timeout = null;
 		}
 
+		// Set all online states to false
+		for (const i in this.devices) {
+			this.setState(this.devices[i] + '._info' + '._online', { val: false, ack: true });
+		}
+		
 		try {
 			callback();
 			this.log.info('cleaned everything up...');
@@ -303,8 +308,8 @@ class Wled extends utils.Adapter {
 		}
 
 		this.log.debug('Data from configuration received : ' + JSON.stringify(obj));
-		
-		switch(obj.command){
+
+		switch (obj.command) {
 			case 'addDevice':
 				// Disable check of const declaration in case function
 				// eslint-disable-next-line no-case-declarations
@@ -315,22 +320,21 @@ class Wled extends utils.Adapter {
 					// Add new device to array ensuring data polling at intervall time
 					this.devices[obj.message] = 'xxx';
 				} else {
-					respond('failed', this);		
+					respond('failed', this);
 				}
 				break;
 		}
-		
+
 	}
 
 	// Read WLED API of device and store all values in states
-	async readData(index, mac) {
+	async readData(index) {
 		this.log.debug('Read data called : ' + JSON.stringify(index));
 
 		// Read WLED API, trow warning in case of issues
 		const objArray = await this.getAPI('http://' + index + '/json');
 		if (!objArray) {
 			this.log.debug('API call error, will retry in shedule interval !');
-			await this.create_state(mac + '._info' + '._online', 'online', false);
 			return 'failed';
 		} else {
 			this.log.debug('Data received from WLED device ' + JSON.stringify(objArray));
@@ -522,7 +526,7 @@ class Wled extends utils.Adapter {
 
 					// Default channel creation
 					this.log.debug('Default state created : ' + i + ' : ' + JSON.stringify(objArray['state'][i]));
-					await  this.create_state(device_id + '.' + i, i, objArray['state'][i]);
+					await this.create_state(device_id + '.' + i, i, objArray['state'][i]);
 
 				} else {
 
@@ -585,7 +589,7 @@ class Wled extends utils.Adapter {
 	async getAPI(url) {
 		this.log.debug('GET API called for : ' + url);
 		try {
-			const response = await axios.get(url, {timeout: 1000});
+			const response = await axios.get(url, { timeout: 3000 }); // Timout of 3 seconds for API call
 			this.log.debug(JSON.stringify('API response data : ' + response.data));
 			return response.data;
 		} catch (error) {
@@ -612,23 +616,25 @@ class Wled extends utils.Adapter {
 	}
 
 	// Try to contact to contact and read data of already known devices
-	async tryKnownDevices(){
+	async tryKnownDevices() {
 
 		const knownDevices = await this.getDevicesAsync();
 		if (!knownDevices) return; // exit function if no known device are detected
 		this.log.info('Try to contact known devices');
 
 		// Get IP-Adress of known devices and start reading data
-		for (const i in knownDevices){
+		for (const i in knownDevices) {
 			const deviceName = knownDevices[i].native.name;
 			const deviceIP = knownDevices[i].native.ip;
 			const deviceMac = knownDevices[i].native.mac;
+			
 			this.log.info('Try to contact : "' + deviceName + '" on IP : ' + deviceIP);
-			// Add IP adress to polling
+			
+			// Add IP adress to polling array
 			this.devices[knownDevices[i].native.ip] = deviceMac;
 			// Refresh information
-			const result = await this.readData(deviceIP, deviceMac);
-			
+			const result = await this.readData(deviceIP);
+
 			// Error handling
 			if (!result || result === 'failed') {
 				this.log.warn('Unable to connect to device : ' + deviceName + ' on IP : ' + deviceIP + ' Will retry at intervall time');
@@ -700,11 +706,17 @@ class Wled extends utils.Adapter {
 				native: {},
 			});
 
+			// Set expire only on online  state
+			let expire;
+			if (name === '_online') {
+				expire = this.config.Time_Sync * 2;
+			}
+
 			// Set value to state including expiration time
 			await this.setState(state, {
 				val: value,
 				ack: true,
-				expire: ((this.config.Time_Sync) * 2)
+				expire: expire
 			});
 
 			if (name === 'fx') {

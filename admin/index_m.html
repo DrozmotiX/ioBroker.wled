@@ -27,20 +27,13 @@
             console.log('Data for table ' + JSON.stringify(obj))
             for (i in obj) {
                 if (obj[i] !== undefined) {
-                    // index = obj[i].value.native.ip
-                    // text += '<tr id="' + index + '"><td><span id="' + index + '-index">' + index + '</span></td>'
                     text += '<tr id="' + obj[i].value.native.mac + '"><td><span id="' + obj[i].value.native.mac + '-index">' + obj[i].value.native.mac + '</span></td>'
                     text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value=' + obj[i].value.native.name + '></td>'
                     text += '<td> <input id="' + index + '-ip" type="text" disabled="true" class="center-align input-field" value="' + obj[i].value.native.ip + '"></td>'
                     text += '<td> <div class="led-all center-led led-gray"></div></td>'
-                    // text += '<td> <div class="led-green"> </div></td>'
-                    // text += '<td>' + '' +
-                    // 	'<a id="' + index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
-                    // text += '</select></td></tr>';
                     text += '</tr>';
                     index = (index + 1);
                 }
-
             }
 
             $('#devices').append(text);
@@ -54,51 +47,12 @@
                 }).keyup(function () {
                     _onChange();
                 });
-
                 $key.change(function () {
                     _onChange();
                 }).keyup(function () {
                     _onChange();
                 });
             });
-        }
-
-
-        function add_row() {
-            let index = $('tr').length;
-            // index = ""
-            //TODO: add overwrite protection for existing index number if a previous device was removed from the list
-
-            let text = '';
-
-            text += '<tr id="' + index + '" class="delete-device"><td><span id="' + index + '-index">' + index + '</span></td>'
-            text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value="<will be automatically detected>"></td>'
-            text += '<td> <input id="' + index + '-ip" type="text" class="center-align input-field" value="192.168.xxx.xxx"></td>'
-            // text += '<td>' + '' +
-            // 	'<a id="'+ index + '-delete" class="delete-device values-buttons btn-floating btn-small waves-effect waves-light red"><i class="material-icons" title="Delete device">delete</i></a>';
-            text += '</select></td></tr>';
-
-            $('#devices').append(text);
-
-            $('#devices_new').append(text);
-
-            $('input').each(function () {
-                let $key = $(this);
-
-                $key.on('click', function () {
-                    _onChange();
-                }).keyup(function () {
-                    _onChange();
-                });
-
-                $key.change(function () {
-                    _onChange();
-                }).keyup(function () {
-                    _onChange();
-                });
-            });
-
-            M.updateTextFields();
         }
 
         // Get value of connection state
@@ -133,9 +87,7 @@
                     }
                 }
             });
-
         }
-
 
         // This will be called by the admin adapter when the settings page loads
         function load(settings, onChange) {
@@ -173,7 +125,6 @@
                     } else {
                         $("#modal-error-message").modal("open");
                     }
-
                 })
             });
 
@@ -243,10 +194,12 @@
             </div>
         </div>
         <div class="section">
-            <h6 class="translate">Devices are automatically detected and listend here! To-Do : Add manually</h6>
+            <h6 class="translate">WLED devices are discovered automatically, if not you can use the ADD Device button.
+            </h6>
 
             <div class="row">
-                <a id="add-device" class="table-button-add waves-effect waves-light btn blue modal-trigger translate"
+                <a id="add-device"
+                    class="table-button-add col s2 waves-effect waves-light btn blue modal-trigger translate"
                     data-target="modal-add-device"><i class="large left material-icons">add_circle</i>Add Device</a>
             </div>
 
@@ -266,6 +219,13 @@
                         </thead>
                         <tbody id="devices"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-field col s2 right">
+                    <input type="number" id="Time_Sync" class="value center" min="0" max="65565" />
+                    <label for="Time_Sync" class="translate">Intervall in seconds</label>
                 </div>
             </div>
 

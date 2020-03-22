@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "wled",
-		"version": "0.2.0",
+		"version": "0.2.5",
 		"news": {
+			"0.2.5": {
+				"en": "Stable release candidate",
+				"de": "Stabiler Release-Kandidat",
+				"ru": "Стабильный релиз кандидата",
+				"pt": "Candidato de liberação estável",
+				"nl": "Stabiele release-kandidaat",
+				"fr": "Candidat à la version stable",
+				"it": "Candidato al rilascio stabile",
+				"es": "Candidato de liberación estable",
+				"pl": "Kandydat do wydania stabilnego",
+				"zh-cn": "稳定释放候选"
+			},	
 			"0.2.0": {
 				"en": "Possibility to add devices by IP-adress implemented. (Needed for situations were autoscan fails)",
 				"de": "Möglichkeit zum Hinzufügen von Geräten per IP-Adresse implementiert. (Wird für Situationen benötigt, in denen der Autoscan fehlschlägt.)",
@@ -181,8 +193,7 @@
 	},
 	"native": {
 		"devices": [],
-		"Time_Sync": 30,
-		"Time_Scan": 60
+		"Time_Sync": 30
 	},
 	"objects": [],
 	"instanceObjects": [

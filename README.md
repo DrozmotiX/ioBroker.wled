@@ -19,12 +19,15 @@ A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control 
 ## Instructions
 
 The adapter automatically try's to find WLED devices in your network using Bonjour services.  
-Known issues : Networks with VLAN seperation mostly don't route broadcast traffic, meaning autodetect will fail. (see To-Do)
+Known issues : Networks with VLAN seperation mostly don't route broadcast traffic, meaning autodetect will fail.  
+
+Don't worry, in that case you can add the device manually by IP-Adress.
 
 1) Ensure your WLED device is runnning and reachable by network
 2) Install the adapter
-3) Configure intervall times for data polling and auto-detect cyclus
-4) Start the adapter, devices should be detected automatically
+3) Configure intervall times for data polling and auto-detect cyclus  
+4 - A) Start the adapter, devices should be detected automatically  
+4 - B) If A fails, use the Add-Device button an provide the device IP-Adress  
 5) Adapter will send changes immediatly and polls data every x seconds (configurable)
 
 ## To-Do

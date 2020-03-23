@@ -356,7 +356,6 @@ class Wled extends utils.Adapter {
 				native: {
 					ip: index,
 					mac: objArray['info'].mac,
-					name: objArray['info'].name
 				}
 			});
 

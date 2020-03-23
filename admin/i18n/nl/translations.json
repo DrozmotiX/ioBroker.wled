@@ -1,0 +1,13 @@
+{
+    "Add": "Toevoegen",
+    "Add Device": "Voeg toestel toe",
+    "Add device manualy": "Handmatig apparaat toevoegen",
+    "Close": "Dichtbij",
+    "Connected": "Verbonden",
+    "Device add failed, please enter correct IP and ensure device is reachable": "Het toevoegen van het apparaat is mislukt, voer het juiste IP-adres in en zorg ervoor dat het apparaat bereikbaar is",
+    "IP-Adress": "IP adres",
+    "Intervall in seconds": "Interval binnen enkele seconden",
+    "Name": "Naam",
+    "WLED devices are discovered automatically, if not you can use the ADD Device button.": "WLED-apparaten worden automatisch ontdekt, zo niet, dan kunt u de knop ADD-apparaat gebruiken.",
+    "wled adapter settings": "Adapterinstellingen voor wled"
+}

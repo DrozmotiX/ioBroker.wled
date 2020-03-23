@@ -1,0 +1,13 @@
+{
+    "Add": "Adicionar",
+    "Add Device": "Adicionar Dispositivo",
+    "Add device manualy": "Adicionar dispositivo manualmente",
+    "Close": "Fechar",
+    "Connected": "Conectado",
+    "Device add failed, please enter correct IP and ensure device is reachable": "Falha ao adicionar dispositivo, digite o IP correto e verifique se o dispositivo está acessível",
+    "IP-Adress": "Endereço de IP",
+    "Intervall in seconds": "Intervalo em segundos",
+    "Name": "Nome",
+    "WLED devices are discovered automatically, if not you can use the ADD Device button.": "Os dispositivos WLED são descobertos automaticamente. Caso contrário, você pode usar o botão ADD Device.",
+    "wled adapter settings": "Configurações do adaptador para wled"
+}

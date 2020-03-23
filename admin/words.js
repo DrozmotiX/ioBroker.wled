@@ -2,40 +2,15 @@
 'use strict';
 
 systemDictionary = {
-	'wled adapter settings': {
-		'en': 'Adapter settings for wled',
-		'de': 'Adaptereinstellungen für wled',
-		'ru': 'Настройки адаптера для wled',
-		'pt': 'Configurações do adaptador para wled',
-		'nl': 'Adapterinstellingen voor wled',
-		'fr': "Paramètres d'adaptateur pour wled",
-		'it': "Impostazioni dell'adattatore per wled",
-		'es': 'Ajustes del adaptador para wled',
-		'pl': 'Ustawienia adaptera dla wled',
-		'zh-cn': 'wled的适配器设置'
-	},
-	'option1': {
-		'en': 'option1',
-		'de': 'Option 1',
-		'ru': 'Опция 1',
-		'pt': 'Opção 1',
-		'nl': 'Optie 1',
-		'fr': 'Option 1',
-		'it': 'opzione 1',
-		'es': 'Opción 1',
-		'pl': 'opcja 1',
-		'zh-cn': '选项1'
-	},
-	'option2': {
-		'en': 'option2',
-		'de': 'Option 2',
-		'ru': 'option2',
-		'pt': 'opção 2',
-		'nl': 'Optie 2',
-		'fr': 'Option 2',
-		'it': 'opzione 2',
-		'es': 'opcion 2',
-		'pl': 'Opcja 2',
-		'zh-cn': '选项2'
-	}
+    "Add": { "en": "Add", "de": "Hinzufügen", "ru": "добавлять", "pt": "Adicionar", "nl": "Toevoegen", "fr": "Ajouter", "it": "Inserisci", "es": "Añadir", "pl": "Dodaj", "zh-cn": "加" },
+    "Add Device": { "en": "Add Device", "de": "Gerät hinzufügen", "ru": "Добавить устройство", "pt": "Adicionar Dispositivo", "nl": "Voeg toestel toe", "fr": "Ajouter un appareil", "it": "Aggiungi dispositivo", "es": "Añadir dispositivo", "pl": "Dodaj urządzenie", "zh-cn": "添加设备" },
+    "Add device manualy": { "en": "Add device manualy", "de": "Gerät manuell hinzufügen", "ru": "Добавить устройство вручную", "pt": "Adicionar dispositivo manualmente", "nl": "Handmatig apparaat toevoegen", "fr": "Ajouter un appareil manuellement", "it": "Aggiungi il dispositivo manualmente", "es": "Agregar dispositivo manualmente", "pl": "Dodaj urządzenie ręcznie", "zh-cn": "手动添加设备" },
+    "Close": { "en": "Close", "de": "Schließen", "ru": "близко", "pt": "Fechar", "nl": "Dichtbij", "fr": "Fermer", "it": "Vicino", "es": "Cerca", "pl": "Blisko", "zh-cn": "关" },
+    "Connected": { "en": "Connected", "de": "In Verbindung gebracht", "ru": "Связано", "pt": "Conectado", "nl": "Verbonden", "fr": "Connecté", "it": "Collegato", "es": "Conectado", "pl": "Połączony", "zh-cn": "连接的" },
+    "Device add failed, please enter correct IP and ensure device is reachable": { "en": "Device add failed, please enter correct IP and ensure device is reachable", "de": "Das Hinzufügen des Geräts ist fehlgeschlagen. Geben Sie die richtige IP ein und stellen Sie sicher, dass das Gerät erreichbar ist", "ru": "Не удалось добавить устройство, введите правильный IP-адрес и убедитесь, что устройство доступно", "pt": "Falha ao adicionar dispositivo, digite o IP correto e verifique se o dispositivo está acessível", "nl": "Het toevoegen van het apparaat is mislukt, voer het juiste IP-adres in en zorg ervoor dat het apparaat bereikbaar is", "fr": "Échec de l'ajout de l'appareil, veuillez saisir l'IP correcte et vous assurer que l'appareil est accessible", "it": "Aggiunta del dispositivo non riuscita, inserisci l'IP corretto e assicurati che il dispositivo sia raggiungibile", "es": "Error al agregar dispositivo, ingrese la IP correcta y asegúrese de que el dispositivo sea accesible", "pl": "Nie udało się dodać urządzenia, wprowadź poprawny adres IP i upewnij się, że urządzenie jest osiągalne", "zh-cn": "设备添加失败，请输入正确的IP并确保设备可访问" },
+    "IP-Adress": { "en": "IP-Adress", "de": "IP Adresse", "ru": "IP адрес", "pt": "Endereço de IP", "nl": "IP adres", "fr": "Adresse IP", "it": "Indirizzo IP", "es": "Dirección IP", "pl": "Adres IP", "zh-cn": "IP地址" },
+    "Intervall in seconds": { "en": "Intervall in seconds", "de": "Intervall in Sekunden", "ru": "Интервал в секундах", "pt": "Intervalo em segundos", "nl": "Interval binnen enkele seconden", "fr": "Intervall en quelques secondes", "it": "Intervall in pochi secondi", "es": "Intervalar en segundos", "pl": "Przerwij w kilka sekund", "zh-cn": "间隔秒" },
+    "Name": { "en": "Name", "de": "Name", "ru": "имя", "pt": "Nome", "nl": "Naam", "fr": "Nom", "it": "Nome", "es": "Nombre", "pl": "Nazwa", "zh-cn": "名称" },
+    "WLED devices are discovered automatically, if not you can use the ADD Device button.": { "en": "WLED devices are discovered automatically, if not you can use the ADD Device button.", "de": "WLED-Geräte werden automatisch erkannt. Andernfalls können Sie die Schaltfläche Gerät hinzufügen verwenden.", "ru": "Устройства WLED обнаруживаются автоматически, если вы не можете использовать кнопку ADD Device.", "pt": "Os dispositivos WLED são descobertos automaticamente. Caso contrário, você pode usar o botão ADD Device.", "nl": "WLED-apparaten worden automatisch ontdekt, zo niet, dan kunt u de knop ADD-apparaat gebruiken.", "fr": "Les appareils WLED sont détectés automatiquement, sinon vous pouvez utiliser le bouton AJOUTER un appareil.", "it": "I dispositivi WLED vengono rilevati automaticamente, in caso contrario è possibile utilizzare il pulsante AGGIUNGI dispositivo.", "es": "Los dispositivos WLED se descubren automáticamente, de lo contrario, puede usar el botón AGREGAR dispositivo.", "pl": "Urządzenia WLED są wykrywane automatycznie, jeśli nie, możesz użyć przycisku DODAJ urządzenie.", "zh-cn": "WLED设备会自动发现，否则，您可以使用ADD Device按钮。" },
+    "wled adapter settings": { "en": "Adapter settings for wled", "de": "Adaptereinstellungen für wled", "ru": "Настройки адаптера для wled", "pt": "Configurações do adaptador para wled", "nl": "Adapterinstellingen voor wled", "fr": "Paramètres d'adaptateur pour wled", "it": "Impostazioni dell'adattatore per wled", "es": "Ajustes del adaptador para wled", "pl": "Ustawienia adaptera dla wled", "zh-cn": "wled的适配器设置" },
 };

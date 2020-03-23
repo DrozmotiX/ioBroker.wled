@@ -1,237 +1,258 @@
 {
-	"common": {
-		"name": "wled",
-		"version": "0.3.0",
-		"news": {
-			"0.3.0": {
-				"en": "Bugfix : Correct handling of polling timer",
-				"de": "Bugfix: Korrekter Umgang mit dem Polling Timer",
-				"ru": "Исправлено: правильная обработка таймера опроса",
-				"pt": "Correção de erros: Manuseio correto do temporizador de polling",
-				"nl": "Bugfix: Correcte afhandeling van pollingtimer",
-				"fr": "Correctif: gestion correcte du temporisateur d'interrogation",
-				"it": "Bugfix: corretta gestione del timer di polling",
-				"es": "Corrección de errores: manejo correcto del temporizador de sondeo",
-				"pl": "Bugfix: Prawidłowa obsługa licznika odpytywania",
-				"zh-cn": "错误修正：正确处理轮询计时器"
-			},	
-			"0.2.6": {
-				"en": "Bugfix : Hex state value change"
-			},	
-			"0.2.5": {
-				"en": "Stable release candidate",
-				"de": "Stabiler Release-Kandidat",
-				"ru": "Стабильный релиз кандидата",
-				"pt": "Candidato de liberação estável",
-				"nl": "Stabiele release-kandidaat",
-				"fr": "Candidat à la version stable",
-				"it": "Candidato al rilascio stabile",
-				"es": "Candidato de liberación estable",
-				"pl": "Kandydat do wydania stabilnego",
-				"zh-cn": "稳定释放候选"
-			},	
-			"0.2.0": {
-				"en": "Possibility to add devices by IP-adress implemented. (Needed for situations were autoscan fails)",
-				"de": "Möglichkeit zum Hinzufügen von Geräten per IP-Adresse implementiert. (Wird für Situationen benötigt, in denen der Autoscan fehlschlägt.)",
-				"ru": "Реализована возможность добавления устройств по IP-адресу. (Требуется для ситуаций, когда автосканирование не удается)",
-				"pt": "Possibilidade de adicionar dispositivos por endereço IP implementado. (Necessário para situações em que a verificação automática falha)",
-				"nl": "Mogelijkheid om apparaten toe te voegen via IP-adres geïmplementeerd. (Nodig voor situaties waarin autoscan mislukt)",
-				"fr": "Possibilité d'ajouter des appareils par adresse IP implémentée. (Nécessaire pour les situations où l'analyse automatique échoue)",
-				"it": "Possibilità di aggiungere dispositivi per indirizzo IP implementato. (Necessario per situazioni in cui la scansione automatica non riesce)",
-				"es": "Posibilidad de agregar dispositivos por dirección IP implementada. (Necesario para situaciones en las que el escaneo automático falla)",
-				"pl": "Wdrożono możliwość dodawania urządzeń według adresu IP. (Potrzebne w sytuacjach, gdy automatyczne skanowanie kończy się niepowodzeniem)",
-				"zh-cn": "可以通过IP地址添加设备。 （需要自动扫描失败的情况）"
-			},	
-			"0.1.9": {
-				"en": "Code optimization",
-				"de": "Codeoptimierung",
-				"ru": "Оптимизация кода",
-				"pt": "Otimização de código",
-				"nl": "Code optimalisatie",
-				"fr": "Optimisation du code",
-				"it": "Ottimizzazione del codice",
-				"es": "Optimización de código",
-				"pl": "Optymalizacja kodu",
-				"zh-cn": "代码优化"
-			},	
-			"0.1.8": {
-				"en": "Solved incorrect formated API call at state changes causing warning message",
-				"de": "Ein falsch formatierter API-Aufruf bei Statusänderungen, die eine Warnmeldung verursachten, wurde behoben",
-				"ru": "Исправлен некорректный форматированный вызов API при изменениях состояния, вызывающих предупреждение",
-				"pt": "Chamada de API formatada incorreta resolvida em alterações de estado, causando mensagem de aviso",
-				"nl": "Opgelost onjuist geformuleerde API-aanroep bij statuswijzigingen die een waarschuwingsbericht veroorzaakten",
-				"fr": "Appel d'API formaté incorrect lors des changements d'état provoquant un message d'avertissement",
-				"it": "Risolto il problema della chiamata API formattata errata alle modifiche di stato che causavano un messaggio di avviso",
-				"es": "Resuelto llamada de API formateada incorrecta en cambios de estado que causan mensaje de advertencia",
-				"pl": "Rozwiązano niepoprawnie sformatowane wywołanie API przy zmianach stanu powodujące komunikat ostrzegawczy",
-				"zh-cn": "解决了状态更改时格式错误的API调用导致警告消息的问题"
-			},	
-			"0.1.7": {
-				"en": "Fixed error when API call fails",
-				"de": "Fehler behoben, wenn der API-Aufruf fehlschlägt",
-				"ru": "Исправлена ошибка при сбое вызова API",
-				"pt": "Corrigido o erro quando a chamada da API falha",
-				"nl": "Vaste fout wanneer API-aanroep mislukt",
-				"fr": "Correction d'une erreur lorsque l'appel d'API échoue",
-				"it": "Risolto errore in caso di errore nella chiamata API",
-				"es": "Se corrigió el error cuando falla la llamada a la API",
-				"pl": "Naprawiono błąd, gdy połączenie API nie powiedzie się",
-				"zh-cn": "修复了API调用失败时的错误"
-			},		
-			"0.1.6": {
-				"en": "HEX color states implemented",
-				"de": "HEX-Farbzustände implementiert",
-				"ru": "Реализовано цветовое состояние HEX",
-				"pt": "Estados de cores HEX implementados",
-				"nl": "HEX-kleurtoestanden geïmplementeerd",
-				"fr": "États de couleur HEX implémentés",
-				"it": "Stati di colore esadecimali implementati",
-				"es": "Estados de color HEX implementados",
-				"pl": "Zaimplementowano stany kolorów HEX",
-				"zh-cn": "十六进制颜色状态已实现"
-			},
-			"0.1.5": {
-				"en": "Stable beta release from now installable by ioBroker admin interface.",
-				"de": "Stabile Beta-Version ab sofort über die ioBroker-Administrationsoberfläche installierbar.",
-				"ru": "Стабильная бета-версия теперь устанавливается через интерфейс администратора ioBroker.",
-				"pt": "Versão beta estável a partir de agora instalável pela interface de administração do ioBroker.",
-				"nl": "Stabiele bètaversie vanaf nu te installeren door ioBroker-beheerinterface.",
-				"fr": "Version bêta stable désormais installable par l'interface d'administration ioBroker.",
-				"it": "Versione beta stabile da ora installabile dall'interfaccia di amministrazione di ioBroker.",
-				"es": "Versión beta estable a partir de ahora instalable por la interfaz de administración ioBroker.",
-				"pl": "Stabilna wersja beta od teraz do zainstalowania przez interfejs administracyjny ioBroker.",
-				"zh-cn": "现在可以通过ioBroker管理界面安装稳定的beta版本。"
-			},
-			"0.1.4": {
-				"en": "New configuration page + color palettes drop down menu",
-				"de": "Neue Konfigurationsseite + Dropdown-Menü für Farbpaletten",
-				"ru": "Новая страница конфигурации + раскрывающееся меню цветовых палитр",
-				"pt": "Nova página de configuração + paletas de cores no menu suspenso",
-				"nl": "Nieuwe configuratiepagina + kleurenpaletten vervolgkeuzemenu",
-				"fr": "Nouvelle page de configuration + menu déroulant de palettes de couleurs",
-				"it": "Nuova pagina di configurazione + menu a discesa tavolozze colori",
-				"es": "Nueva página de configuración + menú desplegable de paletas de colores",
-				"pl": "Nowa strona konfiguracji + rozwijane menu palet kolorów",
-				"zh-cn": "新的配置页+调色板下拉菜单"
-			},
-			"0.1.2": {
-				"en": "Drop down menu for effects Implemented",
-				"de": "Dropdown-Menü für Effekte implementiert",
-				"ru": "Выпадающее меню для эффектов Реализовано",
-				"pt": "Menu suspenso para efeitos Implementado",
-				"nl": "Vervolgkeuzelijst voor geïmplementeerde effecten",
-				"fr": "Menu déroulant pour les effets implémentés",
-				"it": "Menu a discesa per gli effetti implementati",
-				"es": "Menú desplegable para efectos Implementado",
-				"pl": "Rozwijane menu efektów",
-				"zh-cn": "已实现效果的下拉菜单"
-			},
-			"0.1.1": {
-				"en": "States hidden from JSON-API implemented : tt / psave / nn / time",
-				"de": "Aus der JSON-API ausgeblendete Zustände implementiert: tt / psave / nn / time",
-				"ru": "Состояния, скрытые от JSON-API: tt / psave / nn / time",
-				"pt": "Estados ocultos da API JSON implementada: tt / psave / nn / time",
-				"nl": "Staten verborgen voor JSON-API geïmplementeerd: tt / psave / nn / time",
-				"fr": "États masqués de l'API JSON implémentée: tt / psave / nn / time",
-				"it": "Stati nascosti dall'API JSON implementati: tt / psave / nn / time",
-				"es": "Estados ocultos de JSON-API implementados: tt / psave / nn / time",
-				"pl": "Zaimplementowane stany ukryte przed JSON-API: tt / psave / nn / time",
-				"zh-cn": "隐藏在JSON-API中的状态已实现：tt / psave / nn /时间"
-			},
-			"0.1.0": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"zh-cn": "首次出版"
-			}
-		},
-		"title": "WLED",
-		"titleLang": {
-			"en": "WLED",
-			"de": "WLED",
-			"ru": "WLED",
-			"pt": "WLED",
-			"nl": "WLED",
-			"fr": "WLED",
-			"it": "WLED",
-			"es": "WLED",
-			"pl": "WLED",
-			"zh-cn": "白光LED"
-		},
-		"desc": {
-			"en": "A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!",
-			"de": "Eine schnelle und funktionsreiche Implementierung eines ESP8266 / ESP32-Webservers zur Steuerung von NeoPixel-LEDs (WS2812B, WS2811, SK6812, APA102)!",
-			"ru": "Быстрая и многофункциональная реализация веб-сервера ESP8266 / ESP32 для управления светодиодами NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-			"pt": "Uma implementação rápida e rica em recursos de um servidor da web ESP8266 / ESP32 para controlar os LEDs NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-			"nl": "Een snelle en veelzijdige implementatie van een ESP8266 / ESP32 webserver om NeoPixel (WS2812B, WS2811, SK6812, APA102) LED's te bedienen!",
-			"fr": "Une implémentation rapide et riche en fonctionnalités d'un serveur Web ESP8266 / ESP32 pour contrôler les LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-			"it": "Un'implementazione veloce e ricca di funzionalità di un server web ESP8266 / ESP32 per controllare i LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-			"es": "¡Una implementación rápida y rica en funciones de un servidor web ESP8266 / ESP32 para controlar los LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-			"pl": "Szybka i bogata w funkcje implementacja serwera ESP8266 / ESP32 do sterowania diodami LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-			"zh-cn": "ESP8266 / ESP32网络服务器的快速且功能丰富的实现，用于控制NeoPixel（WS2812B，WS2811，SK6812，APA102）LED！"
-		},
-		"authors": [
-			"DutchmanNL <rdrozda86@gmail.com>"
-		],
-		"keywords": [
-			"WLED",
-			"WS2812b",
-			"RGB",
-			"RGBW"
-		],
-		"license": "MIT",
-		"platform": "Javascript/Node.js",
-		"main": "main.js",
-		"icon": "wled.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.wled/master/admin/wled.png",
-		"readme": "https://github.com/iobroker-community-adapters/ioBroker.wled/blob/master/README.md",
-		"loglevel": "info",
-		"mode": "daemon",
-		"type": "lighting",
-		"compact": true,
-		"connectionType": "local",
-		"dataSource": "poll",
-		"materialize": true,
-		"messagebox": true,
-		"dependencies": [
-			{
-				"js-controller": ">=1.4.2"
-			}
-		]
-	},
-	"native": {
-		"devices": [],
-		"Time_Sync": 30
-	},
-	"objects": [],
-	"instanceObjects": [
-		{
-			"_id": "info",
-			"type": "channel",
-			"common": {
-				"name": "Information"
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.connection",
-			"type": "state",
-			"common": {
-				"role": "indicator.connected",
-				"name": "WLED service ready to connecto to devices",
-				"type": "boolean",
-				"read": true,
-				"write": false,
-				"def": false
-			},
-			"native": {}
-		}
-	]
+    "common": {
+        "name": "wled",
+        "version": "0.5.0",
+        "news": {
+            "0.5.0": {
+                "en": "Stable release",
+                "de": "Stable-release",
+                "ru": "Стабильный релиз",
+                "pt": "Versão estável",
+                "nl": "Stabiele release",
+                "fr": "La version Stable",
+                "it": "Release stabile",
+                "es": "La versión estable",
+                "pl": "Wersja stabilna",
+                "zh-cn": "稳定释放"
+            },
+            "0.3.0": {
+                "en": "Bugfix : Correct handling of polling timer",
+                "de": "Bugfix: Korrekter Umgang mit dem Polling Timer",
+                "ru": "Исправлено: правильная обработка таймера опроса",
+                "pt": "Correção de erros: Manuseio correto do temporizador de polling",
+                "nl": "Bugfix: Correcte afhandeling van pollingtimer",
+                "fr": "Correctif: gestion correcte du temporisateur d'interrogation",
+                "it": "Bugfix: corretta gestione del timer di polling",
+                "es": "Corrección de errores: manejo correcto del temporizador de sondeo",
+                "pl": "Bugfix: Prawidłowa obsługa licznika odpytywania",
+                "zh-cn": "错误修正：正确处理轮询计时器"
+            },
+            "0.2.6": {
+                "en": "Bugfix : Hex state value change",
+                "de": "Bugfix: Hex Status Wertänderung",
+                "ru": "Исправлено: изменение значения шестнадцатеричного состояния",
+                "pt": "Correção: Alteração do valor do estado hexadecimal",
+                "nl": "Bugfix: waarde verandering in hex-status",
+                "fr": "Correctif: modification de la valeur de l'état hexadécimal",
+                "it": "Bugfix: modifica del valore dello stato esadecimale",
+                "es": "Corrección de error: cambio de valor de estado hexadecimal",
+                "pl": "Bugfix: Zmiana wartości stanu heksadecymalnego",
+                "zh-cn": "错误修正：十六进制状态值更改"
+            },
+            "0.2.5": {
+                "en": "Stable release candidate",
+                "de": "Stabiler Release-Kandidat",
+                "ru": "Стабильный релиз кандидата",
+                "pt": "Candidato de liberação estável",
+                "nl": "Stabiele release-kandidaat",
+                "fr": "Candidat à la version stable",
+                "it": "Candidato al rilascio stabile",
+                "es": "Candidato de liberación estable",
+                "pl": "Kandydat do wydania stabilnego",
+                "zh-cn": "稳定释放候选"
+            },
+            "0.2.0": {
+                "en": "Possibility to add devices by IP-adress implemented. (Needed for situations were autoscan fails)",
+                "de": "Möglichkeit zum Hinzufügen von Geräten per IP-Adresse implementiert. (Wird für Situationen benötigt, in denen der Autoscan fehlschlägt.)",
+                "ru": "Реализована возможность добавления устройств по IP-адресу. (Требуется для ситуаций, когда автосканирование не удается)",
+                "pt": "Possibilidade de adicionar dispositivos por endereço IP implementado. (Necessário para situações em que a verificação automática falha)",
+                "nl": "Mogelijkheid om apparaten toe te voegen via IP-adres geïmplementeerd. (Nodig voor situaties waarin autoscan mislukt)",
+                "fr": "Possibilité d'ajouter des appareils par adresse IP implémentée. (Nécessaire pour les situations où l'analyse automatique échoue)",
+                "it": "Possibilità di aggiungere dispositivi per indirizzo IP implementato. (Necessario per situazioni in cui la scansione automatica non riesce)",
+                "es": "Posibilidad de agregar dispositivos por dirección IP implementada. (Necesario para situaciones en las que el escaneo automático falla)",
+                "pl": "Wdrożono możliwość dodawania urządzeń według adresu IP. (Potrzebne w sytuacjach, gdy automatyczne skanowanie kończy się niepowodzeniem)",
+                "zh-cn": "可以通过IP地址添加设备。 （需要自动扫描失败的情况）"
+            },
+            "0.1.9": {
+                "en": "Code optimization",
+                "de": "Codeoptimierung",
+                "ru": "Оптимизация кода",
+                "pt": "Otimização de código",
+                "nl": "Code optimalisatie",
+                "fr": "Optimisation du code",
+                "it": "Ottimizzazione del codice",
+                "es": "Optimización de código",
+                "pl": "Optymalizacja kodu",
+                "zh-cn": "代码优化"
+            },
+            "0.1.8": {
+                "en": "Solved incorrect formated API call at state changes causing warning message",
+                "de": "Ein falsch formatierter API-Aufruf bei Statusänderungen, die eine Warnmeldung verursachten, wurde behoben",
+                "ru": "Исправлен некорректный форматированный вызов API при изменениях состояния, вызывающих предупреждение",
+                "pt": "Chamada de API formatada incorreta resolvida em alterações de estado, causando mensagem de aviso",
+                "nl": "Opgelost onjuist geformuleerde API-aanroep bij statuswijzigingen die een waarschuwingsbericht veroorzaakten",
+                "fr": "Appel d'API formaté incorrect lors des changements d'état provoquant un message d'avertissement",
+                "it": "Risolto il problema della chiamata API formattata errata alle modifiche di stato che causavano un messaggio di avviso",
+                "es": "Resuelto llamada de API formateada incorrecta en cambios de estado que causan mensaje de advertencia",
+                "pl": "Rozwiązano niepoprawnie sformatowane wywołanie API przy zmianach stanu powodujące komunikat ostrzegawczy",
+                "zh-cn": "解决了状态更改时格式错误的API调用导致警告消息的问题"
+            },
+            "0.1.7": {
+                "en": "Fixed error when API call fails",
+                "de": "Fehler behoben, wenn der API-Aufruf fehlschlägt",
+                "ru": "Исправлена ошибка при сбое вызова API",
+                "pt": "Corrigido o erro quando a chamada da API falha",
+                "nl": "Vaste fout wanneer API-aanroep mislukt",
+                "fr": "Correction d'une erreur lorsque l'appel d'API échoue",
+                "it": "Risolto errore in caso di errore nella chiamata API",
+                "es": "Se corrigió el error cuando falla la llamada a la API",
+                "pl": "Naprawiono błąd, gdy połączenie API nie powiedzie się",
+                "zh-cn": "修复了API调用失败时的错误"
+            },
+            "0.1.6": {
+                "en": "HEX color states implemented",
+                "de": "HEX-Farbzustände implementiert",
+                "ru": "Реализовано цветовое состояние HEX",
+                "pt": "Estados de cores HEX implementados",
+                "nl": "HEX-kleurtoestanden geïmplementeerd",
+                "fr": "États de couleur HEX implémentés",
+                "it": "Stati di colore esadecimali implementati",
+                "es": "Estados de color HEX implementados",
+                "pl": "Zaimplementowano stany kolorów HEX",
+                "zh-cn": "十六进制颜色状态已实现"
+            },
+            "0.1.5": {
+                "en": "Stable beta release from now installable by ioBroker admin interface.",
+                "de": "Stabile Beta-Version ab sofort über die ioBroker-Administrationsoberfläche installierbar.",
+                "ru": "Стабильная бета-версия теперь устанавливается через интерфейс администратора ioBroker.",
+                "pt": "Versão beta estável a partir de agora instalável pela interface de administração do ioBroker.",
+                "nl": "Stabiele bètaversie vanaf nu te installeren door ioBroker-beheerinterface.",
+                "fr": "Version bêta stable désormais installable par l'interface d'administration ioBroker.",
+                "it": "Versione beta stabile da ora installabile dall'interfaccia di amministrazione di ioBroker.",
+                "es": "Versión beta estable a partir de ahora instalable por la interfaz de administración ioBroker.",
+                "pl": "Stabilna wersja beta od teraz do zainstalowania przez interfejs administracyjny ioBroker.",
+                "zh-cn": "现在可以通过ioBroker管理界面安装稳定的beta版本。"
+            },
+            "0.1.4": {
+                "en": "New configuration page + color palettes drop down menu",
+                "de": "Neue Konfigurationsseite + Dropdown-Menü für Farbpaletten",
+                "ru": "Новая страница конфигурации + раскрывающееся меню цветовых палитр",
+                "pt": "Nova página de configuração + paletas de cores no menu suspenso",
+                "nl": "Nieuwe configuratiepagina + kleurenpaletten vervolgkeuzemenu",
+                "fr": "Nouvelle page de configuration + menu déroulant de palettes de couleurs",
+                "it": "Nuova pagina di configurazione + menu a discesa tavolozze colori",
+                "es": "Nueva página de configuración + menú desplegable de paletas de colores",
+                "pl": "Nowa strona konfiguracji + rozwijane menu palet kolorów",
+                "zh-cn": "新的配置页+调色板下拉菜单"
+            },
+            "0.1.2": {
+                "en": "Drop down menu for effects Implemented",
+                "de": "Dropdown-Menü für Effekte implementiert",
+                "ru": "Выпадающее меню для эффектов Реализовано",
+                "pt": "Menu suspenso para efeitos Implementado",
+                "nl": "Vervolgkeuzelijst voor geïmplementeerde effecten",
+                "fr": "Menu déroulant pour les effets implémentés",
+                "it": "Menu a discesa per gli effetti implementati",
+                "es": "Menú desplegable para efectos Implementado",
+                "pl": "Rozwijane menu efektów",
+                "zh-cn": "已实现效果的下拉菜单"
+            },
+            "0.1.1": {
+                "en": "States hidden from JSON-API implemented : tt / psave / nn / time",
+                "de": "Aus der JSON-API ausgeblendete Zustände implementiert: tt / psave / nn / time",
+                "ru": "Состояния, скрытые от JSON-API: tt / psave / nn / time",
+                "pt": "Estados ocultos da API JSON implementada: tt / psave / nn / time",
+                "nl": "Staten verborgen voor JSON-API geïmplementeerd: tt / psave / nn / time",
+                "fr": "États masqués de l'API JSON implémentée: tt / psave / nn / time",
+                "it": "Stati nascosti dall'API JSON implementati: tt / psave / nn / time",
+                "es": "Estados ocultos de JSON-API implementados: tt / psave / nn / time",
+                "pl": "Zaimplementowane stany ukryte przed JSON-API: tt / psave / nn / time",
+                "zh-cn": "隐藏在JSON-API中的状态已实现：tt / psave / nn /时间"
+            },
+            "0.1.0": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "WLED",
+        "titleLang": {
+            "en": "WLED",
+            "de": "WLED",
+            "ru": "WLED",
+            "pt": "WLED",
+            "nl": "WLED",
+            "fr": "WLED",
+            "it": "WLED",
+            "es": "WLED",
+            "pl": "WLED",
+            "zh-cn": "白光LED"
+        },
+        "desc": {
+            "en": "A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!",
+            "de": "Eine schnelle und funktionsreiche Implementierung eines ESP8266 / ESP32-Webservers zur Steuerung von NeoPixel-LEDs (WS2812B, WS2811, SK6812, APA102)!",
+            "ru": "Быстрая и многофункциональная реализация веб-сервера ESP8266 / ESP32 для управления светодиодами NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+            "pt": "Uma implementação rápida e rica em recursos de um servidor da web ESP8266 / ESP32 para controlar os LEDs NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+            "nl": "Een snelle en veelzijdige implementatie van een ESP8266 / ESP32 webserver om NeoPixel (WS2812B, WS2811, SK6812, APA102) LED's te bedienen!",
+            "fr": "Une implémentation rapide et riche en fonctionnalités d'un serveur Web ESP8266 / ESP32 pour contrôler les LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+            "it": "Un'implementazione veloce e ricca di funzionalità di un server web ESP8266 / ESP32 per controllare i LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+            "es": "¡Una implementación rápida y rica en funciones de un servidor web ESP8266 / ESP32 para controlar los LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+            "pl": "Szybka i bogata w funkcje implementacja serwera ESP8266 / ESP32 do sterowania diodami LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+            "zh-cn": "ESP8266 / ESP32网络服务器的快速且功能丰富的实现，用于控制NeoPixel（WS2812B，WS2811，SK6812，APA102）LED！"
+        },
+        "authors": [
+            "DutchmanNL <rdrozda86@gmail.com>"
+        ],
+        "keywords": [
+            "WLED",
+            "WS2812b",
+            "RGB",
+            "RGBW"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "main.js",
+        "icon": "wled.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.wled/master/admin/wled.png",
+        "readme": "https://github.com/iobroker-community-adapters/ioBroker.wled/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "lighting",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "poll",
+        "materialize": true,
+        "messagebox": true,
+        "dependencies": [
+            {
+                "js-controller": ">=1.4.2"
+            }
+        ]
+    },
+    "native": {
+        "devices": [],
+        "Time_Sync": 30
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "WLED service ready to connecto to devices",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
 }

@@ -1,0 +1,13 @@
+{
+    "Add": "加",
+    "Add Device": "添加设备",
+    "Add device manualy": "手动添加设备",
+    "Close": "关",
+    "Connected": "连接的",
+    "Device add failed, please enter correct IP and ensure device is reachable": "设备添加失败，请输入正确的IP并确保设备可访问",
+    "IP-Adress": "IP地址",
+    "Intervall in seconds": "间隔秒",
+    "Name": "名称",
+    "WLED devices are discovered automatically, if not you can use the ADD Device button.": "WLED设备会自动发现，否则，您可以使用ADD Device按钮。",
+    "wled adapter settings": "wled的适配器设置"
+}

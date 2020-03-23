@@ -1,0 +1,13 @@
+{
+    "Add": "добавлять",
+    "Add Device": "Добавить устройство",
+    "Add device manualy": "Добавить устройство вручную",
+    "Close": "близко",
+    "Connected": "Связано",
+    "Device add failed, please enter correct IP and ensure device is reachable": "Не удалось добавить устройство, введите правильный IP-адрес и убедитесь, что устройство доступно",
+    "IP-Adress": "IP адрес",
+    "Intervall in seconds": "Интервал в секундах",
+    "Name": "имя",
+    "WLED devices are discovered automatically, if not you can use the ADD Device button.": "Устройства WLED обнаруживаются автоматически, если вы не можете использовать кнопку ADD Device.",
+    "wled adapter settings": "Настройки адаптера для wled"
+}

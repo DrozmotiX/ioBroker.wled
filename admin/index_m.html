@@ -28,7 +28,7 @@
             for (i in obj) {
                 if (obj[i] !== undefined) {
                     text += '<tr id="' + obj[i].value.native.mac + '"><td><span id="' + obj[i].value.native.mac + '-index">' + obj[i].value.native.mac + '</span></td>'
-                    text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value=' + obj[i].value.native.name + '></td>'
+                    text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value=' + obj[i].value.common.name + '></td>'
                     text += '<td> <input id="' + index + '-ip" type="text" disabled="true" class="center-align input-field" value="' + obj[i].value.native.ip + '"></td>'
                     text += '<td> <div class="led-all center-led led-gray"></div></td>'
                     text += '</tr>';
@@ -228,7 +228,7 @@
                             <tr>
                                 <th class="translate">ID</th>
                                 <th class="translate">Name</th>
-                                <th class="translate">IP</th>
+                                <th class="translate">IP-Adress</th>
                                 <th class="translate">Connected</th>
                                 <!--
                             <th class="translate">Remove</th>

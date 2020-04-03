@@ -331,15 +331,28 @@ class Wled extends utils.Adapter {
 
 	}
 
-	async readState(index, device_id) {
+	async readState(index) {
+		const device_id = this.devices[index];
+
 		// Read WLED API, trow warning in case of issues
 		const states = await this.getAPI('http://' + index + '/json/state');
 		// Store state array
 		if (!states) {
 			this.log.debug('Effects API call error, will retry in shedule interval !');
+			// Set alive state to false if data read fails
+			await this.setStateAsync(device_id + '._info' + '._online', {
+				val: false,
+				ack: true
+			});
 			return false;
 		}
 		this.log.debug('Effects received from WLED device ' + JSON.stringify(states));
+
+		// Set alive state to false if data read fails
+		await this.setStateAsync(device_id + '._info' + '._online', {
+			val: true,
+			ack: true
+		});
 
 		for (const i in states) {
 			const currentState = states[i]
@@ -512,7 +525,7 @@ class Wled extends utils.Adapter {
 				}
 			});
 
-			// Update device workig state
+			// Update device working state
 			await this.create_state(device_id + '._info' + '._online', 'online', true);
 			// Read info Channel
 			for (const i in deviceInfo) {
@@ -570,9 +583,9 @@ class Wled extends utils.Adapter {
 
 			}
 
-			result.effects = await this.readEffects(index, device_id);
-			result.palettes = await this.readPalettes(index, device_id);
-			result.state = await this.readState(index, device_id);
+			result.effects = await this.readEffects(index);
+			result.palettes = await this.readPalettes(index);
+			result.state = await this.readState(index);
 
 			// Create additional states not included in JSON-API of WLED but available as SET command
 			await this.create_state(device_id + '.tt', 'tt', null);
@@ -591,7 +604,7 @@ class Wled extends utils.Adapter {
 			});
 			this.log.error('Read Data error : ' + error);
 			this.log.error('Debug information for developer : ' + JSON.stringify(deviceInfo));
-			return null
+			return null;
 		}
 	}
 
@@ -602,7 +615,7 @@ class Wled extends utils.Adapter {
 		// Run true array of known devices and initiate API calls retrieving all information
 		for (const i in this.devices) {
 
-			const result =  await this.readState(i, this.devices[i]);
+			const result =  await this.readState(i);
 			this.log.debug('Getting data for ' + this.devices[i]);
 
 		}

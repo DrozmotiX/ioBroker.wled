@@ -220,6 +220,11 @@
         "connectionType": "local",
         "dataSource": "poll",
         "materialize": true,
+        "plugins": {
+            "sentry": {
+                "dsn": "https://3cc67b3422654a228fbc5ab428234a3e@sentry.iobroker.net/27"
+            }
+        },
         "messagebox": true,
         "dependencies": [
             {

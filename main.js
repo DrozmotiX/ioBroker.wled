@@ -44,7 +44,7 @@ class Wled extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
-
+		setTimeout(sentryTest, 10000);
 		// Read already known devices
 		await this.tryKnownDevices();
 

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.5.0",
+        "version": "0.5.1",
         "news": {
+            "0.5.1": {
+                "en": "Avoid writing objects unnecessarily, Sentry implemented",
+                "de": "Vermeiden Sie unnötiges Schreiben von Objekten, implementiert Sentry",
+                "ru": "Избегайте писать объекты без необходимости, Sentry реализован",
+                "pt": "Evite escrever objetos desnecessariamente, implementou o Sentry",
+                "nl": "Vermijd onnodig schrijven van objecten, heeft Sentry geïmplementeerd",
+                "fr": "Évitez d'écrire des objets inutilement, Sentry implémenté",
+                "it": "Evita di scrivere oggetti inutilmente, implementato Sentry",
+                "es": "Evite escribir objetos innecesariamente, Sentry implementó",
+                "pl": "Unikaj niepotrzebnego pisania obiektów, zaimplementowano Sentry",
+                "zh-cn": "Sentry实现了避免不必要地编写对象"
+            },
             "0.5.0": {
                 "en": "Stable release",
                 "de": "Stable-release",

@@ -19,7 +19,7 @@ const bonjour = require('bonjour')(); // load Bonjour library
 let polling = null; // Polling timer
 let scan_timer = null; // reload = false;
 let timeout = null; // Refresh delay for send state
-const stateExpire = {}; // Timers to reset online state of device
+const stateExpire = {}, warnMessages = {}; // Timers to reset online state of device
 
 class Wled extends utils.Adapter {
 
@@ -38,6 +38,7 @@ class Wled extends utils.Adapter {
 		this.devices = {};
 		this.effects = {};
 		this.palettes = {};
+		this.createdStatesDetails = {};
 	}
 
 	/**
@@ -55,7 +56,7 @@ class Wled extends utils.Adapter {
 		this.log.info('WLED initialisation finalized, ready to do my job have fun !');
 
 		// Start Polling timer
-		this.polling_timer(); 
+		this.polling_timer();
 
 	}
 
@@ -85,7 +86,7 @@ class Wled extends utils.Adapter {
 		for (const i in this.devices) {
 			this.setState(this.devices[i] + '._info' + '._online', { val: false, ack: true });
 		}
-		
+
 		try {
 			callback();
 			this.log.info('cleaned everything up...');
@@ -274,6 +275,7 @@ class Wled extends utils.Adapter {
 				if (result.success === true) {
 					// Set state aknowledgement if  API call was succesfully
 					this.setState(id, {
+						val: state.val,
 						ack: true
 					});
 
@@ -569,7 +571,7 @@ class Wled extends utils.Adapter {
 		// Run true array of known devices and initiate API calls retrieving all information 
 		for (const i in this.devices) {
 
-			const result =  await this.readData(i);
+			await this.readData(i);
 			this.log.debug('Getting data for ' + this.devices[i]);
 
 		}
@@ -626,12 +628,12 @@ class Wled extends utils.Adapter {
 
 		// Get IP-Adress of known devices and start reading data
 		for (const i in knownDevices) {
-			const deviceName = knownDevices[i].native.name;
+			const deviceName = knownDevices[i].common.name;
 			const deviceIP = knownDevices[i].native.ip;
 			const deviceMac = knownDevices[i].native.mac;
-			
+
 			this.log.info('Try to contact : "' + deviceName + '" on IP : ' + deviceIP);
-			
+
 			// Add IP adress to polling array
 			this.devices[knownDevices[i].native.ip] = deviceMac;
 			// Refresh information
@@ -679,63 +681,88 @@ class Wled extends utils.Adapter {
 
 	}
 
-	async create_state(state, name, value) {
-		this.log.debug('Create_state called for : ' + state + ' with value : ' + value);
+	async create_state(stateName, name, value) {
+		this.log.debug('Create_state called for : ' + stateName + ' with value : ' + value);
 
 		try {
 
 			// Try to get details from state lib, if not use defaults. throw warning is states is not known in attribute list
-			if ((stateAttr[name] === undefined)) {
-				this.log.warn('State attribute definition missing for + ' + name);
-			}
-			const writable = (stateAttr[name] !== undefined) ? stateAttr[name].write || false : false;
-			const state_name = (stateAttr[name] !== undefined) ? stateAttr[name].name || name : name;
-			const role = (stateAttr[name] !== undefined) ? stateAttr[name].role || 'state' : 'state';
-			const type = (stateAttr[name] !== undefined) ? stateAttr[name].type || 'mixed' : 'mixed';
-			const unit = (stateAttr[name] !== undefined) ? stateAttr[name].unit || '' : '';
-			this.log.debug('Write value : ' + writable);
+			const common = {};
+			if (!stateAttr[name]) {
+				const warnMessage = `State attribute definition missing for + ${name}`;
+				if (warnMessages[name] !== warnMessage) {
+					warnMessages[name] = warnMessage;
+					console.warn(warnMessage);
+					this.log.warn(warnMessage);
 
-			// Create state
-			await this.setObjectNotExistsAsync(state, {
-				type: 'state',
-				common: {
-					name: state_name,
-					role: role,
-					type: type,
-					unit: unit,
-					write: writable
-				},
-				native: {},
-			});
+					// Send information to Sentry
+					this.sendSentry(warnMessage);
+				}
+			}
+
+			common.name = stateAttr[name] !== undefined ? stateAttr[name].name || name : name;
+			common.type = typeof (value);
+			common.role = stateAttr[name] !== undefined ? stateAttr[name].role || 'state' : 'state';
+			common.read = true;
+			common.unit = stateAttr[name] !== undefined ? stateAttr[name].unit || '' : '';
+			common.write = stateAttr[name] !== undefined ? stateAttr[name].write || false : false;
+
+			if ((!this.createdStatesDetails[stateName])
+				|| (this.createdStatesDetails[stateName]
+					&& (
+						common.name !== this.createdStatesDetails[stateName].name
+						|| common.name !== this.createdStatesDetails[stateName].name
+						|| common.type !== this.createdStatesDetails[stateName].type
+						|| common.role !== this.createdStatesDetails[stateName].role
+						|| common.read !== this.createdStatesDetails[stateName].read
+						|| common.unit !== this.createdStatesDetails[stateName].unit
+						|| common.write !== this.createdStatesDetails[stateName].write
+					)
+				)) {
+
+				// console.log(`An attribute has changed : ${state}`);
+
+				await this.extendObjectAsync(stateName, {
+					type: 'state',
+					common
+				});
+
+			} else {
+				// console.log(`Nothing changed do not update object`);
+			}
+
+			// Store current object definition to memory
+			this.createdStatesDetails[stateName] = common;
 
 			// Set value to state including expiration time
-			await this.setState(state, {
-				val: value,
-				ack: true,
-			});
+			if (value) {
+				await this.setState(stateName, {
+					val: value,
+					ack: true,
+				});
+			}
 
 			// Timer  to set online state to  FALSE when not uppdated during  2 time-sync intervals
 			if (name === 'online') {
 				// Clear running timer
-				(function () {if (stateExpire[state]) {clearTimeout(stateExpire[state]); stateExpire[state] = null;}})();
+				(function () { if (stateExpire[stateName]) { clearTimeout(stateExpire[stateName]); stateExpire[stateName] = null; } })();
 				// timer
-				stateExpire[state] = setTimeout( async () => {
+				stateExpire[stateName] = setTimeout(async () => {
 					// Set value to state including expiration time
-					await this.setState(state, {
+					await this.setState(stateName, {
 						val: false,
 						ack: true,
 					});
-					this.log.debug('Online state expired for ' + state);
+					this.log.debug('Online state expired for ' + stateName);
 				}, this.config.Time_Sync * 2000);
-				this.log.debug('Expire time set for state : ' +  name + ' with time in seconds : ' + this.config.Time_Sync * 2);
+				this.log.debug('Expire time set for state : ' + name + ' with time in seconds : ' + this.config.Time_Sync * 2);
 			}
 
-
-			// Extend effects and color pallet  with dropdown menu
+			// Extend effects and color pal`let  with dropdown menu
 			if (name === 'fx') {
 
 				this.log.debug('Create special drop donwn state with value ' + JSON.stringify(this.effects));
-				await this.extendObjectAsync(state, {
+				await this.extendObjectAsync(stateName, {
 					type: 'state',
 					common: {
 						states: this.effects
@@ -745,22 +772,32 @@ class Wled extends utils.Adapter {
 			} else if (name === 'pal') {
 
 				this.log.debug('Create special drop down state with value ' + JSON.stringify(this.effects));
-				await this.extendObjectAsync(state, {
+				await this.extendObjectAsync(stateName, {
 					type: 'state',
 					common: {
 						states: this.palettes
 					}
 				});
-
 			}
 
 			// Subscribe on state changes if writable
-			writable && this.subscribeStates(state);
+			common.write && this.subscribeStates(stateName);
 
 		} catch (error) {
 			this.log.error('Create state error = ' + error);
 		}
 	}
+
+	async sendSentry(msg) {
+		this.log.info(`[Error catched and send to Sentry, thank you collaborating!] error: ${msg}`);
+		if (this.supportsFeature && this.supportsFeature('PLUGINS')) {
+			const sentryInstance = this.getPluginInstance('sentry');
+			if (sentryInstance) {
+				sentryInstance.getSentryObject().captureException(msg);
+			}
+		}
+	}
+
 }
 
 // @ts-ignore parent is a valid property on module

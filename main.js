@@ -320,10 +320,10 @@ class Wled extends utils.Adapter {
 				// eslint-disable-next-line no-case-declarations
 				const result = await this.readData(obj.message);
 				this.log.debug('Response from Read Data : ' + JSON.stringify(result));
-				if (result === 'success') {
+				if (result !== null) {
 					respond('success', this);
 					// Add new device to array ensuring data polling at intervall time
-					this.devices[obj.message] = 'xxx';
+					this.devices[obj.message] = result.info.mac;
 				} else {
 					respond('failed', this);
 				}
@@ -332,53 +332,195 @@ class Wled extends utils.Adapter {
 
 	}
 
+async readState(index, device_id) {
+		// Read WLED API, trow warning in case of issues
+		const states = await this.getAPI('http://' + index + '/json/state');
+		// Store state array
+		if (!states) {
+			this.log.debug('Effects API call error, will retry in shedule interval !');
+			return false;
+		}
+		this.log.debug('Effects received from WLED device ' + JSON.stringify(states));
+
+		for (const i in states) {
+			const currentState = states[i]
+			this.log.debug('Datatype : ' + typeof (currentState));
+
+			// Create Channels for nested states
+			switch (i) {
+				case ('ccnf'):
+					await this.setObjectNotExistsAsync(device_id + '.ccnf', {
+						type: 'channel',
+						common: {
+							name: 'ccnf',
+						},
+						native: {},
+					});
+					break;
+
+				case ('nl'):
+					await this.setObjectNotExistsAsync(device_id + '.nl', {
+						type: 'channel',
+						common: {
+							name: 'Nightlight',
+						},
+						native: {},
+					});
+					break;
+
+				case ('udpn'):
+					await this.setObjectNotExistsAsync(device_id + '.udpn', {
+						type: 'channel',
+						common: {
+							name: 'Broadcast (UDP sync)',
+						},
+						native: {},
+					});
+					break;
+
+				case ('seg'):
+
+					this.log.debug('Segment Array : ' + JSON.stringify(currentState));
+
+					await this.setObjectNotExistsAsync(device_id + '.seg', {
+						type: 'channel',
+						common: {
+							name: 'Segmentation',
+						},
+						native: {},
+					});
+
+					for (const y in currentState) {
+
+						await this.setObjectNotExistsAsync(device_id + '.seg.' + y, {
+							type: 'channel',
+							common: {
+								name: 'Segment ' + y,
+							},
+							native: {},
+						});
+
+						for (const x in currentState[y]) {
+							this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(currentState[y]));
+
+							if (x !== 'col') {
+
+								await this.create_state(device_id + '.' + i + '.' + y + '.' + x, x, currentState[y][x]);
+
+							} else {
+								this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(currentState[y][x][0]));
+
+								// Translate RGB values to HEX
+								const primaryRGB = currentState[y][x][0].toString().split(',');
+								const primaryHex = rgbHex(parseInt(primaryRGB[0]), parseInt(primaryRGB[1]), parseInt(primaryRGB[2]));
+								const secondaryRGB = currentState[y][x][1].toString().split(',');
+								const secondaryHex = rgbHex(parseInt(secondaryRGB[0]), parseInt(secondaryRGB[1]), parseInt(secondaryRGB[2]));
+								const tertiaryRGB = currentState[y][x][2].toString().split(',');
+								const tertiaryHex = rgbHex(parseInt(tertiaryRGB[0]), parseInt(tertiaryRGB[1]), parseInt(tertiaryRGB[2]));
+
+								// Write RGB and HEX information to states
+								await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB', currentState[y][x][0]);
+								await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0_HEX', 'Primary Color HEX', '#' + primaryHex);
+								await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color RGB (background)', currentState[y][x][1]);
+								await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1_HEX', 'Secondary Color HEX (background)', '#' + secondaryHex);
+								await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color RGB', currentState[y][x][2]);
+								await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2_HEX', 'Tertiary Color HEX', '#' + tertiaryHex);
+							}
+						}
+					}
+
+					break;
+
+				default:
+
+			}
+
+			// Create states, ensure object structures are reflected in tree
+			if (typeof (currentState) !== 'object') {
+
+				// Default channel creation
+				this.log.debug('Default state created : ' + i + ' : ' + JSON.stringify(currentState));
+				await this.create_state(device_id + '.' + i, i, currentState);
+
+			} else {
+
+				for (const y in currentState) {
+					if (typeof (currentState[y]) !== 'object') {
+						this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(currentState[y]));
+						await this.create_state(device_id + '.' + i + '.' + y, y, currentState[y]);
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	async readEffects(index, device_id) {
+		// Read WLED API, trow warning in case of issues
+		const effects = await this.getAPI('http://' + index + '/json/effects');
+		// Store effects array
+		if (!effects) {
+			this.log.debug('Effects API call error, will retry in shedule interval !');
+			return false;
+		}
+		this.log.debug('Effects received from WLED device ' + JSON.stringify(effects));
+		this.effects = effects;
+		return true;
+	}
+
+	async readPalettes(index, device_id) {
+		// Read WLED API, trow warning in case of issues
+		const palletts = await this.getAPI('http://' + index + '/json/palletts');
+		// Store palletts array
+		if (!palletts) {
+			this.log.debug('Palletts API call error, will retry in shedule interval !');
+			return false;
+		}
+		this.log.debug('Palletts received from WLED device ' + JSON.stringify(palletts));
+		this.palletts = palletts;
+		return true;
+	}
+
 	// Read WLED API of device and store all values in states
 	async readData(index) {
 		this.log.debug('Read data called : ' + JSON.stringify(index));
 
 		// Read WLED API, trow warning in case of issues
-		const objArray = await this.getAPI('http://' + index + '/json');
-		if (!objArray) {
+		const deviceInfo = await this.getAPI('http://' + index + '/json/info');
+		if (!deviceInfo) {
 			this.log.debug('API call error, will retry in shedule interval !');
-			return 'failed';
-		} else {
-			this.log.debug('Data received from WLED device ' + JSON.stringify(objArray));
+			return null;
 		}
 
 		try {
-			const device_id = objArray['info'].mac;
+			const result = {
+				info: deviceInfo
+			}
+			this.log.debug('Info received from WLED device ' + JSON.stringify(deviceInfo));
+
+			const device_id = deviceInfo.mac;
 
 			// Create Device, channel id by MAC-Adress and ensure relevant information for polling and instance configuration is part of device object
 			await this.extendObjectAsync(device_id, {
 				type: 'device',
 				common: {
-					name: objArray['info'].name
+				  name: deviceInfo.name
 				},
 				native: {
 					ip: index,
-					mac: objArray['info'].mac,
+					mac: deviceInfo.mac,
 				}
 			});
 
 			// Update device workig state
 			await this.create_state(device_id + '._info' + '._online', 'online', true);
 
-			// Store effects array
-			for (const i in objArray.effects) {
-
-				this.effects[i] = objArray.effects[i];
-			}
-
-			// Store pallet array
-			for (const i in objArray.palettes) {
-
-				this.palettes[i] = objArray.palettes[i];
-			}
 
 			// Read info Channel
-			for (const i in objArray['info']) {
+			for (const i in deviceInfo) {
 
-				this.log.debug('Datatype : ' + typeof (objArray['info'][i]));
+				this.log.debug('Datatype : ' + typeof (deviceInfo[i]));
 
 				// Create Info channel
 				await this.setObjectNotExistsAsync(device_id + '._info', {
@@ -416,132 +558,26 @@ class Wled extends utils.Adapter {
 				}
 
 				// Create states, ensure object structures are reflected in tree
-				if (typeof (objArray['info'][i]) !== 'object') {
+								if (typeof (deviceInfo[i]) !== 'object') {
 
 					// Default channel creation
-					this.log.debug('State created : ' + i + ' : ' + JSON.stringify(objArray['info'][i]));
-					await this.create_state(device_id + '._info.' + i, i, objArray['info'][i]);
+					this.log.debug('State created : ' + i + ' : ' + JSON.stringify(deviceInfo[i]));
+					await this.create_state(device_id + '._info.' + i, i, deviceInfo[i]);
 
 				} else {
-					for (const y in objArray['info'][i]) {
-						this.log.debug('State created : ' + y + ' : ' + JSON.stringify(objArray['info'][i][y]));
-						await this.create_state(device_id + '._info.' + i + '.' + y, y, objArray['info'][i][y]);
+					for (const y in deviceInfo[i]) {
+						this.log.debug('State created : ' + y + ' : ' + JSON.stringify(deviceInfo[i][y]));
+						await this.create_state(device_id + '._info.' + i + '.' + y, y, deviceInfo[i][y]);
 					}
 				}
 
 			}
 
-			// Read state Channel
-			for (const i in objArray['state']) {
+      result.effects = await this.readEffects(index, device_id);
+			result.palettes = await this.readPalettes(index, device_id);
+			result.state = await this.readState(index, device_id);
 
-				this.log.debug('Datatype : ' + typeof (objArray['state'][i]));
 
-				// Create Channels for nested states
-				switch (i) {
-					case ('ccnf'):
-						await this.setObjectNotExistsAsync(device_id + '.ccnf', {
-							type: 'channel',
-							common: {
-								name: 'ccnf',
-							},
-							native: {},
-						});
-						break;
-
-					case ('nl'):
-						await this.setObjectNotExistsAsync(device_id + '.nl', {
-							type: 'channel',
-							common: {
-								name: 'Nightlight',
-							},
-							native: {},
-						});
-						break;
-
-					case ('udpn'):
-						await this.setObjectNotExistsAsync(device_id + '.udpn', {
-							type: 'channel',
-							common: {
-								name: 'Broadcast (UDP sync)',
-							},
-							native: {},
-						});
-						break;
-
-					case ('seg'):
-
-						this.log.debug('Segment Array : ' + JSON.stringify(objArray['state'][i]));
-
-						await this.setObjectNotExistsAsync(device_id + '.seg', {
-							type: 'channel',
-							common: {
-								name: 'Segmentation',
-							},
-							native: {},
-						});
-
-						for (const y in objArray['state'][i]) {
-
-							await this.setObjectNotExistsAsync(device_id + '.seg.' + y, {
-								type: 'channel',
-								common: {
-									name: 'Segment ' + y,
-								},
-								native: {},
-							});
-
-							for (const x in objArray['state'][i][y]) {
-								this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(objArray['state'][i][y]));
-
-								if (x !== 'col') {
-
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x, x, objArray['state'][i][y][x]);
-
-								} else {
-									this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(objArray['state'][i][y][x][0]));
-
-									// Translate RGB values to HEX
-									const primaryRGB = objArray['state'][i][y][x][0].toString().split(',');
-									const primaryHex = rgbHex(parseInt(primaryRGB[0]), parseInt(primaryRGB[1]), parseInt(primaryRGB[2]));
-									const secondaryRGB = objArray['state'][i][y][x][1].toString().split(',');
-									const secondaryHex = rgbHex(parseInt(secondaryRGB[0]), parseInt(secondaryRGB[1]), parseInt(secondaryRGB[2]));
-									const tertiaryRGB = objArray['state'][i][y][x][2].toString().split(',');
-									const tertiaryHex = rgbHex(parseInt(tertiaryRGB[0]), parseInt(tertiaryRGB[1]), parseInt(tertiaryRGB[2]));
-
-									// Write RGB and HEX information to states
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB', objArray['state'][i][y][x][0]);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0_HEX', 'Primary Color HEX', '#' + primaryHex);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color RGB (background)', objArray['state'][i][y][x][1]);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1_HEX', 'Secondary Color HEX (background)', '#' + secondaryHex);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color RGB', objArray['state'][i][y][x][2]);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2_HEX', 'Tertiary Color HEX', '#' + tertiaryHex);
-								}
-							}
-						}
-
-						break;
-
-					default:
-
-				}
-
-				// Create states, ensure object structures are reflected in tree
-				if (typeof (objArray['state'][i]) !== 'object') {
-
-					// Default channel creation
-					this.log.debug('Default state created : ' + i + ' : ' + JSON.stringify(objArray['state'][i]));
-					await this.create_state(device_id + '.' + i, i, objArray['state'][i]);
-
-				} else {
-
-					for (const y in objArray['state'][i]) {
-						if (typeof (objArray['state'][i][y]) !== 'object') {
-							this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(objArray['state'][i][y]));
-							await this.create_state(device_id + '.' + i + '.' + y, y, objArray['state'][i][y]);
-						}
-					}
-				}
-			}
 
 			// Create additional states not included in JSON-API of WLED but available as SET command
 			await this.create_state(device_id + '.tt', 'tt', null);
@@ -549,7 +585,7 @@ class Wled extends utils.Adapter {
 			await this.create_state(device_id + '.udpn.nn', 'nn', null);
 			await this.create_state(device_id + '.time', 'time', null);
 
-			return 'success';
+			return result;
 
 		} catch (error) {
 
@@ -559,8 +595,8 @@ class Wled extends utils.Adapter {
 				ack: true
 			});
 			this.log.error('Read Data error : ' + error);
-			this.log.error('Debug information for developer : ' + JSON.stringify(objArray));
-			return 'failed';
+			this.log.error('Debug information for developer : ' + JSON.stringify(deviceInfo));
+			return null;
 		}
 	}
 
@@ -571,7 +607,7 @@ class Wled extends utils.Adapter {
 		// Run true array of known devices and initiate API calls retrieving all information 
 		for (const i in this.devices) {
 
-			await this.readData(i);
+			const result =  await this.readState(i, this.devices[i]);
 			this.log.debug('Getting data for ' + this.devices[i]);
 
 		}
@@ -640,7 +676,7 @@ class Wled extends utils.Adapter {
 			const result = await this.readData(deviceIP);
 
 			// Error handling
-			if (!result || result === 'failed') {
+			if (result === null) {
 				this.log.warn('Unable to connect to device : ' + deviceName + ' on IP : ' + deviceIP + ' Will retry at intervall time');
 			} else {
 				this.log.info('Device : "' + deviceName + '" Successfully connected on IP : ' + deviceIP);

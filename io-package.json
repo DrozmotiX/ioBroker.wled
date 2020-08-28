@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.5.1",
+        "version": "0.5.2-beta.0",
         "news": {
+            "0.5.2-beta.0": {
+                "en": "Bugfix : Add missing Attributes with WLED 0.10.0",
+                "de": "Bugfix: Fehlende Attribute mit WLED 0.10.0 hinzufügen",
+                "ru": "Исправление: добавление недостающих атрибутов с WLED 0.10.0",
+                "pt": "Correção de bug: adicionar atributos ausentes com WLED 0.10.0",
+                "nl": "Bugfix: voeg ontbrekende attributen toe met WLED 0.10.0",
+                "fr": "Correctif: ajouter des attributs manquants avec WLED 0.10.0",
+                "it": "Bugfix: aggiungi attributi mancanti con WLED 0.10.0",
+                "es": "Corrección de error: agregue atributos faltantes con WLED 0.10.0",
+                "pl": "Poprawka: Dodaj brakujące atrybuty za pomocą WLED 0.10.0",
+                "zh-cn": "错误修正：使用WLED 0.10.0添加缺少的属性"
+            },
             "0.5.1": {
                 "en": "Avoid writing objects unnecessarily, Sentry implemented",
                 "de": "Vermeiden Sie unnötiges Schreiben von Objekten, implementiert Sentry",

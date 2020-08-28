@@ -333,9 +333,7 @@ class Wled extends utils.Adapter {
 	}
 
 	// Read WLED API of device and store all values in states
-	async readData(index) {
-		this.log.debug('Read data called : ' + JSON.stringify(index));
-
+	async readState(index, device_id) {
 		// Read WLED API, trow warning in case of issues
 		const objArray = await this.getAPI('http://' + index + '/json');
 		if (!objArray) {

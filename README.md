@@ -45,7 +45,7 @@ If you like my work, please feel free to provide a personal donation
     ## __WORK IN PROGRESS__
 -->
 
-### __WORK IN PROGRESS__
+### 0.5.2-beta.0 (2020-08-29)
 * (DutchmanNL) Bugfix : Add missing Attributes with WLED 0.10.0
 
 ### 0.5.1 (20-04-2020) Avoid writing objects unnecessarily, Sentry implemented

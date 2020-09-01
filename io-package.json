@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.5.2",
+        "version": "0.5.3",
         "news": {
+            "0.5.3": {
+                "en": "Support WLED 0.10.2, new state definitions implemented\nUpdate state definitions\nRemove log messages for missing states (Sentry report only)",
+                "de": "Unterstützt WLED 0.10.2, neue Statusdefinitionen implementiert\nStatusdefinitionen aktualisieren\nEntfernen Sie Protokollnachrichten für fehlende Status (nur Wachpostenbericht).",
+                "ru": "Поддержка WLED 0.10.2, реализованы новые определения состояний\nОбновить определения состояний\nУдалить сообщения журнала для отсутствующих состояний (только отчет Sentry)",
+                "pt": "Suporte WLED 0.10.2, novas definições de estado implementadas\nAtualizar definições de estado\nRemover mensagens de registro para estados ausentes (relatório Sentry apenas)",
+                "nl": "Ondersteuning van WLED 0.10.2, nieuwe statusdefinities geïmplementeerd\nUpdate status definities\nLogboekberichten verwijderen voor ontbrekende staten (alleen Sentry-rapport)",
+                "fr": "Prise en charge de WLED 0.10.2, nouvelles définitions d'état implémentées\nMettre à jour les définitions d'état\nSupprimer les messages du journal pour les états manquants (rapport Sentry uniquement)",
+                "it": "Supporta WLED 0.10.2, implementate nuove definizioni di stato\nAggiorna le definizioni di stato\nRimuovi i messaggi di registro per gli stati mancanti (solo rapporto Sentry)",
+                "es": "Admite WLED 0.10.2, nuevas definiciones de estado implementadas\nActualizar definiciones de estado\nEliminar mensajes de registro para los estados que faltan (solo informe Sentry)",
+                "pl": "Obsługa WLED 0.10.2, zaimplementowano nowe definicje stanów\nZaktualizuj definicje stanu\nUsuń komunikaty dziennika dla brakujących stanów (tylko raport Sentry)",
+                "zh-cn": "支持WLED 0.10.2，实现了新的状态定义\n更新状态定义\n删除缺少状态的日志消息（仅针对哨兵报告）"
+            },
             "0.5.2": {
                 "en": "Bugfix : Add missing Attributes with WLED 0.10.0",
                 "de": "Bugfix: Fehlende Attribute mit WLED 0.10.0 hinzufügen",

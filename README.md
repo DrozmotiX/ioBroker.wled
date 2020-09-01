@@ -52,7 +52,7 @@ When the adapter crashes or an other Code error happens, this error message that
     ## __WORK IN PROGRESS__
 -->
 
-### __WORK IN PROGRESS__ - Add support for WLED 0.10.2
+### 0.5.3 (2020-09-01) - Add support for WLED 0.10.2
 * (DutchmanNL) Support WLED 0.10.2, new state definitions implemented
 * (DutchmanNL) Update state definitions
 * (DutchmanNL) Remove log messages for missing states (Sentry report only)

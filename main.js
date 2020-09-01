@@ -11,7 +11,7 @@ const utils = require('@iobroker/adapter-core');
 // Load your modules here, e.g.:
 const rgbHex = require('rgb-hex'); // Lib to translate rgb to hex
 const hexRgb = require('hex-rgb'); // Lib to translate hex to rgb
-const { default: axios } = require('axios'); // Lib to handle http requests
+const {default: axios} = require('axios'); // Lib to handle http requests
 
 const stateAttr = require('./lib/stateAttr.js'); // Load attribute library
 const bonjour = require('bonjour')(); // load Bonjour library
@@ -84,7 +84,7 @@ class Wled extends utils.Adapter {
 
 		// Set all online states to false
 		for (const i in this.devices) {
-			this.setState(this.devices[i] + '._info' + '._online', { val: false, ack: true });
+			this.setState(this.devices[i] + '._info' + '._online', {val: false, ack: true});
 		}
 
 		try {
@@ -591,7 +591,7 @@ class Wled extends utils.Adapter {
 	async getAPI(url) {
 		this.log.debug('GET API called for : ' + url);
 		try {
-			const response = await axios.get(url, { timeout: 3000 }); // Timout of 3 seconds for API call
+			const response = await axios.get(url, {timeout: 3000}); // Timout of 3 seconds for API call
 			this.log.debug(JSON.stringify('API response data : ' + response.data));
 			return response.data;
 		} catch (error) {

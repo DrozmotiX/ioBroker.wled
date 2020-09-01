@@ -690,8 +690,9 @@ class Wled extends utils.Adapter {
 				const warnMessage = `State attribute definition missing for + ${name}`;
 				if (warnMessages[name] !== warnMessage) {
 					warnMessages[name] = warnMessage;
-					console.warn(warnMessage);
-					this.log.warn(warnMessage);
+					// Log error messages disabled, sentry only
+					// console.warn(warnMessage);
+					// this.log.warn(warnMessage);
 
 					// Send information to Sentry
 					this.sendSentry(warnMessage);
@@ -743,7 +744,12 @@ class Wled extends utils.Adapter {
 			// Timer  to set online state to  FALSE when not uppdated during  2 time-sync intervals
 			if (name === 'online') {
 				// Clear running timer
-				(function () { if (stateExpire[stateName]) { clearTimeout(stateExpire[stateName]); stateExpire[stateName] = null; } })();
+				(function () {
+					if (stateExpire[stateName]) {
+						clearTimeout(stateExpire[stateName]);
+						stateExpire[stateName] = null;
+					}
+				})();
 				// timer
 				stateExpire[stateName] = setTimeout(async () => {
 					// Set value to state including expiration time

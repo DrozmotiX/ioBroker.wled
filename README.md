@@ -52,19 +52,20 @@ When the adapter crashes or an other Code error happens, this error message that
     ## __WORK IN PROGRESS__
 -->
 
-### 0.5.3 (2020-09-01) - Add support for WLED 0.10.2
+### 0.5.4 (2020-09-02)
 * (DutchmanNL) Support WLED 0.10.2, new state definitions implemented
 * (DutchmanNL) Update state definitions
 * (DutchmanNL) Remove log messages for missing states (Sentry report only)
+* (DutchmanNL) Bugfix : 0.5.3 decommissioned, update to 0.5.4 !
 
 ### 0.5.2 (2020-08-29)
 * (DutchmanNL) Bugfix : Add missing Attributes with WLED 0.10.0
 
 ### 0.5.1 (20-04-2020) Avoid writing objects unnecessarily, Sentry implemented
-* (Dutchman) Implement Sentry
-* (Dutchman) Bugfix : Devicename
-* (Dutchman) Bugfix : Warning with JS Controler 3.0.7
-* (Dutchman) Bugfix : Avoid writing objects unnecessarily
+* (DutchmanNL) Implement Sentry
+* (DutchmanNL) Bugfix : Devicename
+* (DutchmanNL) Bugfix : Warning with JS Controler 3.0.7
+* (DutchmanNL) Bugfix : Avoid writing objects unnecessarily
 
 ### 0.5.0 Stable release
 * (DutchmanNL) Added translations

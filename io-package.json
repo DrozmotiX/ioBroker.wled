@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.5.3",
+        "version": "0.5.4",
         "news": {
+            "0.5.4": {
+                "en": "Support WLED 0.10.2, new state definitions implemented\nUpdate state definitions\nRemove log messages for missing states (Sentry report only)\nBugfix : 0.5.3 decommissioned, update to 0.5.4 !",
+                "de": "Unterstützt WLED 0.10.2, neue Statusdefinitionen implementiert\nStatusdefinitionen aktualisieren\nEntfernen Sie Protokollnachrichten für fehlende Status (nur Wachpostenbericht).\nBugfix: 0.5.3 außer Betrieb genommen, Update auf 0.5.4!",
+                "ru": "Поддержка WLED 0.10.2, реализованы новые определения состояний\nОбновить определения состояний\nУдалить сообщения журнала для отсутствующих состояний (только отчет Sentry)\nИсправление: 0.5.3 списана, обновление до 0.5.4!",
+                "pt": "Suporte WLED 0.10.2, novas definições de estado implementadas\nAtualizar definições de estado\nRemover mensagens de registro para estados ausentes (relatório Sentry apenas)\nCorreção de bug: 0.5.3 descomissionado, atualizar para 0.5.4!",
+                "nl": "Ondersteuning van WLED 0.10.2, nieuwe statusdefinities geïmplementeerd\nUpdate status definities\nLogboekberichten verwijderen voor ontbrekende staten (alleen Sentry-rapport)\nBugfix: 0.5.3 ontmanteld, update naar 0.5.4!",
+                "fr": "Prise en charge de WLED 0.10.2, nouvelles définitions d'état implémentées\nMettre à jour les définitions d'état\nSupprimer les messages du journal pour les états manquants (rapport Sentry uniquement)\nCorrectif: 0.5.3 mis hors service, mise à jour vers 0.5.4!",
+                "it": "Supporta WLED 0.10.2, implementate nuove definizioni di stato\nAggiorna le definizioni di stato\nRimuovi i messaggi di registro per gli stati mancanti (solo rapporto Sentry)\nBugfix: 0.5.3 disattivato, aggiornamento a 0.5.4!",
+                "es": "Admite WLED 0.10.2, nuevas definiciones de estado implementadas\nActualizar definiciones de estado\nEliminar mensajes de registro para los estados que faltan (solo informe Sentry)\nCorrección de error: 0.5.3 retirado, actualización a 0.5.4.",
+                "pl": "Obsługa WLED 0.10.2, zaimplementowano nowe definicje stanów\nZaktualizuj definicje stanu\nUsuń komunikaty dziennika dla brakujących stanów (tylko raport Sentry)\nPoprawka: 0.5.3 wycofane, aktualizacja do 0.5.4!",
+                "zh-cn": "支持WLED 0.10.2，实现了新的状态定义\n更新状态定义\n删除缺少状态的日志消息（仅针对哨兵报告）\n错误修正：0.5.3退役，更新至0.5.4！"
+            },
             "0.5.3": {
                 "en": "Support WLED 0.10.2, new state definitions implemented\nUpdate state definitions\nRemove log messages for missing states (Sentry report only)",
                 "de": "Unterstützt WLED 0.10.2, neue Statusdefinitionen implementiert\nStatusdefinitionen aktualisieren\nEntfernen Sie Protokollnachrichten für fehlende Status (nur Wachpostenbericht).",

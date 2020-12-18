@@ -734,7 +734,9 @@ class Wled extends utils.Adapter {
 			this.createdStatesDetails[stateName] = common;
 
 			// Set value to state including expiration time
-			if (value) {
+			if (value == null) {
+				this.log.debug('Value is null or undefined for : ' + stateName);
+			} else {
 				await this.setState(stateName, {
 					val: value,
 					ack: true,

@@ -238,7 +238,7 @@ class Wled extends utils.Adapter {
 
 						}
 
-						// Build JSON string to be send to WLED, cancell function if 
+						// Build JSON string to be send to WLED, cancell function if
 						values = {
 							'seg': {
 								'id': valAsNumbers,
@@ -568,7 +568,7 @@ class Wled extends utils.Adapter {
 
 		this.log.debug('polling timer for  devices : ' + JSON.stringify(this.devices));
 
-		// Run true array of known devices and initiate API calls retrieving all information 
+		// Run true array of known devices and initiate API calls retrieving all information
 		for (const i in this.devices) {
 
 			await this.readData(i);
@@ -589,7 +589,7 @@ class Wled extends utils.Adapter {
 
 	}
 
-	// API get call from WLED device 
+	// API get call from WLED device
 	async getAPI(url) {
 		this.log.debug('GET API called for : ' + url);
 		try {
@@ -796,13 +796,13 @@ class Wled extends utils.Adapter {
 	sendSentry(msg) {
 
 		if (!disableSentry) {
-		this.log.info(`[Error catched and send to Sentry, thank you collaborating!] error: ${msg}`);
-		if (this.supportsFeature && this.supportsFeature('PLUGINS')) {
-			const sentryInstance = this.getPluginInstance('sentry');
-			if (sentryInstance) {
-				sentryInstance.getSentryObject().captureException(msg);
+			this.log.info(`[Error catched and send to Sentry, thank you collaborating!] error: ${msg}`);
+			if (this.supportsFeature && this.supportsFeature('PLUGINS')) {
+				const sentryInstance = this.getPluginInstance('sentry');
+				if (sentryInstance) {
+					sentryInstance.getSentryObject().captureException(msg);
+				}
 			}
-		}
 		}else {
 			this.log.error(`Sentry disabled, error catched : ${msg}`);
 			console.error(`Sentry disabled, error catched : ${msg}`);

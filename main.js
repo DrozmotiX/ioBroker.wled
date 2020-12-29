@@ -734,22 +734,21 @@ class Wled extends utils.Adapter {
 			this.createdStatesDetails[stateName] = common;
 
 			// Set value to state including expiration time
-			if (value) {
+			if (value !== null || value !== undefined) {
 				await this.setState(stateName, {
 					val: value,
 					ack: true,
 				});
 			}
 
-			// Timer  to set online state to  FALSE when not uppdated during  2 time-sync intervals
+			// Timer  to set online state to  FALSE when not updated during  2 time-sync intervals
 			if (name === 'online') {
 				// Clear running timer
-				(function () {
-					if (stateExpire[stateName]) {
-						clearTimeout(stateExpire[stateName]);
-						stateExpire[stateName] = null;
-					}
-				})();
+				if (stateExpire[stateName]) {
+					clearTimeout(stateExpire[stateName]);
+					stateExpire[stateName] = null;
+				}
+
 				// timer
 				stateExpire[stateName] = setTimeout(async () => {
 					// Set value to state including expiration time

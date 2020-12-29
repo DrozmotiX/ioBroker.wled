@@ -21,6 +21,8 @@ let scan_timer = null; // reload = false;
 let timeout = null; // Refresh delay for send state
 const stateExpire = {}, warnMessages = {}; // Timers to reset online state of device
 
+const disableSentry = false; // Ensure to set to true during developmemnt !
+
 class Wled extends utils.Adapter {
 
 	/**
@@ -791,13 +793,19 @@ class Wled extends utils.Adapter {
 		}
 	}
 
-	async sendSentry(msg) {
+	sendSentry(msg) {
+
+		if (!disableSentry) {
 		this.log.info(`[Error catched and send to Sentry, thank you collaborating!] error: ${msg}`);
 		if (this.supportsFeature && this.supportsFeature('PLUGINS')) {
 			const sentryInstance = this.getPluginInstance('sentry');
 			if (sentryInstance) {
 				sentryInstance.getSentryObject().captureException(msg);
 			}
+		}
+		}else {
+			this.log.error(`Sentry disabled, error catched : ${msg}`);
+			console.error(`Sentry disabled, error catched : ${msg}`);
 		}
 	}
 

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.5.4",
+        "version": "0.5.5",
         "news": {
+            "0.5.5": {
+                "en": "add development option to disable sentry\nsplit API calls, avoid not needed query's\nBugfix : issue with boolean attributes #40\nadd new state definition for WLED version 0.11\nBugfix : You are assigning a string to the state \"wled.0.xxxx.seg.0.col.0",
+                "de": "Entwicklungsoption hinzufügen, um Wachposten zu deaktivieren\nSplit-API-Aufrufe, vermeiden Sie nicht benötigte Abfragen\nBugfix: Problem mit booleschen Attributen # 40\nNeue Statusdefinition für WLED Version 0.11 hinzufügen\nBugfix: Sie weisen dem Status \"wled.0.xxxx.seg.0.col.0\" eine Zeichenfolge zu",
+                "ru": "добавить возможность разработки для отключения часовой\nразделить вызовы API, избежать ненужных запросов\nИсправление: проблема с логическими атрибутами # 40.\nдобавить новое определение состояния для WLED версии 0.11\nИсправление: вы присваиваете строку состоянию \"wled.0.xxxx.seg.0.col.0",
+                "pt": "adicionar opção de desenvolvimento para desativar sentinela\ndividir chamadas API, evitar consultas desnecessárias\nCorreção de bug: problema com atributos booleanos # 40\nadicionar nova definição de estado para WLED versão 0.11\nCorreção de bug: você está atribuindo uma string ao estado \"wled.0.xxxx.seg.0.col.0",
+                "nl": "ontwikkeloptie toevoegen om schildwacht uit te schakelen\nsplit API-oproepen, vermijd niet benodigde query's\nBugfix: probleem met booleaanse attributen # 40\nvoeg een nieuwe statusdefinitie toe voor WLED-versie 0.11\nBugfix: U wijst een string toe aan de status \"wled.0.xxxx.seg.0.col.0",
+                "fr": "ajouter une option de développement pour désactiver la sentinelle\nDiviser les appels d'API, éviter les requêtes inutiles\nCorrection de bug: problème avec les attributs booléens # 40\najouter une nouvelle définition d'état pour la version WLED 0.11\nCorrectif: vous attribuez une chaîne à l'état \"wled.0.xxxx.seg.0.col.0",
+                "it": "aggiungere un'opzione di sviluppo per disabilitare la sentinella\nchiamate API divise, evita le query non necessarie\nBugfix: problema con gli attributi booleani # 40\naggiungere una nuova definizione di stato per WLED versione 0.11\nBugfix: stai assegnando una stringa allo stato \"wled.0.xxxx.seg.0.col.0",
+                "es": "agregar opción de desarrollo para deshabilitar centinela\ndividir las llamadas a la API, evitar consultas no necesarias\nCorrección de error: problema con los atributos booleanos # 40\nagregar una nueva definición de estado para WLED versión 0.11\nCorrección de error: está asignando una cadena al estado \"wled.0.xxxx.seg.0.col.0",
+                "pl": "dodaj opcję rozwoju, aby wyłączyć wartownik\npodziel wywołania API, unikaj niepotrzebnych zapytań\nPoprawka: problem z atrybutami logicznymi # 40\ndodaj nową definicję stanu dla WLED w wersji 0.11\nPoprawka: przypisujesz ciąg do stanu „wled.0.xxxx.seg.0.col.0",
+                "zh-cn": "添加开发选项以禁用哨兵\n拆分API调用，避免不必要的查询\n错误修正：布尔属性＃40出现问题\n为WLED版本0.11添加新的状态定义\n错误修正：您正在为状态“ wled.0.xxxx.seg.0.col.0”分配一个字符串"
+            },
             "0.5.4": {
                 "en": "Support WLED 0.10.2, new state definitions implemented\nUpdate state definitions\nRemove log messages for missing states (Sentry report only)\nBugfix : 0.5.3 decommissioned, update to 0.5.4 !",
                 "de": "Unterstützt WLED 0.10.2, neue Statusdefinitionen implementiert\nStatusdefinitionen aktualisieren\nEntfernen Sie Protokollnachrichten für fehlende Status (nur Wachpostenbericht).\nBugfix: 0.5.3 außer Betrieb genommen, Update auf 0.5.4!",

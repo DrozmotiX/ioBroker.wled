@@ -53,6 +53,13 @@ When the adapter crashes or an other Code error happens, this error message that
     ## __WORK IN PROGRESS__
 -->
 
+### 0.5.5 (2021-01-03)
+* (DutchmanNL) add development option to disable sentry
+* (DutchmanNL) split API calls, avoid not needed query's
+* (DutchmanNL) Bugfix : issue with boolean attributes #40
+* (DutchmanNL) add new state definition for WLED version 0.11
+* (DutchmanNL) Bugfix : You are assigning a string to the state "wled.0.xxxx.seg.0.col.0
+
 ### 0.5.4 (2020-09-02)
 * (DutchmanNL) Support WLED 0.10.2, new state definitions implemented
 * (DutchmanNL) Update state definitions

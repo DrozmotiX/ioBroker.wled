@@ -723,6 +723,7 @@ class Wled extends utils.Adapter {
 
 			common.name = stateAttr[name] !== undefined ? stateAttr[name].name || name : name;
 			common.type = typeof (value);
+			common.type = stateAttr[name] !== undefined ? stateAttr[name].type || typeof (value) : typeof (value) ;
 			common.role = stateAttr[name] !== undefined ? stateAttr[name].role || 'state' : 'state';
 			common.read = true;
 			common.unit = stateAttr[name] !== undefined ? stateAttr[name].unit || '' : '';

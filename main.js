@@ -337,48 +337,37 @@ class Wled extends utils.Adapter {
 	// Read WLED API of device and store all values in states
 	async readData(index, device_id) {
 		// Read WLED API, trow warning in case of issues
-		const objArray = await this.getAPI('http://' + index + '/json');
-		if (!objArray) {
-			this.log.debug('API call error, will retry in shedule interval !');
+		// const objArray = await this.getAPI('http://' + index + '/json');
+		const deviceInfo = await this.getAPI('http://' + index + '/json/info');
+		if (!deviceInfo) {
+			this.log.debug('Info API call error, will retry in scheduled interval !');
 			return 'failed';
 		} else {
-			this.log.debug('Data received from WLED device ' + JSON.stringify(objArray));
+			this.log.debug('Info Data received from WLED device ' + JSON.stringify(deviceInfo));
 		}
 
 		try {
-			const device_id = objArray['info'].mac;
+			const device_id = deviceInfo.mac;
 
 			// Create Device, channel id by MAC-Adress and ensure relevant information for polling and instance configuration is part of device object
 			await this.extendObjectAsync(device_id, {
 				type: 'device',
 				common: {
-					name: objArray['info'].name
+					name: deviceInfo.name
 				},
 				native: {
 					ip: index,
-					mac: objArray['info'].mac,
+					mac: deviceInfo.mac,
 				}
 			});
 
-			// Update device workig state
+			// Update device working state
 			await this.create_state(device_id + '._info' + '._online', 'online', true);
 
-			// Store effects array
-			for (const i in objArray.effects) {
-
-				this.effects[i] = objArray.effects[i];
-			}
-
-			// Store pallet array
-			for (const i in objArray.palettes) {
-
-				this.palettes[i] = objArray.palettes[i];
-			}
-
 			// Read info Channel
-			for (const i in objArray['info']) {
+			for (const i in deviceInfo) {
 
-				this.log.debug('Datatype : ' + typeof (objArray['info'][i]));
+				this.log.debug('Datatype : ' + typeof (deviceInfo[i]));
 
 				// Create Info channel
 				await this.setObjectNotExistsAsync(device_id + '._info', {
@@ -416,25 +405,57 @@ class Wled extends utils.Adapter {
 				}
 
 				// Create states, ensure object structures are reflected in tree
-				if (typeof (objArray['info'][i]) !== 'object') {
+				if (typeof (deviceInfo[i]) !== 'object') {
 
 					// Default channel creation
-					this.log.debug('State created : ' + i + ' : ' + JSON.stringify(objArray['info'][i]));
-					await this.create_state(device_id + '._info.' + i, i, objArray['info'][i]);
+					this.log.debug('State created : ' + i + ' : ' + JSON.stringify(deviceInfo[i]));
+					await this.create_state(device_id + '._info.' + i, i, deviceInfo[i]);
 
 				} else {
-					for (const y in objArray['info'][i]) {
-						this.log.debug('State created : ' + y + ' : ' + JSON.stringify(objArray['info'][i][y]));
-						await this.create_state(device_id + '._info.' + i + '.' + y, y, objArray['info'][i][y]);
+					for (const y in deviceInfo[i]) {
+						this.log.debug('State created : ' + y + ' : ' + JSON.stringify(deviceInfo[i][y]));
+						await this.create_state(device_id + '._info.' + i + '.' + y, y, deviceInfo[i][y]);
 					}
 				}
 
 			}
 
-			// Read state Channel
-			for (const i in objArray['state']) {
+			// Get effects (if not already in memory
+			if (!this.effects[device_id]){
+				const effects = await this.getAPI('http://' + index + '/json/eff');
+				if (!effects) {
+					this.log.debug('Effects API call error, will retry in scheduled interval !');
+				} else {
+					this.log.debug('Effects Data received from WLED device ' + JSON.stringify(effects));
+					// Store effects array
+					this.effects[device_id] = {};
+					for (const i in effects) {
+						this.effects[device_id][i] = effects[i];
+					}
+				}
+			}
 
-				this.log.debug('Datatype : ' + typeof (objArray['state'][i]));
+			// Get pallets (if not already in memory
+			if (!this.palettes[device_id]) {
+				const pallets = await this.getAPI('http://' + index + '/json/pal');
+				if (!pallets) {
+					this.log.debug('Effects API call error, will retry in scheduled interval !');
+				} else {
+					this.log.debug('Effects Data received from WLED device ' + JSON.stringify(pallets));
+					// Store effects array
+					this.palettes[device_id] = {};
+					// Store pallet array
+					for (const i in pallets) {
+						this.palettes[device_id][i] = pallets[i];
+					}
+				}
+			}
+
+			// Read state Channel
+			const deviceStates = await this.getAPI('http://' + index + '/json/state');
+			for (const i in deviceStates) {
+
+				this.log.debug('Datatype : ' + typeof (deviceStates[i]));
 
 				// Create Channels for nested states
 				switch (i) {
@@ -470,7 +491,7 @@ class Wled extends utils.Adapter {
 
 					case ('seg'):
 
-						this.log.debug('Segment Array : ' + JSON.stringify(objArray['state'][i]));
+						this.log.debug('Segment Array : ' + JSON.stringify(deviceStates[i]));
 
 						await this.setObjectNotExistsAsync(device_id + '.seg', {
 							type: 'channel',
@@ -480,7 +501,7 @@ class Wled extends utils.Adapter {
 							native: {},
 						});
 
-						for (const y in objArray['state'][i]) {
+						for (const y in deviceStates[i]) {
 
 							await this.setObjectNotExistsAsync(device_id + '.seg.' + y, {
 								type: 'channel',
@@ -490,30 +511,30 @@ class Wled extends utils.Adapter {
 								native: {},
 							});
 
-							for (const x in objArray['state'][i][y]) {
-								this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(objArray['state'][i][y]));
+							for (const x in deviceStates[i][y]) {
+								this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(deviceStates[i][y]));
 
 								if (x !== 'col') {
 
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x, x, objArray['state'][i][y][x]);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x, x, deviceStates[i][y][x]);
 
 								} else {
-									this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(objArray['state'][i][y][x][0]));
+									this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(deviceStates[i][y][x][0]));
 
 									// Translate RGB values to HEX
-									const primaryRGB = objArray['state'][i][y][x][0].toString().split(',');
+									const primaryRGB = deviceStates[i][y][x][0].toString().split(',');
 									const primaryHex = rgbHex(parseInt(primaryRGB[0]), parseInt(primaryRGB[1]), parseInt(primaryRGB[2]));
-									const secondaryRGB = objArray['state'][i][y][x][1].toString().split(',');
+									const secondaryRGB = deviceStates[i][y][x][1].toString().split(',');
 									const secondaryHex = rgbHex(parseInt(secondaryRGB[0]), parseInt(secondaryRGB[1]), parseInt(secondaryRGB[2]));
-									const tertiaryRGB = objArray['state'][i][y][x][2].toString().split(',');
+									const tertiaryRGB = deviceStates[i][y][x][2].toString().split(',');
 									const tertiaryHex = rgbHex(parseInt(tertiaryRGB[0]), parseInt(tertiaryRGB[1]), parseInt(tertiaryRGB[2]));
 
 									// Write RGB and HEX information to states
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB', objArray['state'][i][y][x][0]);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB', deviceStates[i][y][x][0]);
 									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0_HEX', 'Primary Color HEX', '#' + primaryHex);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color RGB (background)', objArray['state'][i][y][x][1]);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color RGB (background)', deviceStates[i][y][x][1]);
 									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1_HEX', 'Secondary Color HEX (background)', '#' + secondaryHex);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color RGB', objArray['state'][i][y][x][2]);
+									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color RGB', deviceStates[i][y][x][2]);
 									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2_HEX', 'Tertiary Color HEX', '#' + tertiaryHex);
 								}
 							}
@@ -526,18 +547,18 @@ class Wled extends utils.Adapter {
 				}
 
 				// Create states, ensure object structures are reflected in tree
-				if (typeof (objArray['state'][i]) !== 'object') {
+				if (typeof (deviceStates[i]) !== 'object') {
 
 					// Default channel creation
-					this.log.debug('Default state created : ' + i + ' : ' + JSON.stringify(objArray['state'][i]));
-					await this.create_state(device_id + '.' + i, i, objArray['state'][i]);
+					this.log.debug('Default state created : ' + i + ' : ' + JSON.stringify(deviceStates[i]));
+					await this.create_state(device_id + '.' + i, i, deviceStates[i]);
 
 				} else {
 
-					for (const y in objArray['state'][i]) {
-						if (typeof (objArray['state'][i][y]) !== 'object') {
-							this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(objArray['state'][i][y]));
-							await this.create_state(device_id + '.' + i + '.' + y, y, objArray['state'][i][y]);
+					for (const y in deviceStates[i]) {
+						if (typeof (deviceStates[i][y]) !== 'object') {
+							this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(deviceStates[i][y]));
+							await this.create_state(device_id + '.' + i + '.' + y, y, deviceStates[i][y]);
 						}
 					}
 				}
@@ -559,7 +580,6 @@ class Wled extends utils.Adapter {
 				ack: true
 			});
 			this.log.error('Read Data error : ' + error);
-			this.log.error('Debug information for developer : ' + JSON.stringify(objArray));
 			return 'failed';
 		}
 	}
@@ -577,12 +597,10 @@ class Wled extends utils.Adapter {
 		}
 
 		// Reset timer (if running) and start new one for next polling intervall
-		(() => {
-			if (polling) {
-				clearTimeout(polling);
-				polling = null;
-			}
-		})();
+		if (polling) {
+			clearTimeout(polling);
+			polling = null;
+		}
 		polling = setTimeout(() => {
 			this.polling_timer();
 		}, (this.config.Time_Sync * 1000));
@@ -641,7 +659,7 @@ class Wled extends utils.Adapter {
 
 			// Error handling
 			if (!result || result === 'failed') {
-				this.log.warn('Unable to connect to device : ' + deviceName + ' on IP : ' + deviceIP + ' Will retry at intervall time');
+				this.log.warn('Unable to connect to device : ' + deviceName + ' on IP : ' + deviceIP + ' Will retry at interval time');
 			} else {
 				this.log.info('Device : "' + deviceName + '" Successfully connected on IP : ' + deviceIP);
 			}
@@ -683,6 +701,8 @@ class Wled extends utils.Adapter {
 
 	async create_state(stateName, name, value) {
 		this.log.debug('Create_state called for : ' + stateName + ' with value : ' + value);
+		let deviceId = stateName.split('.');
+		deviceId = deviceId[0];
 
 		try {
 
@@ -764,23 +784,24 @@ class Wled extends utils.Adapter {
 			}
 
 			// Extend effects and color pal`let  with dropdown menu
-			if (name === 'fx') {
+			if (name === 'fx' && this.effects[deviceId]) {
 
 				this.log.debug('Create special drop donwn state with value ' + JSON.stringify(this.effects));
 				await this.extendObjectAsync(stateName, {
 					type: 'state',
 					common: {
-						states: this.effects
+						states: this.effects[deviceId]
 					}
 				});
 
-			} else if (name === 'pal') {
+			} else if (name === 'pal' && this.palettes[deviceId]) {
+
 
 				this.log.debug('Create special drop down state with value ' + JSON.stringify(this.effects));
 				await this.extendObjectAsync(stateName, {
 					type: 'state',
 					common: {
-						states: this.palettes
+						states: this.palettes[deviceId]
 					}
 				});
 			}

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.5.5",
+        "version": "0.5.6",
         "news": {
+            "0.5.6": {
+                "en": "Bugfix : State type definition for time and pmt",
+                "de": "Bugfix: Definition des Zustandstyps für Zeit und pmt",
+                "ru": "Исправление: определение типа состояния для времени и pmt",
+                "pt": "Correção de bug: definição de tipo de estado para hora e pmt",
+                "nl": "Bugfix: State type definition for time en pmt",
+                "fr": "Correction de bug: définition du type d'état pour l'heure et pmt",
+                "it": "Bugfix: definizione del tipo di stato per time e pmt",
+                "es": "Corrección de error: definición de tipo de estado para la hora y el pago",
+                "pl": "Poprawka: definicja typu stanu dla czasu i godziny",
+                "zh-cn": "错误修正：时间和pmt的状态类型定义"
+            },
             "0.5.5": {
                 "en": "add development option to disable sentry\nsplit API calls, avoid not needed query's\nBugfix : issue with boolean attributes #40\nadd new state definition for WLED version 0.11\nBugfix : You are assigning a string to the state \"wled.0.xxxx.seg.0.col.0",
                 "de": "Entwicklungsoption hinzufügen, um Wachposten zu deaktivieren\nSplit-API-Aufrufe, vermeiden Sie nicht benötigte Abfragen\nBugfix: Problem mit booleschen Attributen # 40\nNeue Statusdefinition für WLED Version 0.11 hinzufügen\nBugfix: Sie weisen dem Status \"wled.0.xxxx.seg.0.col.0\" eine Zeichenfolge zu",
@@ -230,18 +242,6 @@
                 "es": "Estados ocultos de JSON-API implementados: tt / psave / nn / time",
                 "pl": "Zaimplementowane stany ukryte przed JSON-API: tt / psave / nn / time",
                 "zh-cn": "隐藏在JSON-API中的状态已实现：tt / psave / nn /时间"
-            },
-            "0.1.0": {
-                "en": "initial release",
-                "de": "Erstveröffentlichung",
-                "ru": "Начальная версия",
-                "pt": "lançamento inicial",
-                "nl": "Eerste uitgave",
-                "fr": "Première version",
-                "it": "Versione iniziale",
-                "es": "Versión inicial",
-                "pl": "Pierwsze wydanie",
-                "zh-cn": "首次出版"
             }
         },
         "title": "WLED",

@@ -50,8 +50,11 @@ When the adapter crashes or an other Code error happens, this error message that
 # Changelog
 <!--
     Placeholder for the next version (at the beginning of the line):
-    ## __WORK IN PROGRESS__
+    ### __WORK IN PROGRESS__
 -->
+
+### 0.5.6 (2021-01-03)
+* (DutchmanNL) Bugfix : State type definition for time and pmt
 
 ### 0.5.5 (2021-01-03)
 * (DutchmanNL) add development option to disable sentry

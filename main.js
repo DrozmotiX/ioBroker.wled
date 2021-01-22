@@ -19,9 +19,9 @@ const bonjour = require('bonjour')(); // load Bonjour library
 let polling = null; // Polling timer
 let scan_timer = null; // reload = false;
 let timeout = null; // Refresh delay for send state
-const stateExpire = {}, warnMessages = {}; // Timers to reset online state of device
+const stateExpire = {}, warnMessages = {}, initialse = {}; // Timers to reset online state of device
 
-const disableSentry = false; // Ensure to set to true during developmemnt !
+const disableSentry = false; // Ensure to set to true during development !
 
 class Wled extends utils.Adapter {
 
@@ -422,6 +422,7 @@ class Wled extends utils.Adapter {
 
 			// Get effects (if not already in memory
 			if (!this.effects[device_id]){
+				initialse[device_id] = true;
 				const effects = await this.getAPI('http://' + index + '/json/eff');
 				if (!effects) {
 					this.log.debug('Effects API call error, will retry in scheduled interval !');
@@ -437,6 +438,7 @@ class Wled extends utils.Adapter {
 
 			// Get pallets (if not already in memory
 			if (!this.palettes[device_id]) {
+				initialse[device_id] = true;
 				const pallets = await this.getAPI('http://' + index + '/json/pal');
 				if (!pallets) {
 					this.log.debug('Effects API call error, will retry in scheduled interval !');
@@ -709,7 +711,7 @@ class Wled extends utils.Adapter {
 			// Try to get details from state lib, if not use defaults. throw warning is states is not known in attribute list
 			const common = {};
 			if (!stateAttr[name]) {
-				const warnMessage = `State attribute definition missing for + ${name}`;
+				const warnMessage = `State attribute definition missing for : ${name} with value : ${value} `;
 				if (warnMessages[name] !== warnMessage) {
 					warnMessages[name] = warnMessage;
 					// Log error messages disabled, sentry only
@@ -722,7 +724,6 @@ class Wled extends utils.Adapter {
 			}
 
 			common.name = stateAttr[name] !== undefined ? stateAttr[name].name || name : name;
-			common.type = typeof (value);
 			common.type = stateAttr[name] !== undefined ? stateAttr[name].type || typeof (value) : typeof (value) ;
 			common.role = stateAttr[name] !== undefined ? stateAttr[name].role || 'state' : 'state';
 			common.read = true;
@@ -743,6 +744,7 @@ class Wled extends utils.Adapter {
 				)) {
 
 				// console.log(`An attribute has changed : ${state}`);
+				this.log.info(`An attribute has changed : ${stateName} | old ${this.createdStatesDetails[stateName]}| new ${JSON.stringify(common)}`);
 
 				await this.extendObjectAsync(stateName, {
 					type: 'state',
@@ -758,7 +760,7 @@ class Wled extends utils.Adapter {
 
 			// Set value to state including expiration time
 			if (value !== null || value !== undefined) {
-				await this.setState(stateName, {
+				await this.setStateChangedAsync(stateName, {
 					val: value,
 					ack: true,
 				});
@@ -785,9 +787,9 @@ class Wled extends utils.Adapter {
 			}
 
 			// Extend effects and color pal`let  with dropdown menu
-			if (name === 'fx' && this.effects[deviceId]) {
+			if (name === 'fx' && this.effects[deviceId] && initialise[deviceId]) {
 
-				this.log.debug('Create special drop donwn state with value ' + JSON.stringify(this.effects));
+				this.log.debug('Create special drop down state with value ' + JSON.stringify(this.effects));
 				await this.extendObjectAsync(stateName, {
 					type: 'state',
 					common: {
@@ -795,10 +797,10 @@ class Wled extends utils.Adapter {
 					}
 				});
 
-			} else if (name === 'pal' && this.palettes[deviceId]) {
+			} else if (name === 'pal' && this.palettes[deviceId] && initialise[deviceId]) {
 
 
-				this.log.debug('Create special drop down state with value ' + JSON.stringify(this.effects));
+				// this.log.debug('Create special drop down state with value ' + JSON.stringify(this.effects));
 				await this.extendObjectAsync(stateName, {
 					type: 'state',
 					common: {

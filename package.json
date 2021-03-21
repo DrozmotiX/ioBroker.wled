@@ -14,7 +14,7 @@
       "name": "Jey-Cee"
     }
   ],
-  "homepage": "https://github.com/iobroker-community-adapters/ioBroker.wled",
+  "homepage": "https://github.com/DrozmotiX/ioBroker.wled",
   "license": "MIT",
   "keywords": [
     "WLED",
@@ -24,7 +24,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/iobroker-community-adapters/ioBroker.wled"
+    "url": "https://github.com/DrozmotiX/ioBroker.wled"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^2.4.0",
@@ -65,7 +65,7 @@
     "release": "release-script"
   },
   "bugs": {
-    "url": "https://github.com/iobroker-community-adapters/ioBroker.wled/issues"
+    "url": "https://github.com/DrozmotiX/ioBroker.wled/issues"
   },
   "readmeFilename": "README.md"
 }

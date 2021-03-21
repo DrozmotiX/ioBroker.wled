@@ -1,0 +1,14 @@
+name: Auto-merge minor/patch
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+jobs:
+  test:
+    name: Auto-merge minor and patch updates
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: koj-co/dependabot-pr-action@master
+        with:
+          token: ${{ secrets.AUTO_MERGE_TOKEN }}
+          merge-minor: true
+          merge-patch: true

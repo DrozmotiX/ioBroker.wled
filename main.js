@@ -413,8 +413,8 @@ class Wled extends utils.Adapter {
 
 				} else {
 					for (const y in deviceInfo[i]) {
-						this.log.debug('State created : ' + y + ' : ' + JSON.stringify(deviceInfo[i][y]));
-						await this.create_state(device_id + '._info.' + i + '.' + y, y, deviceInfo[i][y]);
+						this.log.debug(`State created : ${y} : ${JSON.stringify(deviceInfo[i][y])}`);
+						await this.create_state(`${device_id}._info.${i}.${y}`, y, deviceInfo[i][y]);
 					}
 				}
 
@@ -763,7 +763,7 @@ class Wled extends utils.Adapter {
 			// Set value to state including expiration time
 			if (value !== null || value !== undefined) {
 				await this.setStateChangedAsync(stateName, {
-					val: value,
+					val: typeof value === 'object' ? JSON.stringify(value) : value, // real objects are not allowed
 					ack: true,
 				});
 			}
@@ -822,14 +822,14 @@ class Wled extends utils.Adapter {
 	sendSentry(msg) {
 
 		if (!disableSentry) {
-			this.log.info(`[Error catched and send to Sentry, thank you collaborating!] error: ${msg}`);
 			if (this.supportsFeature && this.supportsFeature('PLUGINS')) {
 				const sentryInstance = this.getPluginInstance('sentry');
 				if (sentryInstance) {
+					this.log.info(`[Error caught and sent to Sentry, thank you for collaborating!] error: ${msg}`);
 					sentryInstance.getSentryObject().captureException(msg);
 				}
 			}
-		}else {
+		} else {
 			this.log.error(`Sentry disabled, error catched : ${msg}`);
 			console.error(`Sentry disabled, error catched : ${msg}`);
 		}

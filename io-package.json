@@ -294,7 +294,7 @@
         "materialize": true,
         "plugins": {
             "sentry": {
-                "dsn": "https://3cc67b3422654a228fbc5ab428234a3e@sentry.iobroker.net/27"
+                "dsn": "https://1a70baf733de40ed97d6ca16c39837d1@sentry.iobroker.net/27"
             }
         },
         "messagebox": true,

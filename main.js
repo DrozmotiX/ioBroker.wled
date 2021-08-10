@@ -746,7 +746,7 @@ class Wled extends utils.Adapter {
 				)) {
 
 				// console.log(`An attribute has changed : ${state}`);
-				this.log.info(`An attribute has changed : ${stateName} | old ${this.createdStatesDetails[stateName]}| new ${JSON.stringify(common)}`);
+				this.log.debug(`An attribute has changed : ${stateName} | old ${this.createdStatesDetails[stateName]} | new ${JSON.stringify(common)}`);
 
 				await this.extendObjectAsync(stateName, {
 					type: 'state',

@@ -53,8 +53,9 @@ When the adapter crashes or an other Code error happens, this error message that
     ### __WORK IN PROGRESS__
 -->
 
-### __WORK IN PROGRESS__
-* (foxriver76) we fixed some incorrect object types
+### 0.5.7 (2021-08-10)
+* (foxriver76) we fixed some incorrect object types, fixes warnings with JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github.com/DrozmotiX/ioBroker.wled/issues/209)
+* (DutchmanNL) add support for WLED 0.13.x (added types fps, ndc, ip, of)
 
 ### 0.5.6 (2021-01-03)
 * (DutchmanNL) Bugfix : State type definition for time and pmt

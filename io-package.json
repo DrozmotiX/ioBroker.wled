@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.5.6",
+        "version": "0.5.7",
         "news": {
+            "0.5.7": {
+                "en": "we fixed some incorrect object types, fixes warnings with JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github.com/DrozmotiX/ioBroker.wled/issues/209)\nadd support for WLED 0.13.x (added types fps, ndc, ip, of)",
+                "de": "wir haben einige falsche Objekttypen behoben, Warnungen mit JS-Controller 3.3.x behoben [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\nUnterstützung für WLED 0.13.x hinzugefügt (Typen fps, ndc, ip, of hinzugefügt)",
+                "ru": "мы исправили некоторые некорректные типы объектов, исправили предупреждения с помощью JS-Controller 3.3.x [# 215] (https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [# 209] (https:// github .com / DrozmotiX / ioBroker.wled / issues / 209)\nдобавлена поддержка WLED 0.13.x (добавлены типы fps, ndc, ip, of)",
+                "pt": "corrigimos alguns tipos de objetos incorretos, corrigimos avisos com JS-Controller 3.3.x [# 215] (https://github.com/DrozmotiX/ioBroker.wled/issues/215) e [# 209] (https:// github .com / DrozmotiX / ioBroker.wled / issues / 209)\nadicionar suporte para WLED 0.13.x (tipos adicionados fps, ndc, ip, of)",
+                "nl": "we hebben een aantal onjuiste objecttypen gerepareerd, waarschuwingen verholpen met JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\nondersteuning toevoegen voor WLED 0.13.x (toegevoegde typen fps, ndc, ip, of)",
+                "fr": "nous avons corrigé certains types d'objets incorrects, corrige les avertissements avec JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\najouter la prise en charge de WLED 0.13.x (types ajoutés fps, ndc, ip, of)",
+                "it": "abbiamo corretto alcuni tipi di oggetti errati, corretti gli avvisi con JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) e [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\naggiungere il supporto per WLED 0.13.x (tipi aggiunti fps, ndc, ip, of)",
+                "es": "arreglamos algunos tipos de objetos incorrectos, arreglamos advertencias con JS-Controller 3.3.x [# 215] (https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [# 209] (https:// github .com / DrozmotiX / ioBroker.wled / issues / 209)\nagregar soporte para WLED 0.13.x (tipos agregados fps, ndc, ip, of)",
+                "pl": "naprawiliśmy kilka niepoprawnych typów obiektów, naprawiono ostrzeżenia za pomocą JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\ndodano obsługę WLED 0.13.x (dodane typy fps, ndc, ip, of)",
+                "zh-cn": "我们修复了一些不正确的对象类型，修复了 JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\n添加对 WLED 0.13.x 的支持（添加类型 fps、ndc、ip、of）"
+            },
             "0.5.6": {
                 "en": "Bugfix : State type definition for time and pmt",
                 "de": "Bugfix: Definition des Zustandstyps für Zeit und pmt",
@@ -230,18 +242,6 @@
                 "es": "Menú desplegable para efectos Implementado",
                 "pl": "Rozwijane menu efektów",
                 "zh-cn": "已实现效果的下拉菜单"
-            },
-            "0.1.1": {
-                "en": "States hidden from JSON-API implemented : tt / psave / nn / time",
-                "de": "Aus der JSON-API ausgeblendete Zustände implementiert: tt / psave / nn / time",
-                "ru": "Состояния, скрытые от JSON-API: tt / psave / nn / time",
-                "pt": "Estados ocultos da API JSON implementada: tt / psave / nn / time",
-                "nl": "Staten verborgen voor JSON-API geïmplementeerd: tt / psave / nn / time",
-                "fr": "États masqués de l'API JSON implémentée: tt / psave / nn / time",
-                "it": "Stati nascosti dall'API JSON implementati: tt / psave / nn / time",
-                "es": "Estados ocultos de JSON-API implementados: tt / psave / nn / time",
-                "pl": "Zaimplementowane stany ukryte przed JSON-API: tt / psave / nn / time",
-                "zh-cn": "隐藏在JSON-API中的状态已实现：tt / psave / nn /时间"
             }
         },
         "title": "WLED",

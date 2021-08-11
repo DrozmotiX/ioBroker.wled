@@ -52,6 +52,9 @@ When the adapter crashes or an other Code error happens, this error message that
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### 0.5.9 (2021-08-11)
+* (DutchmanNL) added new state attributes reported by Sentry
+* (DutchmanNL) added min & max for brightness value to support iOT adapter
 
 ### 0.5.8 (2021-08-11)
 * (DutchmanNL) added new state attributes reported by Sentry

@@ -424,18 +424,18 @@ class Wled extends utils.Adapter {
 			if (!this.effects[device_id]){
 				initialise[device_id] = true;
 				const effects = await this.getAPI('http://' + index + '/json/eff');
-        if (this.IsJsonString(effects)) {        // arteck
-  				if (!effects) {
-  					this.log.debug('Effects API call error, will retry in scheduled interval !');
-  				} else {
-  					this.log.debug('Effects Data received from WLED device ' + JSON.stringify(effects));
-  					// Store effects array
-  					this.effects[device_id] = {};
-  					for (const i in effects) {
-  						this.effects[device_id][i] = effects[i];
-  					}
-  				}
-        }
+				if (this.IsJsonString(effects)) {        // arteck
+					if (!effects) {
+						this.log.debug('Effects API call error, will retry in scheduled interval !');
+					} else {
+						this.log.debug('Effects Data received from WLED device ' + JSON.stringify(effects));
+						// Store effects array
+						this.effects[device_id] = {};
+						for (const i in effects) {
+							this.effects[device_id][i] = effects[i];
+						}
+					}
+				}
 			}
 
 			// Get pallets (if not already in memory
@@ -569,9 +569,9 @@ class Wled extends utils.Adapter {
 			}
 
 			// Create additional states not included in JSON-API of WLED but available as SET command
-			await this.create_state(device_id + '.tt', 'tt', null);
-			await this.create_state(device_id + '.psave', 'psave', null);
-			await this.create_state(device_id + '.udpn.nn', 'nn', null);
+			await this.create_state(device_id + '.tt', 'tt', '');
+			await this.create_state(device_id + '.psave', 'psave', '');
+			await this.create_state(device_id + '.udpn.nn', 'nn', '');
 			await this.create_state(device_id + '.time', 'time', null);
 
 			return 'success';

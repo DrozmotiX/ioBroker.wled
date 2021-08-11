@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.5.7",
+        "version": "0.5.8",
         "news": {
+            "0.5.8": {
+                "en": "added new state attributes reported by Sentry\nBugfix Live override datapoint created as read-only #252\nexcluded value \"PIR\" from data write due to current formatting",
+                "de": "neue Statusattribute hinzugefügt, die von Sentry gemeldet wurden\nBugfix Live-Überschreibungsdatenpunkt als schreibgeschützt erstellt #252\nAusgeschlossener Wert \"PIR\" vom Datenschreiben aufgrund aktueller Formatierung",
+                "ru": "добавлены новые атрибуты состояния, сообщаемые Sentry\nИсправление ошибки Live override datapoint, созданный как доступный только для чтения # 252\nисключено значение \"PIR\" из записи данных из-за текущего форматирования",
+                "pt": "adicionado novos atributos de estado relatados pelo Sentry\nBugfix Live override datapoint criado como somente leitura # 252\nvalor excluído \"PIR\" da gravação de dados devido à formatação atual",
+                "nl": "nieuwe statusattributen toegevoegd, gerapporteerd door Sentry\nBugfix Live overschrijven datapunt gemaakt als alleen-lezen #252\nuitgesloten waarde \"PIR\" van gegevensschrijven vanwege huidige opmaak",
+                "fr": "ajout de nouveaux attributs d'état signalés par Sentry\nBugfix Live override datapoint créé en lecture seule #252\nvaleur exclue \"PIR\" de l'écriture de données en raison du formatage actuel",
+                "it": "aggiunti nuovi attributi di stato segnalati da Sentry\nBugfix Live override datapoint creato come sola lettura #252\nvalore escluso \"PIR\" dalla scrittura dei dati a causa della formattazione corrente",
+                "es": "Se agregaron nuevos atributos de estado informados por Sentry.\nBugfix Live override datapoint creado como de solo lectura # 252\nvalor excluido \"PIR\" de la escritura de datos debido al formato actual",
+                "pl": "dodano nowe atrybuty stanu zgłaszane przez Sentry\nBugfix Live override datapoint utworzony jako tylko do odczytu #252\nwykluczona wartość \"PIR\" z zapisu danych ze względu na aktualne formatowanie",
+                "zh-cn": "添加了 Sentry 报告的新状态属性\n错误修复实时覆盖数据点创建为只读 #252\n由于当前格式，从数据写入中排除了值“PIR”"
+            },
             "0.5.7": {
                 "en": "we fixed some incorrect object types, fixes warnings with JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github.com/DrozmotiX/ioBroker.wled/issues/209)\nadd support for WLED 0.13.x (added types fps, ndc, ip, of)",
                 "de": "wir haben einige falsche Objekttypen behoben, Warnungen mit JS-Controller 3.3.x behoben [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\nUnterstützung für WLED 0.13.x hinzugefügt (Typen fps, ndc, ip, of hinzugefügt)",
@@ -230,18 +242,6 @@
                 "es": "Nueva página de configuración + menú desplegable de paletas de colores",
                 "pl": "Nowa strona konfiguracji + rozwijane menu palet kolorów",
                 "zh-cn": "新的配置页+调色板下拉菜单"
-            },
-            "0.1.2": {
-                "en": "Drop down menu for effects Implemented",
-                "de": "Dropdown-Menü für Effekte implementiert",
-                "ru": "Выпадающее меню для эффектов Реализовано",
-                "pt": "Menu suspenso para efeitos Implementado",
-                "nl": "Vervolgkeuzelijst voor geïmplementeerde effecten",
-                "fr": "Menu déroulant pour les effets implémentés",
-                "it": "Menu a discesa per gli effetti implementati",
-                "es": "Menú desplegable para efectos Implementado",
-                "pl": "Rozwijane menu efektów",
-                "zh-cn": "已实现效果的下拉菜单"
             }
         },
         "title": "WLED",

@@ -729,6 +729,12 @@ class Wled extends utils.Adapter {
 				}
 			}
 
+			if (stateAttr[name] !== undefined && stateAttr[name].min !== undefined){
+				common.min = stateAttr[name].min;
+			}
+			if (stateAttr[name] !== undefined && stateAttr[name].max !== undefined){
+				common.max = stateAttr[name].max;
+			}
 			common.name = stateAttr[name] !== undefined ? stateAttr[name].name || name : name;
 			common.type = stateAttr[name] !== undefined ? stateAttr[name].type || typeof (value) : typeof (value) ;
 			common.role = stateAttr[name] !== undefined ? stateAttr[name].role || 'state' : 'state';

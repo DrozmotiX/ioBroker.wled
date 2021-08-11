@@ -708,19 +708,23 @@ class Wled extends utils.Adapter {
 		let deviceId = stateName.split('.');
 		deviceId = deviceId[0];
 
+		// Exclude write & creation of PIR value
+		if (name.substring(0,3) == 'PIR' ) return;
+
 		try {
 
 			// Try to get details from state lib, if not use defaults. throw warning is states is not known in attribute list
 			const common = {};
 			if (!stateAttr[name]) {
-				const warnMessage = `State attribute definition missing for : ${name} with value : ${value} `;
+				let warnMessage = `State attribute definition missing for : ${name}`;
 				if (warnMessages[name] !== warnMessage) {
 					warnMessages[name] = warnMessage;
 					// Log error messages disabled, sentry only
 					// console.warn(warnMessage);
 					// this.log.warn(warnMessage);
 
-					// Send information to Sentry
+					// Send information to Sentry with value
+					warnMessage = `State attribute definition missing for : ${name} with value : ${value} `;
 					this.sendSentry(warnMessage);
 				}
 			}
@@ -830,8 +834,8 @@ class Wled extends utils.Adapter {
 				}
 			}
 		} else {
-			this.log.error(`Sentry disabled, error catched : ${msg}`);
-			console.error(`Sentry disabled, error catched : ${msg}`);
+			this.log.error(`Sentry disabled, error caught : ${msg}`);
+			console.error(`Sentry disabled, error caught : ${msg}`);
 		}
 	}
 

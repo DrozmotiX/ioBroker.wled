@@ -400,6 +400,10 @@ class Wled extends utils.Adapter {
 						});
 						break;
 
+					case ('u'):
+						await this.localDeleteState(infoStates.mac + '._info.u');
+						break;
+
 					default:
 
 				}
@@ -544,6 +548,10 @@ class Wled extends utils.Adapter {
 							}
 						}
 
+						break;
+
+					case ('u'):
+						await this.localDeleteState(infoStates.mac + '	.u');
 						break;
 
 					default:

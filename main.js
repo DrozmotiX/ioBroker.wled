@@ -350,12 +350,12 @@ class Wled extends utils.Adapter {
 				// eslint-disable-next-line no-case-declarations
 				const result = await this.getDeviceJSON(obj.message);
 				this.log.debug('Response from Read Data : ' + JSON.stringify(result));
-				// if (result === 'success') {
-				respond('success', this);
+				if (result === 'success') {
+					respond('success', this);
 
-				// } else {
-				// 	respond('failed', this);
-				// }
+				} else {
+					respond('failed', this);
+				}
 				break;
 		}
 
@@ -426,6 +426,12 @@ class Wled extends utils.Adapter {
 	async handleBasicStates(deviceIP, deviceData){
 		try {
 			const device_id = deviceData.info.mac;
+			if (!this.devices[deviceIP]) this.devices[deviceIP] = {};
+
+			this.devices[deviceIP].ip = deviceData.info.mac;
+			this.devices[deviceIP].mac = deviceData.info.mac;
+			this.devices[deviceIP].connected = false;
+			this.devices[deviceIP].initialized = false;
 			this.devices[deviceIP].name = deviceData.info.name;
 
 			// Create Device, channel id by MAC-Address and ensure relevant information for polling and instance configuration is part of device object
@@ -753,14 +759,16 @@ class Wled extends utils.Adapter {
 			};
 
 			// Check if connection is handled by websocket before proceeding
-			if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected && this.devices[deviceIP].wsPingSupported) {
+			if (this.devices[deviceIP]
+				&& (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected && this.devices[deviceIP].wsPingSupported)) {
 				// Nothing to do, device is connected by websocket and will handle state updates
 			} else { // No Websocket connection, handle data by http_API
 
 				const deviceData = await requestDeviceDataByAPI();
 
 				// If device is initialised, only handle state updates otherwise complete initialisation
-				if (this.devices[deviceIP].connected && this.devices[deviceIP].initialized){
+				if (this.devices[deviceIP]
+					&& (this.devices[deviceIP].connected && this.devices[deviceIP].initialized)){
 
 					if (!deviceData) {
 						this.log.warn(`Heartbeat of device ${deviceIP} failed, will try to reconnect`);
@@ -768,15 +776,18 @@ class Wled extends utils.Adapter {
 						this.devices[deviceIP].initialized = false;
 						this.devices[deviceIP].wsConnected = false;
 						await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
+						return 'failed';
 					} else {
 						this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
 						if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
 							// Only reset heartbeat, device is connected by websocket and will handle state updates
 							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', true);
+							return 'success';
 						} else {
 							await this.handleStates(deviceData);
 							this.devices[deviceIP].wsConnected = false;
 							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', true);
+							return 'success';
 						}
 					}
 
@@ -789,12 +800,12 @@ class Wled extends utils.Adapter {
 						if (this.devices[deviceIP].mac != null) {
 							await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
 						}
-						return;
+						return 'failed';
 					} else {
-						this.devices[deviceIP].connected = true;
 						this.log.debug('Info Data received from WLED device ' + JSON.stringify(deviceData));
 						this.log.info(`Initialising : " ${deviceData.info.name}" on IP :  ${deviceIP}`);
 						await this.handleBasicStates(deviceIP, deviceData);
+						return 'success';
 					}
 				}
 
@@ -802,7 +813,7 @@ class Wled extends utils.Adapter {
 
 		} catch (error) {
 
-			if (this.devices[deviceIP].connected == true){
+			if (this.devices[deviceIP] && this.devices[deviceIP].connected == true){
 				this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
 				if (this.devices[deviceIP].mac != null) {
 					await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
@@ -816,6 +827,7 @@ class Wled extends utils.Adapter {
 					console.error(e);
 				}
 			}
+			return 'failed';
 		}
 	}
 

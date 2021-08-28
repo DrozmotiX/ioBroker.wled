@@ -11,15 +11,18 @@ const utils = require('@iobroker/adapter-core');
 // Load your modules here, e.g.:
 const rgbHex = require('rgb-hex'); // Lib to translate rgb to hex
 const hexRgb = require('hex-rgb'); // Lib to translate hex to rgb
+const WebSocket = require('ws'); // Lib to handle Websocket
 const {default: axios} = require('axios'); // Lib to handle http requests
-
-const stateAttr = require('./lib/stateAttr.js'); // Load attribute library
 const bonjour = require('bonjour')(); // load Bonjour library
 
-let polling = null; // Polling timer
-let scan_timer = null; // reload = false;
-let timeout = null; // Refresh delay for send state
-const stateExpire = {}, warnMessages = {}, initialise = {}; // Timers to reset online state of device
+const stateAttr = require('./lib/stateAttr.js'); // Load attribute library
+
+let watchDogStartDelay = null; // Timer to delay watchdog start
+const watchdogTimer = {}; // Array containing all times for watchdog loops
+const watchdogWsTimer = {}; // Array containing all times for WS-Ping loops
+const stateExpire = {}; // Array containing all times for online state expire
+const ws = {}; // Array containing websocket connections
+const warnMessages = {}; // Array containing sentry messages
 
 const disableSentry = false; // Ensure to set to true during development !
 
@@ -29,6 +32,7 @@ class Wled extends utils.Adapter {
 	 * @param {Partial<ioBroker.AdapterOptions>} [options={}]
 	 */
 	constructor(options) {
+		// @ts-ignore
 		super({
 			...options,
 			name: 'wled',
@@ -53,12 +57,23 @@ class Wled extends utils.Adapter {
 		// Run Autodetect (Bonjour - Service, mDNS to be handled)
 		await this.scanDevices();
 
-		// Connection state to online when adapter is ready to connect to devices
+		// Set connection state to online when adapter is ready
 		this.setState('info.connection', true, true);
-		this.log.info('WLED initialisation finalized, ready to do my job have fun !');
 
-		// Start Polling timer
-		this.polling_timer();
+		// Reset timer (if running) and start 10s delay to r un watchdog
+		if (watchDogStartDelay) {
+			clearTimeout(watchDogStartDelay);
+			watchDogStartDelay = null;
+		}
+		watchDogStartDelay = setTimeout(() => {
+
+			// Start watchdog for each  device
+			for (const i in this.devices) {
+				this.watchDog(i);
+			}
+
+			this.log.info('WLED initialisation finalized, ready to do my job have fun !');
+		}, (10000));
 
 	}
 
@@ -69,30 +84,48 @@ class Wled extends utils.Adapter {
 	onUnload(callback) {
 
 		// Clear running polling timers
-		if (scan_timer) {
-			clearTimeout(scan_timer);
-			scan_timer = null;
+		if (watchDogStartDelay) {
+			clearTimeout(watchDogStartDelay);
+			watchDogStartDelay = null;
+		}
+		for (const device in watchdogWsTimer){
+			if (watchdogWsTimer[device]) {
+				clearTimeout(watchdogWsTimer[device]);
+				delete watchdogWsTimer[device];
+			}
+		}
+		for (const device in watchdogTimer){
+			if (watchdogTimer[device]) {
+				clearTimeout(watchdogTimer[device]);
+				delete watchdogTimer[device];
+			}
+		}
+		for (const device in stateExpire){
+			if (stateExpire[device]) {
+				clearTimeout(stateExpire[device]);
+				delete stateExpire[device];
+			}
 		}
 
-		if (polling) {
-			clearTimeout(polling);
-			polling = null;
-		}
-
-		if (timeout) {
-			clearTimeout(timeout);
-			timeout = null;
+		// Close WebSocket connections
+		for (const device in ws){
+			try {
+				// Close socket connection
+				ws[device].close();
+			} catch (e) {
+				this.log.error(e);
+			}
 		}
 
 		// Set all online states to false
 		for (const i in this.devices) {
-			this.setState(this.devices[i] + '._info' + '._online', {val: false, ack: true});
+			this.setState(this.devices[i].mac + '._info' + '._online', {val: false, ack: true});
 		}
 
 		try {
-			callback();
 			this.log.info('cleaned everything up...');
 			this.setState('info.connection', false, true);
+			callback();
 		} catch (error) {
 			this.log.error('Error at adapter stop : ' + error);
 			this.setState('info.connection', false, true);
@@ -133,7 +166,7 @@ class Wled extends utils.Adapter {
 
 					this.log.debug('Send nested state');
 
-					// Send state change & value strate forward to WLED API
+					// Send state change & value state forward to WLED API
 					values = {
 						[deviceId[3]]: {
 							[deviceId[4]]: state.val
@@ -169,7 +202,7 @@ class Wled extends utils.Adapter {
 								const colorTertiaryHex = await this.getStateAsync(color_root + '.1_HEX');
 								if (!colorTertiaryHex) return;
 
-								// Use library to translate HEX values into propper RGB
+								// Use library to translate HEX values into proper RGB
 								const colorPrimaryRGB = hexRgb(colorPrimaryHex.val);
 								const colorSecondaryRGB = hexRgb(colorSecondaryHex.val);
 								const colorTertiaryRGB = hexRgb(colorTertiaryHex.val);
@@ -198,7 +231,7 @@ class Wled extends utils.Adapter {
 								// Get all 3 RGB values from states and ensure all 3 color's are always submitted in 1 JSON string !
 								let color_primary = await this.getStateAsync(color_root + '.0');
 								if (!color_primary) return;
-								this.log.debug('Primmary color before split : ' + color_primary.val);
+								this.log.debug('Primary color before split : ' + color_primary.val);
 								try {
 									color_primary = color_primary.val.split(',').map(s => parseInt(s));
 								} catch (error) {
@@ -218,7 +251,7 @@ class Wled extends utils.Adapter {
 
 								let color_tertiary = await this.getStateAsync(color_root + '.2');
 								if (!color_tertiary) return;
-								this.log.debug('Tertary color : ' + color_tertiary.val);
+								this.log.debug('Tertiary color : ' + color_tertiary.val);
 								try {
 									color_tertiary = color_tertiary.val.split(',').map(s => parseInt(s));
 								} catch (error) {
@@ -228,7 +261,7 @@ class Wled extends utils.Adapter {
 
 								this.log.debug('Color values from states : ' + color_primary + ' : ' + color_secondary + ' : ' + color_tertiary);
 
-								// Build propper RGB array in WLED format with alle 3 color states
+								// Build proper RGB array in WLED format with all 3 color states
 								rgb_all = [color_primary, color_secondary, color_tertiary];
 
 							} catch (error) {
@@ -238,7 +271,7 @@ class Wled extends utils.Adapter {
 
 						}
 
-						// Build JSON string to be send to WLED, cancell function if
+						// Build JSON string to be send to WLED, cancel function if
 						values = {
 							'seg': {
 								'id': valAsNumbers,
@@ -248,7 +281,7 @@ class Wled extends utils.Adapter {
 
 					} else {
 
-						// Send state change & value strate forward to WLED API
+						// Send state change & value state forward to WLED API
 						values = {
 							[deviceId[3]]: {
 								id: valAsNumbers,
@@ -269,38 +302,32 @@ class Wled extends utils.Adapter {
 			// Only make API call when values are correct
 			if (values !== null && device_ip !== null) {
 
-				// Send API Post command
-				const result = await this.postAPI('http://' + device_ip + '/json', values);
-				if (!result) return;
-				this.log.debug('API feedback' + JSON.stringify(result));
+				// If websocket is connected, send message by websocket otherwise http-API
+				if (this.devices[device_ip].wsConnected){
+					this.log.debug(`Sending state change by websocket ${JSON.stringify(values)}`);
 
-				if (result.success === true) {
-					// Set state aknowledgement if  API call was succesfully
-					this.setState(id, {
-						val: state.val,
-						ack: true
-					});
+					ws[device_ip].send(JSON.stringify(values));
+				} else {
+					this.log.debug(`Sending state change by http-API ${JSON.stringify(values)}`);
 
-					// Run Polling of all values with delay to ensure states are updated after changes
-					(function () {
-						if (timeout) {
-							clearTimeout(timeout);
-							timeout = null;
-						}
-					})();
-					timeout = setTimeout(() => {
-						this.readData(device_ip);
-					}, 150);
+					// Send API Post command
+					const result = await this.postAPI('http://' + device_ip + '/json', values);
+					if (!result) return;
+					this.log.debug('API feedback' + JSON.stringify(result));
 
+					if (result.success === true) {
+						// Set state acknowledgement if  API call was successfully
+						this.setState(id, {
+							val: state.val,
+							ack: true
+						});
+					}
 				}
 			}
-
-		} else {
-			// The state was deleted
-			// 	this.log.info(`state ${id} deleted`);
 		}
 	}
 
+	//ToDo: Review
 	/**
 	 * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
 	 * Using this method requires "common.message" property to be set to true in io-package.json
@@ -316,151 +343,217 @@ class Wled extends utils.Adapter {
 
 		this.log.debug('Data from configuration received : ' + JSON.stringify(obj));
 
+		//Response to manual adding of devices & device deletion
 		switch (obj.command) {
 			case 'addDevice':
 				// Disable check of const declaration in case function
 				// eslint-disable-next-line no-case-declarations
-				const result = await this.readData(obj.message);
+				const result = await this.getDeviceJSON(obj.message);
 				this.log.debug('Response from Read Data : ' + JSON.stringify(result));
-				if (result === 'success') {
-					respond('success', this);
-					// Add new device to array ensuring data polling at intervall time
-					this.devices[obj.message] = 'xxx';
-				} else {
-					respond('failed', this);
-				}
+				// if (result === 'success') {
+				respond('success', this);
+
+				// } else {
+				// 	respond('failed', this);
+				// }
 				break;
 		}
 
 	}
 
-	// Read WLED API of device and store all values in states
-	async readData(index, device_id) {
-		// Read WLED API, trow warning in case of issues
-		// const objArray = await this.getAPI('http://' + index + '/json');
-		const deviceInfo = await this.getAPI('http://' + index + '/json/info');
-		if (!deviceInfo) {
-			this.log.debug('Info API call error, will retry in scheduled interval !');
-			return 'failed';
-		} else {
-			this.log.debug('Info Data received from WLED device ' + JSON.stringify(deviceInfo));
-		}
+	/**
+	 * Websocket connection handler
+	 * @param {string} deviceIP IP-Address of device
+	 */
+	async handleWebSocket(deviceIP){
+		ws[deviceIP] = new WebSocket(`ws://${deviceIP}/ws`);
 
-		try {
-			const device_id = deviceInfo.mac;
+		// Websocket connected, handle routine to initiates all objects and states
+		ws[deviceIP].on('open', () => {
+			this.log.info(`${this.devices[deviceIP].name} connected`);
+			this.devices[deviceIP].wsConnected = true;
+			// Request pong to handle watchdog
+			ws[deviceIP].send('ping');
+			// Option to subscribe live data
+			// ws[deviceIP].send('{"lv":true}');
+		});
 
-			// Create Device, channel id by MAC-Adress and ensure relevant information for polling and instance configuration is part of device object
-			await this.extendObjectAsync(device_id, {
-				type: 'device',
-				common: {
-					name: deviceInfo.name
-				},
-				native: {
-					ip: index,
-					mac: deviceInfo.mac,
+		// Handle messages received from socket connection
+		ws[deviceIP].on('message', async (data) => {
+			this.log.debug(`Websocket WLED message received for ${deviceIP} : ${data}`);
+			data = data.toString();
+			try {
+				if (data !== 'pong'){
+					data = JSON.parse(data);
+					if (data.state) await this.handleStates(data); // If message contains state updates, handle state data
+				} else if (data === 'pong'){
+					this.log.debug(`Pong received by websocket`);
+					// Clear pong reset timer
+					if (watchdogWsTimer[deviceIP]) {
+						clearTimeout(watchdogWsTimer[deviceIP]);
+						watchdogTimer[deviceIP] = null;
+					}
+					this.devices[deviceIP].wsPong = true;
+					this.devices[deviceIP].wsPingSupported = true;
+
+				} else {
+					this.log.warn(`Unhandled message received ${data}`);
 				}
-			});
+			}  catch (e) {
+				this.log.error(e);
+			}
+		});
+
+		// Handle closure of socket connection
+		ws[deviceIP].on('close', () => {
+			this.log.info(`${this.devices[deviceIP].name} disconnected`);
+			this.devices[deviceIP].wsConnected = false;
+			if (this.devices[deviceIP].initialized) this.devices[deviceIP].initialized = false;
+		});
+
+		// Handle errors on socket connection
+		ws[deviceIP].on('error', (error) => {
+			this.log.error(`Websocket connection error : ${error}`);
+		});
+
+	}
+
+	/**
+	 * Create basic device structure
+	 * @param {string} deviceIP IP-Address of device
+	 * @param {object} deviceData WLED info & state data
+	 */
+	async handleBasicStates(deviceIP, deviceData){
+		try {
+			const device_id = deviceData.info.mac;
+			this.devices[deviceIP].name = deviceData.info.name;
+
+			// Create Device, channel id by MAC-Address and ensure relevant information for polling and instance configuration is part of device object
+			if (!this.devices[deviceIP].initialized){
+				await this.extendObjectAsync(device_id, {
+					type: 'device',
+					common: {
+						name: deviceData.info.name
+					},
+					native: {
+						ip: deviceIP,
+						mac: device_id,
+					}
+				});
+			}
 
 			// Update device working state
 			await this.create_state(device_id + '._info' + '._online', 'online', true);
 
-			// Read info Channel
-			for (const i in deviceInfo) {
+			// Store / Update effects
+			const effects = deviceData.effects;
+			if (this.IsJsonString(effects)) {        // arteck
+				// Store effects array
+				this.effects[device_id] = {};
+				for (const i in effects) {
+					this.effects[device_id][i] = effects[i];
+				}
+			}
 
-				this.log.debug('Datatype : ' + typeof (deviceInfo[i]));
+			// Store / Update  pallets
+			const palettes = deviceData.palettes;
+			// Store pallets array
+			this.palettes[device_id] = {};
+			for (const i in palettes) {
+				this.palettes[device_id][i] = palettes[i];
+			}
 
-				// Create Info channel
-				await this.setObjectNotExistsAsync(device_id + '._info', {
+			// Create additional states not included in JSON-API of WLED but available as SET command
+			await this.create_state(device_id + '.tt', 'tt', '');
+			await this.create_state(device_id + '.psave', 'psave', '');
+			await this.create_state(device_id + '.udpn.nn', 'nn', '');
+			await this.create_state(device_id + '.time', 'time', null);
+			await this.create_state(device_id + '.time', 'time', null);
+
+			// Create structure for all states
+			await this.handleStates(deviceData);
+
+			// Start websocket connection and and listen to state changes
+			await this.handleWebSocket(deviceIP);
+
+		} catch (error) {
+			this.sendSentry(`[handleBasicStates] ${error}`);
+		}
+	}
+
+	/**
+	 * Data handler
+	 * @param {object} deviceData WLED info & state data
+	 */
+	async handleStates(deviceData){
+		try {
+			const infoStates = deviceData.info;
+			const deviceStates = deviceData.state;
+
+			if (!this.devices[infoStates.ip].initialized) {
+				await this.setObjectNotExistsAsync(infoStates.mac + '._info', {
 					type: 'channel',
 					common: {
 						name: 'Basic information',
 					},
 					native: {},
 				});
+			}
 
-				// Create Channels for led and  wifi configuration
-				switch (i) {
-					case ('leds'):
-						await this.setObjectNotExistsAsync(device_id + '._info.leds', {
-							type: 'channel',
-							common: {
-								name: 'LED stripe configuration	',
-							},
-							native: {},
-						});
-						break;
+			// Write data to info channel
+			for (const i in infoStates) {
 
-					case ('wifi'):
-						await this.setObjectNotExistsAsync(device_id + '._info.wifi', {
-							type: 'channel',
-							common: {
-								name: 'Wifi configuration	',
-							},
-							native: {},
-						});
-						break;
+				// Create Info channels
+				if (!this.devices[infoStates.ip].initialized) {
 
-					case ('u'):
-						await this.localDeleteState(infoStates.mac + '._info.u');
-						break;
+					// Create Channels for led and  wifi configuration
+					switch (i) {
+						case ('leds'):
+							await this.setObjectNotExistsAsync(infoStates.mac + '._info.leds', {
+								type: 'channel',
+								common: {
+									name: 'LED stripe configuration	',
+								},
+								native: {},
+							});
+							break;
 
-					default:
+						case ('wifi'):
+							await this.setObjectNotExistsAsync(infoStates.mac + '._info.wifi', {
+								type: 'channel',
+								common: {
+									name: 'Wifi configuration	',
+								},
+								native: {},
+							});
+							break;
 
+						case ('u'):
+							await this.localDeleteState(infoStates.mac + '._info.u');
+							break;
+
+						default:
+
+					}
 				}
 
 				// Create states, ensure object structures are reflected in tree
-				if (typeof (deviceInfo[i]) !== 'object') {
+				if (typeof (infoStates[i]) !== 'object') {
 
 					// Default channel creation
-					this.log.debug('State created : ' + i + ' : ' + JSON.stringify(deviceInfo[i]));
-					await this.create_state(device_id + '._info.' + i, i, deviceInfo[i]);
+					this.log.debug('State created : ' + i + ' : ' + JSON.stringify(infoStates[i]));
+					await this.create_state(infoStates.mac + '._info.' + i, i, infoStates[i]);
 
 				} else {
-					for (const y in deviceInfo[i]) {
-						this.log.debug(`State created : ${y} : ${JSON.stringify(deviceInfo[i][y])}`);
-						await this.create_state(`${device_id}._info.${i}.${y}`, y, deviceInfo[i][y]);
+					for (const y in infoStates[i]) {
+						this.log.debug(`State created : ${y} : ${JSON.stringify(infoStates[i][y])}`);
+						await this.create_state(`${infoStates.mac}._info.${i}.${y}`, y, infoStates[i][y]);
 					}
 				}
 
 			}
 
-			// Get effects (if not already in memory
-			if (!this.effects[device_id]){
-				initialise[device_id] = true;
-				const effects = await this.getAPI('http://' + index + '/json/eff');
-				if (this.IsJsonString(effects)) {        // arteck
-					if (!effects) {
-						this.log.debug('Effects API call error, will retry in scheduled interval !');
-					} else {
-						this.log.debug('Effects Data received from WLED device ' + JSON.stringify(effects));
-						// Store effects array
-						this.effects[device_id] = {};
-						for (const i in effects) {
-							this.effects[device_id][i] = effects[i];
-						}
-					}
-				}
-			}
-
-			// Get pallets (if not already in memory
-			if (!this.palettes[device_id]) {
-				initialise[device_id] = true;
-				const pallets = await this.getAPI('http://' + index + '/json/pal');
-				if (!pallets) {
-					this.log.debug('Effects API call error, will retry in scheduled interval !');
-				} else {
-					this.log.debug('Effects Data received from WLED device ' + JSON.stringify(pallets));
-					// Store effects array
-					this.palettes[device_id] = {};
-					// Store pallet array
-					for (const i in pallets) {
-						this.palettes[device_id][i] = pallets[i];
-					}
-				}
-			}
-
-			// Read state Channel
-			const deviceStates = await this.getAPI('http://' + index + '/json/state');
+			// Write data of states
 			for (const i in deviceStates) {
 
 				this.log.debug('Datatype : ' + typeof (deviceStates[i]));
@@ -468,7 +561,7 @@ class Wled extends utils.Adapter {
 				// Create Channels for nested states
 				switch (i) {
 					case ('ccnf'):
-						await this.setObjectNotExistsAsync(device_id + '.ccnf', {
+						if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.ccnf', {
 							type: 'channel',
 							common: {
 								name: 'ccnf',
@@ -478,7 +571,7 @@ class Wled extends utils.Adapter {
 						break;
 
 					case ('nl'):
-						await this.setObjectNotExistsAsync(device_id + '.nl', {
+						if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.nl', {
 							type: 'channel',
 							common: {
 								name: 'Nightlight',
@@ -488,7 +581,7 @@ class Wled extends utils.Adapter {
 						break;
 
 					case ('udpn'):
-						await this.setObjectNotExistsAsync(device_id + '.udpn', {
+						if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.udpn', {
 							type: 'channel',
 							common: {
 								name: 'Broadcast (UDP sync)',
@@ -501,7 +594,7 @@ class Wled extends utils.Adapter {
 
 						this.log.debug('Segment Array : ' + JSON.stringify(deviceStates[i]));
 
-						await this.setObjectNotExistsAsync(device_id + '.seg', {
+						if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.seg', {
 							type: 'channel',
 							common: {
 								name: 'Segmentation',
@@ -511,7 +604,7 @@ class Wled extends utils.Adapter {
 
 						for (const y in deviceStates[i]) {
 
-							await this.setObjectNotExistsAsync(device_id + '.seg.' + y, {
+							if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.seg.' + y, {
 								type: 'channel',
 								common: {
 									name: 'Segment ' + y,
@@ -524,7 +617,7 @@ class Wled extends utils.Adapter {
 
 								if (x !== 'col') {
 
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x, x, deviceStates[i][y][x]);
+									await this.create_state(infoStates.mac + '.' + i + '.' + y + '.' + x, x, deviceStates[i][y][x]);
 
 								} else {
 									this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(deviceStates[i][y][x][0]));
@@ -538,12 +631,12 @@ class Wled extends utils.Adapter {
 									const tertiaryHex = rgbHex(parseInt(tertiaryRGB[0]), parseInt(tertiaryRGB[1]), parseInt(tertiaryRGB[2]));
 
 									// Write RGB and HEX information to states
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB', deviceStates[i][y][x][0]);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.0_HEX', 'Primary Color HEX', '#' + primaryHex);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color RGB (background)', deviceStates[i][y][x][1]);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.1_HEX', 'Secondary Color HEX (background)', '#' + secondaryHex);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color RGB', deviceStates[i][y][x][2]);
-									await this.create_state(device_id + '.' + i + '.' + y + '.' + x + '.2_HEX', 'Tertiary Color HEX', '#' + tertiaryHex);
+									await this.create_state(infoStates.mac + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB', deviceStates[i][y][x][0]);
+									await this.create_state(infoStates.mac + '.' + i + '.' + y + '.' + x + '.0_HEX', 'Primary Color HEX', '#' + primaryHex);
+									await this.create_state(infoStates.mac + '.' + i + '.' + y + '.' + x + '.1', 'Secondary Color RGB (background)', deviceStates[i][y][x][1]);
+									await this.create_state(infoStates.mac + '.' + i + '.' + y + '.' + x + '.1_HEX', 'Secondary Color HEX (background)', '#' + secondaryHex);
+									await this.create_state(infoStates.mac + '.' + i + '.' + y + '.' + x + '.2', 'Tertiary Color RGB', deviceStates[i][y][x][2]);
+									await this.create_state(infoStates.mac + '.' + i + '.' + y + '.' + x + '.2_HEX', 'Tertiary Color HEX', '#' + tertiaryHex);
 								}
 							}
 						}
@@ -563,75 +656,174 @@ class Wled extends utils.Adapter {
 
 					// Default channel creation
 					this.log.debug('Default state created : ' + i + ' : ' + JSON.stringify(deviceStates[i]));
-					await this.create_state(device_id + '.' + i, i, deviceStates[i]);
+					await this.create_state(infoStates.mac + '.' + i, i, deviceStates[i]);
 
 				} else {
 
 					for (const y in deviceStates[i]) {
 						if (typeof (deviceStates[i][y]) !== 'object') {
 							this.log.debug('Object states created for channel ' + i + ' with parameter : ' + y + ' : ' + JSON.stringify(deviceStates[i][y]));
-							await this.create_state(device_id + '.' + i + '.' + y, y, deviceStates[i][y]);
+							await this.create_state(infoStates.mac + '.' + i + '.' + y, y, deviceStates[i][y]);
 						}
 					}
 				}
 			}
 
-			// Create additional states not included in JSON-API of WLED but available as SET command
-			await this.create_state(device_id + '.tt', 'tt', '');
-			await this.create_state(device_id + '.psave', 'psave', '');
-			await this.create_state(device_id + '.udpn.nn', 'nn', '');
-			await this.create_state(device_id + '.time', 'time', null);
-
-			return 'success';
+			if (!this.devices[infoStates.ip].initialized) this.devices[infoStates.ip].initialized = true;
 
 		} catch (error) {
-
-			// Set alive state to false if data read fails
-			await this.setStateAsync(this.devices[index] + '._info' + '._online', {
-				val: false,
-				ack: true
-			});
-			this.log.error('Read Data error : ' + error);
-			return 'failed';
+			this.sendSentry(`[handleStates] ${error}`);
 		}
 	}
 
-	async polling_timer() {
+	/**
+	 * Frequent watchdog to validate connection
+	 * @param {string} deviceIP IP-Address of device
+	 */
+	async watchDog(deviceIP) {
 
-		this.log.debug('polling timer for  devices : ' + JSON.stringify(this.devices));
+		this.log.debug('Watchdog for ' + JSON.stringify(this.devices[deviceIP]));
 
-		// Run true array of known devices and initiate API calls retrieving all information
-		for (const i in this.devices) {
+		// Check if used WLED version supports websocket Ping-Pong messages and connection, if not handle watchdog by http-API
+		if (this.devices[deviceIP].wsPingSupported && this.devices[deviceIP].wsConnected){
+			try {
+				// Send ping by websocket
+				ws[deviceIP].send('ping');
+				if (watchdogWsTimer[deviceIP]) {
+					clearTimeout(watchdogWsTimer[deviceIP]);
+					watchdogTimer[deviceIP] = null;
+				}
+				watchdogWsTimer[deviceIP] = setTimeout(() => {
+					this.devices[deviceIP].wsPong = false;
+					this.devices[deviceIP].initialized = false;
+					this.devices[deviceIP].wsConnected = false;
+					this.devices[deviceIP].wsConnected = false;
+					// Update device working state
+					if (this.devices[deviceIP].mac != null) {
+						this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
+					}
 
-			await this.readData(i);
-			this.log.debug('Getting data for ' + this.devices[i]);
+					// Close socket
+					try {
+						ws[deviceIP].close();
+					} catch (e) {
+						console.error(e);
+					}
 
+				}, (this.config.Time_Sync * 1000));
+
+			} catch (e) {
+				// Try http-API in case of error
+				this.log.error(`WS Ping error : ${e}`);
+				await this.getDeviceJSON(deviceIP);
+			}
+		} else { // If WS-Ping not supported, use http-API
+			try {
+				await this.getDeviceJSON(deviceIP);
+			} catch (e) {
+				this.sendSentry(`[watchDog] ${e}`);
+			}
 		}
 
-		// Reset timer (if running) and start new one for next polling intervall
-		if (polling) {
-			clearTimeout(polling);
-			polling = null;
+		// Reset timer (if running) and start new one for next watchdog interval
+		if (watchdogTimer[deviceIP]) {
+			clearTimeout(watchdogTimer[deviceIP]);
+			watchdogTimer[deviceIP] = null;
 		}
-		polling = setTimeout(() => {
-			this.polling_timer();
+		watchdogTimer[deviceIP] = setTimeout(() => {
+			this.watchDog(deviceIP);
 		}, (this.config.Time_Sync * 1000));
 
 	}
 
-	// API get call from WLED device
-	async getAPI(url) {
-		this.log.debug('GET API called for : ' + url);
+	/**
+	 * Request device data by http-API
+	 * @param {string} deviceIP IP-Address of device
+	 */
+	async getDeviceJSON(deviceIP) {
+		this.log.debug(`getDeviceJSON called for : ${deviceIP}`);
+
 		try {
-			const response = await axios.get(url, {timeout: 3000}); // Timout of 3 seconds for API call
-			this.log.debug(JSON.stringify('API response data : ' + response.data));
-			return response.data;
+
+			const requestDeviceDataByAPI = async () => {
+				const response = await axios.get(`http://${deviceIP}/json`, {timeout: 3000}); // Timout of 3 seconds for API call
+				this.log.debug(JSON.stringify('API response data : ' + response.data));
+				const deviceData = response.data;
+				return deviceData;
+			};
+
+			// Check if connection is handled by websocket before proceeding
+			if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected && this.devices[deviceIP].wsPingSupported) {
+				// Nothing to do, device is connected by websocket and will handle state updates
+			} else { // No Websocket connection, handle data by http_API
+
+				const deviceData = await requestDeviceDataByAPI();
+
+				// If device is initialised, only handle state updates otherwise complete initialisation
+				if (this.devices[deviceIP].connected && this.devices[deviceIP].initialized){
+
+					if (!deviceData) {
+						this.log.warn(`Heartbeat of device ${deviceIP} failed, will try to reconnect`);
+						this.devices[deviceIP].connected = false;
+						this.devices[deviceIP].initialized = false;
+						this.devices[deviceIP].wsConnected = false;
+						await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
+					} else {
+						this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
+						if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
+							// Only reset heartbeat, device is connected by websocket and will handle state updates
+							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', true);
+						} else {
+							await this.handleStates(deviceData);
+							this.devices[deviceIP].wsConnected = false;
+							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', true);
+						}
+					}
+
+				} else {
+
+					if (!deviceData) {
+						this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+						this.devices[deviceIP].initialized = false;
+						// Update device working state
+						if (this.devices[deviceIP].mac != null) {
+							await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
+						}
+						return;
+					} else {
+						this.devices[deviceIP].connected = true;
+						this.log.debug('Info Data received from WLED device ' + JSON.stringify(deviceData));
+						this.log.info(`Initialising : " ${deviceData.info.name}" on IP :  ${deviceIP}`);
+						await this.handleBasicStates(deviceIP, deviceData);
+					}
+				}
+
+			}
+
 		} catch (error) {
-			// this.log.error(error);
+
+			if (this.devices[deviceIP].connected == true){
+				this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
+				if (this.devices[deviceIP].mac != null) {
+					await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
+				}
+				this.devices[deviceIP].connected = false;
+				this.devices[deviceIP].wsConnected = false;
+				this.devices[deviceIP].initialized = false;
+				try {
+					ws[deviceIP].close();
+				} catch (e) {
+					console.error(e);
+				}
+			}
 		}
 	}
 
-	// API post call to WLED device
+	/**
+	 * API post call to WLED device
+	 * @param {string} url API url
+	 * @param {object} values JSON data to send
+	 */
 	async postAPI(url, values) {
 		this.log.debug('Post API called for : ' + url + ' and  values : ' + JSON.stringify(values));
 		try {
@@ -649,42 +841,40 @@ class Wled extends utils.Adapter {
 		}
 	}
 
-	// Try to contact to contact and read data of already known devices
+	/**
+	 * Try to contact to contact and read data of already known devices
+	 */
 	async tryKnownDevices() {
 
 		const knownDevices = await this.getDevicesAsync();
 		if (!knownDevices) return; // exit function if no known device are detected
 		this.log.info('Try to contact known devices');
 
-		// Get IP-Adress of known devices and start reading data
+		// Get IP-Address of known devices and try too establish connection
 		for (const i in knownDevices) {
-			const deviceName = knownDevices[i].common.name;
 			const deviceIP = knownDevices[i].native.ip;
-			const deviceMac = knownDevices[i].native.mac;
 
-			this.log.info('Try to contact : "' + deviceName + '" on IP : ' + deviceIP);
+			this.log.info('Try to contact : "' + knownDevices[i].common.name + '" on IP : ' + deviceIP);
 
-			// Add IP adress to polling array
-			this.devices[knownDevices[i].native.ip] = deviceMac;
-			// Refresh information
-			const result = await this.readData(deviceIP);
-
-			// Error handling
-			if (!result || result === 'failed') {
-				this.log.warn('Unable to connect to device : ' + deviceName + ' on IP : ' + deviceIP + ' Will retry at interval time');
-			} else {
-				this.log.info('Device : "' + deviceName + '" Successfully connected on IP : ' + deviceIP);
-			}
+			// Add IP address to polling array
+			this.devices[deviceIP] = {};
+			this.devices[deviceIP].ip = knownDevices[i].native.ip;
+			this.devices[deviceIP].mac = knownDevices[i].native.mac;
+			this.devices[deviceIP].connected = false;
+			this.devices[deviceIP].initialized = false;
+			await this.getDeviceJSON(deviceIP);
 		}
 	}
 
-	// Scan network  with Bonjour service and build array for data-polling
+	/**
+	 * Scan network with Bonjour service to detect new WLED devices
+	 */
 	async scanDevices() {
 		// Browse and listen for WLED devices
 		const browser = await bonjour.find({
 			'type': 'wled'
 		});
-		this.log.info('Bonjour service startet, new  devices  will  be detected automatically :-) ');
+		this.log.info('Bonjour service started, new  devices  will  be detected automatically');
 
 		// Event listener if new devices are detected
 		browser.on('up', (data) => {
@@ -692,32 +882,38 @@ class Wled extends utils.Adapter {
 			const ip = data.referer.address;
 
 			// Check if device is already know
-			if (this.devices[ip] === undefined) {
+			if (this.devices[ip] == null) {
 				this.log.info('New WLED  device found ' + data.name + ' on IP ' + data.referer.address);
 
 				//  Add device to array
-				this.devices[ip] = id;
+				this.devices[ip] = {};
+				this.devices[ip].mac = id;
+				this.devices[ip].ip = ip;
 				this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
-
+				this.devices[ip].connected = false;
 				// Initialize device
-				this.readData(ip);
+				this.getDeviceJSON(ip);
 			} else {
-				// Update memory with current ip address
-				this.devices[ip] = id;
+				// Update ip information in case of change
+				this.devices[ip].ip = ip;
 			}
-
 			this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
 		});
-
 	}
 
+	/**
+	 * State create and value update handler
+	 * @param {string} stateName ID of state to create
+	 * @param {string} name Name of object
+	 * @param {object} value Value
+	 */
 	async create_state(stateName, name, value) {
 		this.log.debug('Create_state called for : ' + stateName + ' with value : ' + value);
 		let deviceId = stateName.split('.');
 		deviceId = deviceId[0];
 
 		// Exclude write & creation of PIR value
-		if (name.substring(0,3) == 'PIR' ) return;
+		// if (name.substring(0,3) == 'PIR' ) return;
 
 		try {
 
@@ -727,9 +923,6 @@ class Wled extends utils.Adapter {
 				let warnMessage = `State attribute definition missing for : ${name}`;
 				if (warnMessages[name] !== warnMessage) {
 					warnMessages[name] = warnMessage;
-					// Log error messages disabled, sentry only
-					// console.warn(warnMessage);
-					// this.log.warn(warnMessage);
 
 					// Send information to Sentry with value
 					warnMessage = `State attribute definition missing for : ${name} with value : ${value} `;
@@ -743,6 +936,7 @@ class Wled extends utils.Adapter {
 			if (stateAttr[name] !== undefined && stateAttr[name].max !== undefined){
 				common.max = stateAttr[name].max;
 			}
+
 			common.name = stateAttr[name] !== undefined ? stateAttr[name].name || name : name;
 			common.type = stateAttr[name] !== undefined ? stateAttr[name].type || typeof (value) : typeof (value) ;
 			common.role = stateAttr[name] !== undefined ? stateAttr[name].role || 'state' : 'state';
@@ -775,9 +969,6 @@ class Wled extends utils.Adapter {
 				// console.log(`Nothing changed do not update object`);
 			}
 
-			// Store current object definition to memory
-			this.createdStatesDetails[stateName] = common;
-
 			// Set value to state including expiration time
 			if (value !== null || value !== undefined) {
 				await this.setStateChangedAsync(stateName, {
@@ -807,7 +998,7 @@ class Wled extends utils.Adapter {
 			}
 
 			// Extend effects and color pal`let  with dropdown menu
-			if (name === 'fx' && this.effects[deviceId] && initialise[deviceId]) {
+			if (name === 'fx' && this.effects[deviceId] && !this.createdStatesDetails[stateName]) {
 
 				this.log.debug('Create special drop down state with value ' + JSON.stringify(this.effects));
 				await this.extendObjectAsync(stateName, {
@@ -817,8 +1008,7 @@ class Wled extends utils.Adapter {
 					}
 				});
 
-			} else if (name === 'pal' && this.palettes[deviceId] && initialise[deviceId]) {
-
+			} else if (name === 'pal' && this.palettes[deviceId] && !this.createdStatesDetails[stateName]) {
 
 				// this.log.debug('Create special drop down state with value ' + JSON.stringify(this.effects));
 				await this.extendObjectAsync(stateName, {
@@ -829,6 +1019,9 @@ class Wled extends utils.Adapter {
 				});
 			}
 
+			// Store current object definition to memory
+			this.createdStatesDetails[stateName] = common;
+
 			// Subscribe on state changes if writable
 			common.write && this.subscribeStates(stateName);
 
@@ -837,6 +1030,10 @@ class Wled extends utils.Adapter {
 		}
 	}
 
+	/**
+	 * Sentry error message handler
+	 * @param {string} msg Message to send
+	 */
 	sendSentry(msg) {
 
 		if (!disableSentry) {
@@ -849,19 +1046,38 @@ class Wled extends utils.Adapter {
 			}
 		} else {
 			this.log.error(`Sentry disabled, error caught : ${msg}`);
-			console.error(`Sentry disabled, error caught : ${msg}`);
 		}
 	}
 
-  IsJsonString(str) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
-  }
+	/**
+	 * Verify if string id JSON
+	 * @param {string} str string to check
+	 */
+	IsJsonString(str) {
+		try {
+			JSON.parse(str);
+		} catch (e) {
+			return false;
+		}
+		return true;
+	}
 
+	/**
+	 * Ensure proper deletion of state and object
+	 * @param {string} state ID of object to delete
+	 */
+	async localDeleteState(state) {
+		try {
+
+			const obj = await this.getObjectAsync(state);
+			if (obj) {
+				await this.delObjectAsync(state, {recursive:true});
+			}
+
+		} catch (error) {
+			// do nothing
+		}
+	}
 }
 
 // @ts-ignore parent is a valid property on module

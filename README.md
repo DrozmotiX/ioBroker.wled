@@ -52,6 +52,9 @@ When the adapter crashes or an other Code error happens, this error message that
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### 0.6.0-2 (2021-08-28)
+* (DutchmanNL) Bug of adding devices manually solved
+* 
 ### 0.6.0-1 (2021-08-28)
 * (DutchmanNL) System load reduced
 * (DutchmanNL) Communication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12

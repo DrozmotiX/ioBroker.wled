@@ -385,7 +385,7 @@ class Wled extends utils.Adapter {
 			try {
 				if (data !== 'pong'){
 					data = JSON.parse(data);
-					if (data.state) await this.handleStates(data, this.devices[deviceIP].ip); // If message contains state updates, handle state data
+					if (data.state) await this.handleStates(data, deviceIP); // If message contains state updates, handle state data
 				} else if (data === 'pong'){
 					this.log.debug(`Pong received by websocket`);
 					// Clear pong reset timer

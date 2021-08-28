@@ -385,7 +385,7 @@ class Wled extends utils.Adapter {
 			try {
 				if (data !== 'pong'){
 					data = JSON.parse(data);
-					if (data.state) await this.handleStates(data); // If message contains state updates, handle state data
+					if (data.state) await this.handleStates(data, this.devices[deviceIP].ip); // If message contains state updates, handle state data
 				} else if (data === 'pong'){
 					this.log.debug(`Pong received by websocket`);
 					// Clear pong reset timer
@@ -477,7 +477,7 @@ class Wled extends utils.Adapter {
 			await this.create_state(device_id + '.time', 'time', null);
 
 			// Create structure for all states
-			await this.handleStates(deviceData);
+			await this.handleStates(deviceData, deviceIP);
 
 			// Start websocket connection and and listen to state changes
 			await this.handleWebSocket(deviceIP);
@@ -490,11 +490,13 @@ class Wled extends utils.Adapter {
 	/**
 	 * Data handler
 	 * @param {object} deviceData WLED info & state data
+	 * @param {string} ipAddress IP Address of device
 	 */
-	async handleStates(deviceData){
+	async handleStates(deviceData,ipAddress ){
 		try {
 			const infoStates = deviceData.info;
 			const deviceStates = deviceData.state;
+			infoStates.ip = infoStates.ip !== undefined ? infoStates.ip : ipAddress;
 
 			if (!this.devices[infoStates.ip].initialized) {
 				await this.setObjectNotExistsAsync(infoStates.mac + '._info', {
@@ -784,7 +786,7 @@ class Wled extends utils.Adapter {
 							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', true);
 							return 'success';
 						} else {
-							await this.handleStates(deviceData);
+							await this.handleStates(deviceData, deviceIP);
 							this.devices[deviceIP].wsConnected = false;
 							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', true);
 							return 'success';

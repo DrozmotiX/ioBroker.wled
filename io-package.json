@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.5.9",
+        "version": "0.6.0-0",
         "news": {
+            "0.6.0-0": {
+                "en": "Reduce system load\nCommunication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12",
+                "de": "Reduzieren Sie die Systemlast\nKommunikation per Websocket implementiert, diese Funktion ermöglicht Live-Datenaktualisierungen (anstelle von Intervallabfragen). Benötigt WLED-Firmware >= 12",
+                "ru": "Уменьшить нагрузку на систему\nРеализована связь через веб-сокет, эта функция позволяет обновлять данные в реальном времени (вместо интервального опроса). Требуется прошивка WLED> = 12",
+                "pt": "Reduza a carga do sistema\nImplementada a comunicação por websocket, esse recurso permite atualizações de dados ao vivo (em vez de polling de intervalo). Requer firmware WLED> = 12",
+                "nl": "Systeembelasting verminderen\nCommunicatie via websocket geïmplementeerd, deze functie maakt live gegevensupdates mogelijk (in plaats van intervalpolling). Vereist WLED-firmware >= 12",
+                "fr": "Réduire la charge du système\nCommunication par websocket implémentée, cette fonctionnalité permet des mises à jour des données en direct (au lieu de l'interrogation par intervalles). Nécessite le micrologiciel WLED >= 12",
+                "it": "Ridurre il carico di sistema\nImplementata la comunicazione tramite websocket, questa funzione consente aggiornamenti dei dati in tempo reale (invece del polling a intervalli). Richiede firmware WLED >= 12",
+                "es": "Reducir la carga del sistema\nImplementada la comunicación por websocket, esta función permite actualizaciones de datos en vivo (en lugar de sondeos por intervalos). Requiere firmware WLED> = 12",
+                "pl": "Zmniejsz obciążenie systemu\nZaimplementowana komunikacja przez websocket, ta funkcja umożliwia aktualizację danych na żywo (zamiast odpytywania interwałowego). Wymaga oprogramowania WLED >= 12",
+                "zh-cn": "减少系统负载\n通过 websocket 实现通信，此功能允许实时数据更新（而不是间隔轮询）。需要 WLED 固件 >= 12"
+            },
             "0.5.9": {
                 "en": "added new state attributes reported by Sentry\nadded min & max for brightness value to support iOT adapter",
                 "de": "neue Statusattribute hinzugefügt, die von Sentry gemeldet wurden\nMin & Max für Helligkeitswert hinzugefügt, um den iOT-Adapter zu unterstützen",
@@ -230,18 +242,6 @@
                 "es": "Estados de color HEX implementados",
                 "pl": "Zaimplementowano stany kolorów HEX",
                 "zh-cn": "十六进制颜色状态已实现"
-            },
-            "0.1.5": {
-                "en": "Stable beta release from now installable by ioBroker admin interface.",
-                "de": "Stabile Beta-Version ab sofort über die ioBroker-Administrationsoberfläche installierbar.",
-                "ru": "Стабильная бета-версия теперь устанавливается через интерфейс администратора ioBroker.",
-                "pt": "Versão beta estável a partir de agora instalável pela interface de administração do ioBroker.",
-                "nl": "Stabiele bètaversie vanaf nu te installeren door ioBroker-beheerinterface.",
-                "fr": "Version bêta stable désormais installable par l'interface d'administration ioBroker.",
-                "it": "Versione beta stabile da ora installabile dall'interfaccia di amministrazione di ioBroker.",
-                "es": "Versión beta estable a partir de ahora instalable por la interfaz de administración ioBroker.",
-                "pl": "Stabilna wersja beta od teraz do zainstalowania przez interfejs administracyjny ioBroker.",
-                "zh-cn": "现在可以通过ioBroker管理界面安装稳定的beta版本。"
             }
         },
         "title": "WLED",

@@ -52,6 +52,10 @@ When the adapter crashes or an other Code error happens, this error message that
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### 0.6.0-0 (2021-08-28)
+* (DutchmanNL) Reduce system load
+* (DutchmanNL) Communication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12
+
 ### 0.5.9 (2021-08-11)
 * (DutchmanNL) added new state attributes reported by Sentry
 * (DutchmanNL) added min & max for brightness value to support iOT adapter

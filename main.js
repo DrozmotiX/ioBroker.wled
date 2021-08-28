@@ -678,6 +678,7 @@ class Wled extends utils.Adapter {
 			}
 
 			if (!this.devices[infoStates.ip].initialized) this.devices[infoStates.ip].initialized = true;
+			if (!this.devices[infoStates.ip].connected) this.devices[infoStates.ip].connectedc = true;
 
 		} catch (error) {
 			this.sendSentry(`[handleStates] ${error}`);

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.6.0-2",
+        "version": "0.6.0-3",
         "news": {
+            "0.6.0-3": {
+                "en": "ensure legacy support of WLED FW < 0.13-b2",
+                "de": "Gewährleistung der Legacy-Unterstützung von WLED FW < 0,13-b2",
+                "ru": "обеспечить устаревшую поддержку WLED FW <0,13-b2",
+                "pt": "garantir suporte legado de WLED FW <0,13-b2",
+                "nl": "zorgen voor legacy-ondersteuning van WLED FW < 0.13-b2",
+                "fr": "assurer la prise en charge héritée du WLED FW < 0,13-b2",
+                "it": "garantire il supporto legacy di WLED FW < 0,13-b2",
+                "es": "garantizar el soporte heredado de WLED FW <0.13-b2",
+                "pl": "zapewnić obsługę starszej wersji WLED FW < 0,13-b2",
+                "zh-cn": "确保 WLED FW < 0.13-b2 的传统支持"
+            },
             "0.6.0-2": {
                 "en": "Bug of adding devices manually solved\n",
                 "de": "Fehler beim manuellen Hinzufügen von Geräten behoben\n",
@@ -230,18 +242,6 @@
                 "es": "Resuelto llamada de API formateada incorrecta en cambios de estado que causan mensaje de advertencia",
                 "pl": "Rozwiązano niepoprawnie sformatowane wywołanie API przy zmianach stanu powodujące komunikat ostrzegawczy",
                 "zh-cn": "解决了状态更改时格式错误的API调用导致警告消息的问题"
-            },
-            "0.1.7": {
-                "en": "Fixed error when API call fails",
-                "de": "Fehler behoben, wenn der API-Aufruf fehlschlägt",
-                "ru": "Исправлена ошибка при сбое вызова API",
-                "pt": "Corrigido o erro quando a chamada da API falha",
-                "nl": "Vaste fout wanneer API-aanroep mislukt",
-                "fr": "Correction d'une erreur lorsque l'appel d'API échoue",
-                "it": "Risolto errore in caso di errore nella chiamata API",
-                "es": "Se corrigió el error cuando falla la llamada a la API",
-                "pl": "Naprawiono błąd, gdy połączenie API nie powiedzie się",
-                "zh-cn": "修复了API调用失败时的错误"
             }
         },
         "title": "WLED",

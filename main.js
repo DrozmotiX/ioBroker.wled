@@ -796,12 +796,12 @@ class Wled extends utils.Adapter {
 						this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
 						if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
 							// Only reset heartbeat, device is connected by websocket and will handle state updates
-							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', true);
+							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', {val: true, ack: true});
 							return 'success';
 						} else {
 							await this.handleStates(deviceData, deviceIP);
 							this.devices[deviceIP].wsConnected = false;
-							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', true);
+							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', {val: true, ack: true});
 							return 'success';
 						}
 					}
@@ -813,7 +813,7 @@ class Wled extends utils.Adapter {
 						this.devices[deviceIP].initialized = false;
 						// Update device working state
 						if (this.devices[deviceIP].mac != null) {
-							await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
+							await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', {val: false, ack: true});
 						}
 						return 'failed';
 					} else {
@@ -831,7 +831,7 @@ class Wled extends utils.Adapter {
 			if (this.devices[deviceIP] && this.devices[deviceIP].connected == true){
 				this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
 				if (this.devices[deviceIP].mac != null) {
-					await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
+					await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', {val: false, ack: true});
 				}
 				this.devices[deviceIP].connected = false;
 				this.devices[deviceIP].wsConnected = false;

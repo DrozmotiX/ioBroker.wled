@@ -52,6 +52,9 @@ When the adapter crashes or an other Code error happens, this error message that
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### 0.6.0-3 (2021-08-30)
+* (DutchmanNL) ensure legacy support of WLED FW < 0.13-b2
+
 ### 0.6.0-2 (2021-08-28)
 * (DutchmanNL) Bug of adding devices manually solved
 * 

@@ -24,7 +24,7 @@ const stateExpire = {}; // Array containing all times for online state expire
 const ws = {}; // Array containing websocket connections
 const warnMessages = {}; // Array containing sentry messages
 
-const disableSentry = false; // Ensure to set to true during development !
+const disableSentry = true; // Ensure to set to true during development !
 
 class Wled extends utils.Adapter {
 
@@ -372,6 +372,7 @@ class Wled extends utils.Adapter {
 		ws[deviceIP].on('open', () => {
 			this.log.info(`${this.devices[deviceIP].name} connected`);
 			this.devices[deviceIP].wsConnected = true;
+			this.devices[deviceIP].wsPingSupported = false;
 			// Request pong to handle watchdog
 			ws[deviceIP].send('ping');
 			// Option to subscribe live data
@@ -393,8 +394,8 @@ class Wled extends utils.Adapter {
 						clearTimeout(watchdogWsTimer[deviceIP]);
 						watchdogTimer[deviceIP] = null;
 					}
-					this.devices[deviceIP].wsPong = true;
 					this.devices[deviceIP].wsPingSupported = true;
+					this.devices[deviceIP].wsPong = true;
 
 				} else {
 					this.log.warn(`Unhandled message received ${data}`);
@@ -406,14 +407,24 @@ class Wled extends utils.Adapter {
 
 		// Handle closure of socket connection
 		ws[deviceIP].on('close', () => {
-			this.log.info(`${this.devices[deviceIP].name} disconnected`);
-			this.devices[deviceIP].wsConnected = false;
-			if (this.devices[deviceIP].initialized) this.devices[deviceIP].initialized = false;
+			if (this.devices[deviceIP].wsSupported === true){
+				this.log.info(`${this.devices[deviceIP].name} disconnected`);
+				this.devices[deviceIP].connected = false;
+				this.devices[deviceIP].initialized = false;
+				this.devices[deviceIP].wsConnected = false;
+			}
 		});
 
 		// Handle errors on socket connection
 		ws[deviceIP].on('error', (error) => {
-			this.log.error(`Websocket connection error : ${error}`);
+
+			// Optimise error messages
+			if (error.message.includes('404')){
+				this.log.warn(`Client ${deviceIP} does not support websocket, please consider upgrading your WLED firmware to >= 0.12. Switching to http-APi !`);
+				this.devices[deviceIP].wsSupported = false;
+			} else {
+				this.log.error(`Websocket connection error : ${error}`);
+			}
 		});
 
 	}
@@ -428,7 +439,7 @@ class Wled extends utils.Adapter {
 			const device_id = deviceData.info.mac;
 			if (!this.devices[deviceIP]) this.devices[deviceIP] = {};
 
-			this.devices[deviceIP].ip = deviceData.info.mac;
+			this.devices[deviceIP].ip = deviceIP;
 			this.devices[deviceIP].mac = deviceData.info.mac;
 			this.devices[deviceIP].connected = false;
 			this.devices[deviceIP].initialized = false;
@@ -478,9 +489,6 @@ class Wled extends utils.Adapter {
 
 			// Create structure for all states
 			await this.handleStates(deviceData, deviceIP);
-
-			// Start websocket connection and and listen to state changes
-			await this.handleWebSocket(deviceIP);
 
 		} catch (error) {
 			this.sendSentry(`[handleBasicStates] ${error}`);
@@ -677,8 +685,12 @@ class Wled extends utils.Adapter {
 				}
 			}
 
-			if (!this.devices[infoStates.ip].initialized) this.devices[infoStates.ip].initialized = true;
-			if (!this.devices[infoStates.ip].connected) this.devices[infoStates.ip].connectedc = true;
+			if (!this.devices[infoStates.ip].initialized) {
+				this.devices[infoStates.ip].initialized = true;
+				// Start websocket connection and and listen to state changes
+				await this.handleWebSocket(infoStates.ip);
+			}
+			if (!this.devices[infoStates.ip].connected) this.devices[infoStates.ip].connected = true;
 
 		} catch (error) {
 			this.sendSentry(`[handleStates] ${error}`);
@@ -863,7 +875,7 @@ class Wled extends utils.Adapter {
 
 		const knownDevices = await this.getDevicesAsync();
 		if (!knownDevices) return; // exit function if no known device are detected
-		this.log.info('Try to contact known devices');
+		if (knownDevices.length > 0) this.log.info(`Try to contact ${knownDevices.length} known devices`);
 
 		// Get IP-Address of known devices and try too establish connection
 		for (const i in knownDevices) {
@@ -1057,6 +1069,8 @@ class Wled extends utils.Adapter {
 				if (sentryInstance) {
 					this.log.info(`[Error caught and sent to Sentry, thank you for collaborating!] error: ${msg}`);
 					sentryInstance.getSentryObject().captureException(msg);
+				} else {
+					this.log.error(`Sentry disabled, error caught : ${msg}`);
 				}
 			}
 		} else {

@@ -1,43 +1,19 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.6.0-3",
+        "version": "0.6.0",
         "news": {
-            "0.6.0-3": {
-                "en": "ensure legacy support of WLED FW < 0.13-b2",
-                "de": "Gewährleistung der Legacy-Unterstützung von WLED FW < 0,13-b2",
-                "ru": "обеспечить устаревшую поддержку WLED FW <0,13-b2",
-                "pt": "garantir suporte legado de WLED FW <0,13-b2",
-                "nl": "zorgen voor legacy-ondersteuning van WLED FW < 0.13-b2",
-                "fr": "assurer la prise en charge héritée du WLED FW < 0,13-b2",
-                "it": "garantire il supporto legacy di WLED FW < 0,13-b2",
-                "es": "garantizar el soporte heredado de WLED FW <0.13-b2",
-                "pl": "zapewnić obsługę starszej wersji WLED FW < 0,13-b2",
-                "zh-cn": "确保 WLED FW < 0.13-b2 的传统支持"
-            },
-            "0.6.0-2": {
-                "en": "Bug of adding devices manually solved\n",
-                "de": "Fehler beim manuellen Hinzufügen von Geräten behoben\n",
-                "ru": "Ошибка добавления устройств вручную решена\n",
-                "pt": "Bug de adicionar dispositivos resolvido manualmente\n",
-                "nl": "Bug van handmatig toevoegen van apparaten opgelost\n",
-                "fr": "Bug d'ajout de périphériques résolu manuellement\n",
-                "it": "Bug relativo all'aggiunta manuale di dispositivi risolto\n",
-                "es": "Error de agregar dispositivos resuelto manualmente\n",
-                "pl": "Błąd ręcznego dodawania urządzeń rozwiązany\n",
-                "zh-cn": "解决手动添加设备的bug\n"
-            },
-            "0.6.0-1": {
-                "en": "System load reduced\nCommunication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12",
-                "de": "Systemlast reduziert\nKommunikation per Websocket implementiert, diese Funktion ermöglicht Live-Datenaktualisierungen (anstelle von Intervallabfragen). Benötigt WLED-Firmware >= 12",
-                "ru": "Снижена нагрузка на систему\nРеализована связь через веб-сокет, эта функция позволяет обновлять данные в реальном времени (вместо интервального опроса). Требуется прошивка WLED> = 12",
-                "pt": "Carga do sistema reduzida\nImplementada a comunicação por websocket, esse recurso permite atualizações de dados ao vivo (em vez de polling de intervalo). Requer firmware WLED> = 12",
-                "nl": "Systeembelasting verminderd\nCommunicatie via websocket geïmplementeerd, deze functie maakt live gegevensupdates mogelijk (in plaats van intervalpolling). Vereist WLED-firmware >= 12",
-                "fr": "Charge du système réduite\nCommunication par websocket implémentée, cette fonctionnalité permet des mises à jour des données en direct (au lieu de l'interrogation par intervalles). Nécessite le micrologiciel WLED >= 12",
-                "it": "Carico del sistema ridotto\nImplementata la comunicazione tramite websocket, questa funzione consente aggiornamenti dei dati in tempo reale (invece del polling a intervalli). Richiede firmware WLED >= 12",
-                "es": "Carga del sistema reducida\nImplementada la comunicación por websocket, esta función permite actualizaciones de datos en vivo (en lugar de sondeos por intervalos). Requiere firmware WLED> = 12",
-                "pl": "Zmniejszone obciążenie systemu\nZaimplementowana komunikacja przez websocket, ta funkcja umożliwia aktualizację danych na żywo (zamiast odpytywania interwałowego). Wymaga oprogramowania WLED >= 12",
-                "zh-cn": "系统负载减少\n通过 websocket 实现通信，此功能允许实时数据更新（而不是间隔轮询）。需要 WLED 固件 >= 12"
+            "0.6.0": {
+                "en": "System load reduced\nAll warnings related to JS-Controller 3.x checks solved\nEnsure legacy support of WLED FW < 0.12 (fallback to http-API instead of websocket)\nCommunication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12",
+                "de": "Systemlast reduziert\nAlle Warnungen zu JS-Controller 3.x-Prüfungen behoben\nSicherstellen der Legacy-Unterstützung von WLED FW < 0.12 (Fallback auf http-API statt Websocket)\nKommunikation per Websocket implementiert, diese Funktion ermöglicht Live-Datenaktualisierungen (anstelle von Intervallabfragen). Benötigt WLED-Firmware >= 12",
+                "ru": "Снижена нагрузка на систему\nВсе предупреждения, связанные с проверками JS-Controller 3.x, устранены\nОбеспечьте устаревшую поддержку WLED FW <0.12 (откат к http-API вместо веб-сокета)\nРеализована связь через веб-сокет, эта функция позволяет обновлять данные в реальном времени (вместо интервального опроса). Требуется прошивка WLED> = 12",
+                "pt": "Carga do sistema reduzida\nTodos os avisos relacionados às verificações do JS-Controller 3.x resolvidos\nGaranta suporte legado de WLED FW <0,12 (fallback para http-API em vez de websocket)\nImplementada a comunicação por websocket, esse recurso permite atualizações de dados ao vivo (em vez de polling de intervalo). Requer firmware WLED> = 12",
+                "nl": "Systeembelasting verminderd\nAlle waarschuwingen met betrekking tot JS-Controller 3.x-controles opgelost\nZorg voor legacy-ondersteuning van WLED FW < 0.12 (fallback naar http-API in plaats van websocket)\nCommunicatie via websocket geïmplementeerd, deze functie maakt live gegevensupdates mogelijk (in plaats van intervalpolling). Vereist WLED-firmware >= 12",
+                "fr": "Charge du système réduite\nTous les avertissements liés aux contrôles JS-Controller 3.x résolus\nAssurer la prise en charge héritée de WLED FW < 0,12 (repli à http-API au lieu de websocket)\nCommunication par websocket implémentée, cette fonctionnalité permet des mises à jour des données en direct (au lieu de l'interrogation par intervalles). Nécessite le micrologiciel WLED >= 12",
+                "it": "Carico del sistema ridotto\nTutti gli avvisi relativi ai controlli JS-Controller 3.x sono stati risolti\nGarantire il supporto legacy di WLED FW < 0,12 (fallback a http-API anziché websocket)\nImplementata la comunicazione tramite websocket, questa funzione consente aggiornamenti dei dati in tempo reale (invece del polling a intervalli). Richiede firmware WLED >= 12",
+                "es": "Carga del sistema reducida\nTodas las advertencias relacionadas con las comprobaciones de JS-Controller 3.x resueltas\nAsegure el soporte heredado de WLED FW <0.12 (respaldo a http-API en lugar de websocket)\nImplementada la comunicación por websocket, esta función permite actualizaciones de datos en vivo (en lugar de sondeos por intervalos). Requiere firmware WLED> = 12",
+                "pl": "Zmniejszone obciążenie systemu\nWszystkie ostrzeżenia związane z kontrolami JS-Controller 3.x rozwiązane\nZapewnij starszą obsługę WLED FW < 0,12 (powrót do http-API zamiast websocket)\nZaimplementowana komunikacja przez websocket, ta funkcja umożliwia aktualizację danych na żywo (zamiast odpytywania interwałowego). Wymaga oprogramowania WLED >= 12",
+                "zh-cn": "系统负载减少\n解决了与 JS-Controller 3.x 检查相关的所有警告\n确保 WLED FW < 0.12 的传统支持（回退到 http-API 而不是 websocket）\n通过 websocket 实现通信，此功能允许实时数据更新（而不是间隔轮询）。需要 WLED 固件 >= 12"
             },
             "0.5.9": {
                 "en": "added new state attributes reported by Sentry\nadded min & max for brightness value to support iOT adapter",

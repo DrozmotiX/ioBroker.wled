@@ -491,7 +491,7 @@ class Wled extends utils.Adapter {
 			await this.handleStates(deviceData, deviceIP);
 
 		} catch (error) {
-			this.sendSentry(`[handleBasicStates] ${error}`);
+			this.sendSentry(`[handleBasicStates]`, `${error}`);
 		}
 	}
 
@@ -693,7 +693,7 @@ class Wled extends utils.Adapter {
 			if (!this.devices[infoStates.ip].connected) this.devices[infoStates.ip].connected = true;
 
 		} catch (error) {
-			this.sendSentry(`[handleStates] ${error}`);
+			this.sendSentry(`[handleStates]`, `${error}`);
 		}
 	}
 
@@ -741,8 +741,8 @@ class Wled extends utils.Adapter {
 		} else { // If WS-Ping not supported, use http-API
 			try {
 				await this.getDeviceJSON(deviceIP);
-			} catch (e) {
-				this.sendSentry(`[watchDog] ${e}`);
+			} catch (error) {
+				this.sendSentry(`[watchDog]`, `${error}`);
 			}
 		}
 
@@ -953,7 +953,7 @@ class Wled extends utils.Adapter {
 
 					// Send information to Sentry with value
 					warnMessage = `State attribute definition missing for : ${name} with value : ${value} `;
-					this.sendSentry(warnMessage);
+					this.sendSentry(warnMessage, null);
 				}
 			}
 
@@ -1060,21 +1060,26 @@ class Wled extends utils.Adapter {
 	/**
 	 * Sentry error message handler
 	 * @param {string} msg Message to send
+	 * @param {object} error Error message (including stack) to handle exceptions
 	 */
-	sendSentry(msg) {
+	sendSentry(msg, error) {
+
+		let sentryMessage = msg; // If no (stack) error is provided just send the message
+		if (error) sentryMessage = `${msg} | Error : ${error} | StackTrace : ${error.stack}}`;
+
 
 		if (!disableSentry) {
 			if (this.supportsFeature && this.supportsFeature('PLUGINS')) {
 				const sentryInstance = this.getPluginInstance('sentry');
 				if (sentryInstance) {
-					this.log.info(`[Error caught and sent to Sentry, thank you for collaborating!] error: ${msg}`);
-					sentryInstance.getSentryObject().captureException(msg);
+					this.log.info(`[Error caught and sent to Sentry, thank you for collaborating!]  ${sentryMessage}`);
+					sentryInstance.getSentryObject().captureException(sentryMessage);
 				} else {
-					this.log.error(`Sentry disabled, error caught : ${msg}`);
+					this.log.error(`Sentry disabled, error caught : ${sentryMessage}`);
 				}
 			}
 		} else {
-			this.log.error(`Sentry disabled, error caught : ${msg}`);
+			this.log.error(`Sentry disabled, error caught : ${sentryMessage}`);
 		}
 	}
 

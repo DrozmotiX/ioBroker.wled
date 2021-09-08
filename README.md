@@ -1,4 +1,4 @@
-![Logo](admin/wled_large.png)
+![Logo](admin/wled_logo_akemi.png)
 # ioBroker.wled
 
 [![NPM version](http://img.shields.io/npm/v/iobroker.wled.svg)](https://www.npmjs.com/package/iobroker.wled)

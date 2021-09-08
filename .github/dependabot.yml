@@ -1,14 +1,14 @@
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: "/"
-    schedule:
-      interval: monthly
-      time: "04:00"
-      timezone: Europe/Berlin
-      allow:
-        - dependency-type: 'production'
-    open-pull-requests-limit: 20
-    assignees:
-      - DrozmotiX
-    versioning-strategy: increase
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: monthly
+    time: "04:00"
+    timezone: Europe/Berlin
+    allow:
+      - dependency-type: 'production'
+  open-pull-requests-limit: 20
+  assignees:
+  - DrozmotiX
+  versioning-strategy: increase

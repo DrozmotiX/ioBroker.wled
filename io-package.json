@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.6.0",
+        "version": "0.6.1",
         "news": {
+            "0.6.1": {
+                "en": "Missing state definitions WLED FW 0.13.0-b12 added.",
+                "de": "Fehlende Zustandsdefinitionen WLED FW 0.13.0-b12 hinzugefügt.",
+                "ru": "Добавлены отсутствующие определения состояний WLED FW 0.13.0-b12.",
+                "pt": "Definições de estado ausentes WLED FW 0.13.0-b12 adicionadas.",
+                "nl": "Ontbrekende statusdefinities WLED FW 0.13.0-b12 toegevoegd.",
+                "fr": "Définitions d'état manquantes ajoutées WLED FW 0.13.0-b12.",
+                "it": "Aggiunte definizioni di stato mancanti WLED FW 0.13.0-b12.",
+                "es": "Faltan definiciones de estado WLED FW 0.13.0-b12 agregadas.",
+                "pl": "Dodano brakujące definicje stanu WLED FW 0.13.0-b12.",
+                "zh-cn": "添加了缺少状态定义 WLED FW 0.13.0-b12。"
+            },
             "0.6.0": {
                 "en": "System load reduced\nAll warnings related to JS-Controller 3.x checks solved\nEnsure legacy support of WLED FW < 0.12 (fallback to http-API instead of websocket)\nCommunication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12",
                 "de": "Systemlast reduziert\nAlle Warnungen zu JS-Controller 3.x-Prüfungen behoben\nSicherstellen der Legacy-Unterstützung von WLED FW < 0.12 (Fallback auf http-API statt Websocket)\nKommunikation per Websocket implementiert, diese Funktion ermöglicht Live-Datenaktualisierungen (anstelle von Intervallabfragen). Benötigt WLED-Firmware >= 12",

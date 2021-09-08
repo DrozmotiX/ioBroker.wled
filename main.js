@@ -828,7 +828,7 @@ class Wled extends utils.Adapter {
 
 		} catch (error) {
 
-			if (this.devices[deviceIP] && this.devices[deviceIP].connected == true){
+			if (this.devices[deviceIP] && this.devices[deviceIP].connected){
 				this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
 				if (this.devices[deviceIP].mac != null) {
 					await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', {val: false, ack: true});
@@ -997,7 +997,7 @@ class Wled extends utils.Adapter {
 			}
 
 			// Set value to state including expiration time
-			if (value !== null || value !== undefined) {
+			if (value != null) {
 				await this.setStateChangedAsync(stateName, {
 					val: typeof value === 'object' ? JSON.stringify(value) : value, // real objects are not allowed
 					ack: true,

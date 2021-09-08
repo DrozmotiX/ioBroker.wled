@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.6.1",
+        "version": "0.6.2",
         "news": {
+            "0.6.2": {
+                "en": "HotFix: Missing axios dependency added",
+                "de": "HotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
+                "ru": "HotFix: добавлена отсутствующая зависимость axios",
+                "pt": "HotFix: Dependência de axios ausente adicionada",
+                "nl": "HotFix: ontbrekende axios-afhankelijkheid toegevoegd",
+                "fr": "HotFix : Ajout d'une dépendance axios manquante",
+                "it": "HotFix: aggiunta dipendenza Axios mancante",
+                "es": "HotFix: Se agregó la dependencia de axios faltante",
+                "pl": "Poprawka: dodano brakującą zależność axios",
+                "zh-cn": "HotFix：添加了缺少 axios 依赖项"
+            },
             "0.6.1": {
                 "en": "Missing state definitions WLED FW 0.13.0-b12 added.",
                 "de": "Fehlende Zustandsdefinitionen WLED FW 0.13.0-b12 hinzugefügt.",

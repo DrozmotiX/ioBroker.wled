@@ -22,36 +22,35 @@ A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control 
 ## Instructions
 
 The adapter automatically try's to find WLED devices in your network using Bonjour services.  
-Known issues : Networks with VLAN seperation mostly don't route broadcast traffic, meaning autodetect will fail.  
+Known issues : Networks with VLAN separation mostly don't route broadcast traffic, meaning autodetect will fail.  
 
-Don't worry, in that case you can add the device manually by IP-Adress.
+Don't worry, in that case you can add the device manually by IP-Address.
 
-1) Ensure your WLED device is runnning and reachable by network
+1) Ensure your WLED device is running and reachable by network
 2) Install the adapter
-3) Configure intervall times for data polling and auto-detect cyclus  
+3) Configure intervall times for data polling and auto-detect cycles  
 4 - A) Start the adapter, devices should be detected automatically  
-4 - B) If A fails, use the Add-Device button an provide the device IP-Adress  
-5) Adapter will send changes immediatly and polls data every x seconds (configurable)
-
-## To-Do
-
-* [ ] Switch polling to socket connections, pending implementation at WLED firmware
+4 - B) If A fails, use the Add-Device button and provide the device IP-Address  
+5) Adapter will send changes immediately and polls data every x seconds (configurable)
 
 ## Support me
 If you like my work, please feel free to provide a personal donation  
-(this is an personal Donate link for DutchmanNL, no relation to the ioBroker Project !)  
+(this is a personal Donate link for DutchmanNL, no relation to the ioBroker Project !)  
 [![Donate](https://raw.githubusercontent.com/DrozmotiX/ioBroker.wled/main/admin/button.png)](http://paypal.me/DutchmanNL)
 
 ## What is Sentry.io and what is reported to the servers of that company?
 Sentry.io is a service for developers to get an overview about errors from their applications. And exactly this is implemented in this adapter.
 
-When the adapter crashes or an other Code error happens, this error message that also appears in the ioBroker log is submitted to Sentry. When you allowed iobroker GmbH to collect diagnostic data then also your installation ID (this is just a unique ID **without** any additional infos about you, email, name or such) is included. This allows Sentry to group errors and show how many unique users are affected by such an error. All of this helps me to provide error free adapters that basically never crashs.  
+When the adapter crashes or another Code error happens, this error message that also appears in the ioBroker log is submitted to Sentry. When you allowed iobroker GmbH to collect diagnostic data then also your installation ID (this is just a unique ID **without** any additional infos about you, email, name or such) is included. This allows Sentry to group errors and show how many unique users are affected by such an error. All of this helps me to provide error free adapters that basically never crashs.  
 
 # Changelog
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+
+### 0.6.2 (2021-09-08) - Missing axios dependency added
+* (DutchmanNL) HotFix: Missing axios dependency added
 
 ### 0.6.1 (2021-09-08)
 * (DutchmanNL) Missing state definitions WLED FW 0.13.0-b12 added.
@@ -70,10 +69,6 @@ When the adapter crashes or an other Code error happens, this error message that
 * (DutchmanNL) added new state attributes reported by Sentry
 * (DutchmanNL) Bugfix Live override datapoint created as read-only #252
 * (DutchmanNL) excluded value "PIR" from data write due to current formatting
-
-### 0.5.7 (2021-08-10)
-* (foxriver76) we fixed some incorrect object types, fixes warnings with JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github.com/DrozmotiX/ioBroker.wled/issues/209)
-* (DutchmanNL) add support for WLED 0.13.x (added types fps, ndc, ip, of)
 
 ## License
 MIT License

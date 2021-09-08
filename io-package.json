@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.6.2",
+        "version": "0.6.3",
         "news": {
+            "0.6.3": {
+                "en": "Missing dropdown for ID of effects added\nHotFix: Missing axios dependency added",
+                "de": "Fehlende Dropdown-Liste für die ID der hinzugefügten Effekte\nHotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
+                "ru": "Отсутствует раскрывающийся список для идентификатора добавленных эффектов.\nHotFix: добавлена отсутствующая зависимость axios",
+                "pt": "Lista suspensa ausente para ID de efeitos adicionados\nHotFix: Dependência de axios ausente adicionada",
+                "nl": "Ontbrekende vervolgkeuzelijst voor ID van toegevoegde effecten\nHotFix: ontbrekende axios-afhankelijkheid toegevoegd",
+                "fr": "Liste déroulante manquante pour l'ID des effets ajoutés\nHotFix : Ajout d'une dépendance axios manquante",
+                "it": "Menu a discesa mancante per l'ID degli effetti aggiunti\nHotFix: aggiunta dipendenza Axios mancante",
+                "es": "Falta el menú desplegable para la identificación de los efectos agregados\nHotFix: Se agregó la dependencia de axios faltante",
+                "pl": "Brakujące menu dla identyfikatora dodanych efektów\nPoprawka: dodano brakującą zależność axios",
+                "zh-cn": "缺少添加效果 ID 的下拉菜单\nHotFix：添加了缺少 axios 依赖项"
+            },
             "0.6.2": {
                 "en": "HotFix: Missing axios dependency added",
                 "de": "HotFix: Fehlende Axios-Abhängigkeit hinzugefügt",

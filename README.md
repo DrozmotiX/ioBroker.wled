@@ -49,7 +49,8 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 
-### 0.6.2 (2021-09-08) - Missing axios dependency added
+### 0.6.3 (2021-09-08) - HotFixes
+* (DutchmanNL) Missing dropdown for ID of effects added
 * (DutchmanNL) HotFix: Missing axios dependency added
 
 ### 0.6.1 (2021-09-08)

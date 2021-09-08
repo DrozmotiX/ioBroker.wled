@@ -463,13 +463,15 @@ class Wled extends utils.Adapter {
 			await this.create_state(device_id + '._info' + '._online', 'online', true);
 
 			// Store / Update effects
-			const effects = deviceData.effects;
-			if (this.IsJsonString(effects)) {        // arteck
+			try {
+				const effects = deviceData.effects;
 				// Store effects array
 				this.effects[device_id] = {};
 				for (const i in effects) {
 					this.effects[device_id][i] = effects[i];
 				}
+			} catch (e){
+				this.log.debug(`Cannot create effect dropdown`)
 			}
 
 			// Store / Update  pallets
@@ -1082,20 +1084,7 @@ class Wled extends utils.Adapter {
 			this.log.error(`Sentry disabled, error caught : ${sentryMessage}`);
 		}
 	}
-
-	/**
-	 * Verify if string id JSON
-	 * @param {string} str string to check
-	 */
-	IsJsonString(str) {
-		try {
-			JSON.parse(str);
-		} catch (e) {
-			return false;
-		}
-		return true;
-	}
-
+	
 	/**
 	 * Ensure proper deletion of state and object
 	 * @param {string} state ID of object to delete

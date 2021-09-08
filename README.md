@@ -53,6 +53,9 @@ When the adapter crashes or an other Code error happens, this error message that
     ### __WORK IN PROGRESS__
 -->
 
+### __WORK IN PROGRESS__
+* (DutchmanNL) Missing state definitions WLED FW 0.13.0-b12 added.
+
 ### 0.6.0 (2021-08-31) - Support Websocket connections
 * (DutchmanNL) System load reduced
 * (DutchmanNL) All warnings related to JS-Controller 3.x checks solved

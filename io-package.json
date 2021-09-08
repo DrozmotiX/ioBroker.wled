@@ -111,18 +111,6 @@
                 "pl": "Poprawka: Dodaj brakujące atrybuty za pomocą WLED 0.10.0",
                 "zh-cn": "错误修正：使用WLED 0.10.0添加缺少的属性"
             },
-            "0.5.2-beta.0": {
-                "en": "Bugfix : Add missing Attributes with WLED 0.10.0",
-                "de": "Bugfix: Fehlende Attribute mit WLED 0.10.0 hinzufügen",
-                "ru": "Исправление: добавление недостающих атрибутов с WLED 0.10.0",
-                "pt": "Correção de bug: adicionar atributos ausentes com WLED 0.10.0",
-                "nl": "Bugfix: voeg ontbrekende attributen toe met WLED 0.10.0",
-                "fr": "Correctif: ajouter des attributs manquants avec WLED 0.10.0",
-                "it": "Bugfix: aggiungi attributi mancanti con WLED 0.10.0",
-                "es": "Corrección de error: agregue atributos faltantes con WLED 0.10.0",
-                "pl": "Poprawka: Dodaj brakujące atrybuty za pomocą WLED 0.10.0",
-                "zh-cn": "错误修正：使用WLED 0.10.0添加缺少的属性"
-            },
             "0.5.1": {
                 "en": "Avoid writing objects unnecessarily, Sentry implemented",
                 "de": "Vermeiden Sie unnötiges Schreiben von Objekten, implementiert Sentry",
@@ -146,78 +134,6 @@
                 "es": "La versión estable",
                 "pl": "Wersja stabilna",
                 "zh-cn": "稳定释放"
-            },
-            "0.3.0": {
-                "en": "Bugfix : Correct handling of polling timer",
-                "de": "Bugfix: Korrekter Umgang mit dem Polling Timer",
-                "ru": "Исправлено: правильная обработка таймера опроса",
-                "pt": "Correção de erros: Manuseio correto do temporizador de polling",
-                "nl": "Bugfix: Correcte afhandeling van pollingtimer",
-                "fr": "Correctif: gestion correcte du temporisateur d'interrogation",
-                "it": "Bugfix: corretta gestione del timer di polling",
-                "es": "Corrección de errores: manejo correcto del temporizador de sondeo",
-                "pl": "Bugfix: Prawidłowa obsługa licznika odpytywania",
-                "zh-cn": "错误修正：正确处理轮询计时器"
-            },
-            "0.2.6": {
-                "en": "Bugfix : Hex state value change",
-                "de": "Bugfix: Hex Status Wertänderung",
-                "ru": "Исправлено: изменение значения шестнадцатеричного состояния",
-                "pt": "Correção: Alteração do valor do estado hexadecimal",
-                "nl": "Bugfix: waarde verandering in hex-status",
-                "fr": "Correctif: modification de la valeur de l'état hexadécimal",
-                "it": "Bugfix: modifica del valore dello stato esadecimale",
-                "es": "Corrección de error: cambio de valor de estado hexadecimal",
-                "pl": "Bugfix: Zmiana wartości stanu heksadecymalnego",
-                "zh-cn": "错误修正：十六进制状态值更改"
-            },
-            "0.2.5": {
-                "en": "Stable release candidate",
-                "de": "Stabiler Release-Kandidat",
-                "ru": "Стабильный релиз кандидата",
-                "pt": "Candidato de liberação estável",
-                "nl": "Stabiele release-kandidaat",
-                "fr": "Candidat à la version stable",
-                "it": "Candidato al rilascio stabile",
-                "es": "Candidato de liberación estable",
-                "pl": "Kandydat do wydania stabilnego",
-                "zh-cn": "稳定释放候选"
-            },
-            "0.2.0": {
-                "en": "Possibility to add devices by IP-adress implemented. (Needed for situations were autoscan fails)",
-                "de": "Möglichkeit zum Hinzufügen von Geräten per IP-Adresse implementiert. (Wird für Situationen benötigt, in denen der Autoscan fehlschlägt.)",
-                "ru": "Реализована возможность добавления устройств по IP-адресу. (Требуется для ситуаций, когда автосканирование не удается)",
-                "pt": "Possibilidade de adicionar dispositivos por endereço IP implementado. (Necessário para situações em que a verificação automática falha)",
-                "nl": "Mogelijkheid om apparaten toe te voegen via IP-adres geïmplementeerd. (Nodig voor situaties waarin autoscan mislukt)",
-                "fr": "Possibilité d'ajouter des appareils par adresse IP implémentée. (Nécessaire pour les situations où l'analyse automatique échoue)",
-                "it": "Possibilità di aggiungere dispositivi per indirizzo IP implementato. (Necessario per situazioni in cui la scansione automatica non riesce)",
-                "es": "Posibilidad de agregar dispositivos por dirección IP implementada. (Necesario para situaciones en las que el escaneo automático falla)",
-                "pl": "Wdrożono możliwość dodawania urządzeń według adresu IP. (Potrzebne w sytuacjach, gdy automatyczne skanowanie kończy się niepowodzeniem)",
-                "zh-cn": "可以通过IP地址添加设备。 （需要自动扫描失败的情况）"
-            },
-            "0.1.9": {
-                "en": "Code optimization",
-                "de": "Codeoptimierung",
-                "ru": "Оптимизация кода",
-                "pt": "Otimização de código",
-                "nl": "Code optimalisatie",
-                "fr": "Optimisation du code",
-                "it": "Ottimizzazione del codice",
-                "es": "Optimización de código",
-                "pl": "Optymalizacja kodu",
-                "zh-cn": "代码优化"
-            },
-            "0.1.8": {
-                "en": "Solved incorrect formated API call at state changes causing warning message",
-                "de": "Ein falsch formatierter API-Aufruf bei Statusänderungen, die eine Warnmeldung verursachten, wurde behoben",
-                "ru": "Исправлен некорректный форматированный вызов API при изменениях состояния, вызывающих предупреждение",
-                "pt": "Chamada de API formatada incorreta resolvida em alterações de estado, causando mensagem de aviso",
-                "nl": "Opgelost onjuist geformuleerde API-aanroep bij statuswijzigingen die een waarschuwingsbericht veroorzaakten",
-                "fr": "Appel d'API formaté incorrect lors des changements d'état provoquant un message d'avertissement",
-                "it": "Risolto il problema della chiamata API formattata errata alle modifiche di stato che causavano un messaggio di avviso",
-                "es": "Resuelto llamada de API formateada incorrecta en cambios de estado que causan mensaje de advertencia",
-                "pl": "Rozwiązano niepoprawnie sformatowane wywołanie API przy zmianach stanu powodujące komunikat ostrzegawczy",
-                "zh-cn": "解决了状态更改时格式错误的API调用导致警告消息的问题"
             }
         },
         "title": "WLED",

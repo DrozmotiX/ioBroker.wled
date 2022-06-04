@@ -43,12 +43,15 @@ Sentry.io is a service for developers to get an overview about errors from their
 
 When the adapter crashes or another Code error happens, this error message that also appears in the ioBroker log is submitted to Sentry. When you allowed iobroker GmbH to collect diagnostic data then also your installation ID (this is just a unique ID **without** any additional infos about you, email, name or such) is included. This allows Sentry to group errors and show how many unique users are affected by such an error. All of this helps me to provide error free adapters that basically never crashs.  
 
-# Changelog
+## Changelog
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-
+### __WORK IN PROGRESS__
+* (DutchmanNL) Bugfix: Devices reported as offline #307
+* (DutchmanNL) Improve error messages & sentry reporting
+* 
 ### 0.6.3 (2021-09-08) - HotFixes
 * (DutchmanNL) Missing dropdown for ID of effects added
 * (DutchmanNL) HotFix: Missing axios dependency added
@@ -74,7 +77,7 @@ When the adapter crashes or another Code error happens, this error message that 
 ## License
 MIT License
 
-Copyright (c) 2020 DutchmanNL <rdrozda86@gmail.com>
+Copyright (c) 2022 DutchmanNL <rdrozda86@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

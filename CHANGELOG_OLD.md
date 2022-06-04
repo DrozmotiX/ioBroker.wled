@@ -1,4 +1,9 @@
 # Older changes
+## 0.5.8 (2021-08-11)
+* (DutchmanNL) added new state attributes reported by Sentry
+* (DutchmanNL) Bugfix Live override datapoint created as read-only #252
+* (DutchmanNL) excluded value "PIR" from data write due to current formatting
+
 ## 0.5.7 (2021-08-10)
 * (foxriver76) we fixed some incorrect object types, fixes warnings with JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github.com/DrozmotiX/ioBroker.wled/issues/209)
 * (DutchmanNL) add support for WLED 0.13.x (added types fps, ndc, ip, of)
@@ -77,4 +82,3 @@
 
 ## 0.1.0
 * (DutchmanNL) initial release
-

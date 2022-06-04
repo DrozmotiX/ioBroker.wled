@@ -48,10 +48,11 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__
+### 0.6.4 (2022-06-04) - Solve connection status
+* (DutchmanNL) Dependency updates
 * (DutchmanNL) Bugfix: Devices reported as offline #307
 * (DutchmanNL) Improve error messages & sentry reporting
-* 
+
 ### 0.6.3 (2021-09-08) - HotFixes
 * (DutchmanNL) Missing dropdown for ID of effects added
 * (DutchmanNL) HotFix: Missing axios dependency added
@@ -68,11 +69,6 @@ When the adapter crashes or another Code error happens, this error message that 
 ### 0.5.9 (2021-08-11)
 * (DutchmanNL) added new state attributes reported by Sentry
 * (DutchmanNL) added min & max for brightness value to support iOT adapter
-
-### 0.5.8 (2021-08-11)
-* (DutchmanNL) added new state attributes reported by Sentry
-* (DutchmanNL) Bugfix Live override datapoint created as read-only #252
-* (DutchmanNL) excluded value "PIR" from data write due to current formatting
 
 ## License
 MIT License

@@ -1,19 +1,19 @@
 {
   "common": {
     "name": "wled",
-    "version": "0.6.4",
+    "version": "0.6.5",
     "news": {
-      "0.6.4": {
-        "en": "Dependency updates\nBugfix: Devices reported as offline #307\nImprove error messages & sentry reporting",
-        "de": "Abhängigkeitsaktualisierungen\nBugfix: Als offline gemeldete Geräte #307\nVerbessern Sie Fehlermeldungen und Sentry-Berichte",
-        "ru": "Обновления зависимостей\nИсправление: устройства сообщаются как не в сети # 307\nУлучшить сообщения об ошибках и отчеты об ошибках",
-        "pt": "Atualizações de dependência\nCorreção de bug: Dispositivos relatados como offline #307\nMelhore as mensagens de erro e os relatórios de sentinela",
-        "nl": "Afhankelijkheidsupdates\nBugfix: apparaten gerapporteerd als offline #307\nVerbeter foutmeldingen en schildwachtrapportage",
-        "fr": "Mises à jour des dépendances\nCorrection de bug : Appareils signalés comme étant hors ligne #307\nAméliorez les messages d'erreur et les rapports de sentinelle",
-        "it": "Aggiornamenti delle dipendenze\nBugfix: dispositivi segnalati come offline #307\nMigliora i messaggi di errore e la segnalazione delle sentinelle",
-        "es": "actualizaciones de dependencia\nCorrección de error: Dispositivos reportados como fuera de línea #307\nMejorar los mensajes de error y los informes de centinela",
-        "pl": "Aktualizacje zależności\nBugfix: Urządzenia zgłoszone jako offline #307\nPopraw komunikaty o błędach i raportowanie wartowników",
-        "zh-cn": "依赖更新\n错误修复：设备报告为离线 #307\n改进错误消息和哨兵报告"
+      "0.6.5": {
+        "en": "Dependency updates\nBugfix: Correct indication of connection state #307\nImprove error messages & sentry reporting",
+        "de": "Abhängigkeitsaktualisierungen\nBugfix: Korrekte Anzeige des Verbindungsstatus #307\nVerbessern Sie Fehlermeldungen und Sentry-Berichte",
+        "ru": "Обновления зависимостей\nИсправление: корректная индикация состояния подключения #307.\nУлучшить сообщения об ошибках и отчеты об ошибках",
+        "pt": "Atualizações de dependência\nBugfix: Indicação correta do estado de conexão #307\nMelhore as mensagens de erro e os relatórios de sentinela",
+        "nl": "Afhankelijkheidsupdates\nBugfix: Correcte indicatie van verbindingsstatus #307\nVerbeter foutmeldingen en schildwachtrapportage",
+        "fr": "Mises à jour des dépendances\nCorrectif : indication correcte de l'état de la connexion #307\nAméliorez les messages d'erreur et les rapports de sentinelle",
+        "it": "Aggiornamenti delle dipendenze\nBugfix: corretta indicazione dello stato di connessione #307\nMigliora i messaggi di errore e la segnalazione delle sentinelle",
+        "es": "actualizaciones de dependencia\nCorrección de error: Indicación correcta del estado de conexión #307\nMejorar los mensajes de error y los informes de centinela",
+        "pl": "Aktualizacje zależności\nBugfix: Poprawne wskazanie stanu połączenia #307\nPopraw komunikaty o błędach i raportowanie wartowników",
+        "zh-cn": "依赖更新\n错误修正：正确指示连接状态 #307\n改进错误消息和哨兵报告"
       },
       "0.6.3": {
         "en": "Missing dropdown for ID of effects added\nHotFix: Missing axios dependency added",
@@ -74,18 +74,6 @@
         "es": "Se agregaron nuevos atributos de estado informados por Sentry.\nagregado mínimo y máximo para el valor de brillo para admitir el adaptador iOT",
         "pl": "dodano nowe atrybuty stanu zgłaszane przez Sentry\ndodano min i max dla wartości jasności do obsługi adaptera iOT",
         "zh-cn": "添加了 Sentry 报告的新状态属性\n添加最小和最大亮度值以支持 iOT 适配器"
-      },
-      "0.5.8": {
-        "en": "added new state attributes reported by Sentry\nBugfix Live override datapoint created as read-only #252\nexcluded value \"PIR\" from data write due to current formatting",
-        "de": "neue Statusattribute hinzugefügt, die von Sentry gemeldet wurden\nBugfix Live-Überschreibungsdatenpunkt als schreibgeschützt erstellt #252\nAusgeschlossener Wert \"PIR\" vom Datenschreiben aufgrund aktueller Formatierung",
-        "ru": "добавлены новые атрибуты состояния, сообщаемые Sentry\nИсправление ошибки Live override datapoint, созданный как доступный только для чтения # 252\nисключено значение \"PIR\" из записи данных из-за текущего форматирования",
-        "pt": "adicionado novos atributos de estado relatados pelo Sentry\nBugfix Live override datapoint criado como somente leitura # 252\nvalor excluído \"PIR\" da gravação de dados devido à formatação atual",
-        "nl": "nieuwe statusattributen toegevoegd, gerapporteerd door Sentry\nBugfix Live overschrijven datapunt gemaakt als alleen-lezen #252\nuitgesloten waarde \"PIR\" van gegevensschrijven vanwege huidige opmaak",
-        "fr": "ajout de nouveaux attributs d'état signalés par Sentry\nBugfix Live override datapoint créé en lecture seule #252\nvaleur exclue \"PIR\" de l'écriture de données en raison du formatage actuel",
-        "it": "aggiunti nuovi attributi di stato segnalati da Sentry\nBugfix Live override datapoint creato come sola lettura #252\nvalore escluso \"PIR\" dalla scrittura dei dati a causa della formattazione corrente",
-        "es": "Se agregaron nuevos atributos de estado informados por Sentry.\nBugfix Live override datapoint creado como de solo lectura # 252\nvalor excluido \"PIR\" de la escritura de datos debido al formato actual",
-        "pl": "dodano nowe atrybuty stanu zgłaszane przez Sentry\nBugfix Live override datapoint utworzony jako tylko do odczytu #252\nwykluczona wartość \"PIR\" z zapisu danych ze względu na aktualne formatowanie",
-        "zh-cn": "添加了 Sentry 报告的新状态属性\n错误修复实时覆盖数据点创建为只读 #252\n由于当前格式，从数据写入中排除了值“PIR”"
       }
     },
     "title": "WLED",

@@ -222,7 +222,7 @@
         "materialize": true,
         "plugins": {
             "sentry": {
-                "dsn": "https://1a70baf733de40ed97d6ca16c39837d1@sentry.iobroker.net/27"
+                "dsn": "https://d7941b0f76ca40788b03af2479eada08@sentry.drozmotix.eu/4"
             }
         },
         "messagebox": true,

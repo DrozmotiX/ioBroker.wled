@@ -24,7 +24,7 @@ const stateExpire = {}; // Array containing all times for online state expire
 const ws = {}; // Array containing websocket connections
 const warnMessages = {}; // Array containing sentry messages
 
-const disableSentry = true; // Ensure to set to true during development !
+const disableSentry = false; // Ensure to set to true during development !
 
 class Wled extends utils.Adapter {
 
@@ -459,9 +459,6 @@ class Wled extends utils.Adapter {
 				});
 			}
 
-			// Update device working state
-			await this.create_state(device_id + '._info' + '._online', 'online', true);
-
 			// Store / Update effects
 			try {
 				const effects = deviceData.effects;
@@ -692,7 +689,10 @@ class Wled extends utils.Adapter {
 				// Start websocket connection and and listen to state changes
 				await this.handleWebSocket(infoStates.ip);
 			}
+
+			// Update device working state
 			if (!this.devices[infoStates.ip].connected) this.devices[infoStates.ip].connected = true;
+			this.create_state(infoStates.mac  + '._info' + '._online', `Online status`, true);
 
 		} catch (error) {
 			this.sendSentry(`[handleStates]`, `${error}`);
@@ -708,37 +708,46 @@ class Wled extends utils.Adapter {
 		this.log.debug('Watchdog for ' + JSON.stringify(this.devices[deviceIP]));
 
 		// Check if used WLED version supports websocket Ping-Pong messages and connection, if not handle watchdog by http-API
-		if (this.devices[deviceIP].wsPingSupported && this.devices[deviceIP].wsConnected){
-			try {
-				// Send ping by websocket
-				ws[deviceIP].send('ping');
-				if (watchdogWsTimer[deviceIP]) {
-					clearTimeout(watchdogWsTimer[deviceIP]);
-					watchdogTimer[deviceIP] = null;
-				}
-				watchdogWsTimer[deviceIP] = setTimeout(() => {
+		if (this.devices[deviceIP].wsPingSupported) {
+			if (this.devices[deviceIP].wsConnected) {
+				try {
+					// Send ping by websocket
 					this.devices[deviceIP].wsPong = false;
-					this.devices[deviceIP].initialized = false;
-					this.devices[deviceIP].wsConnected = false;
-					this.devices[deviceIP].wsConnected = false;
-					// Update device working state
-					if (this.devices[deviceIP].mac != null) {
-						this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
+					ws[deviceIP].send('ping');
+					if (watchdogWsTimer[deviceIP]) {
+						clearTimeout(watchdogWsTimer[deviceIP]);
+						watchdogTimer[deviceIP] = null;
 					}
+					watchdogWsTimer[deviceIP] = setTimeout(() => {
+						if (!this.devices[deviceIP].wsPong) {
+							this.devices[deviceIP].initialized = false;
+							this.devices[deviceIP].wsConnected = false;
+							this.devices[deviceIP].wsConnected = false;
+							// Update device working state
+							if (this.devices[deviceIP].mac != null) {
+								this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'online', false);
+							}
+						}
+						// Close socket
+						try {
+							ws[deviceIP].close();
+						} catch (e) {
+							console.error(e);
+						}
 
-					// Close socket
-					try {
-						ws[deviceIP].close();
-					} catch (e) {
-						console.error(e);
-					}
+					}, (this.config.Time_Sync * 1000));
 
-				}, (this.config.Time_Sync * 1000));
-
-			} catch (e) {
-				// Try http-API in case of error
-				this.log.error(`WS Ping error : ${e}`);
-				await this.getDeviceJSON(deviceIP);
+				} catch (e) {
+					// Try http-API in case of error
+					this.log.error(`WS Ping error : ${e}`);
+					await this.getDeviceJSON(deviceIP);
+				}
+			} else { // If WS-Ping not supported, use http-API
+				try {
+					await this.getDeviceJSON(deviceIP);
+				} catch (error) {
+					this.sendSentry(`[watchDog]`, `${error}`);
+				}
 			}
 		} else { // If WS-Ping not supported, use http-API
 			try {
@@ -1084,7 +1093,7 @@ class Wled extends utils.Adapter {
 			this.log.error(`Sentry disabled, error caught : ${sentryMessage}`);
 		}
 	}
-	
+
 	/**
 	 * Ensure proper deletion of state and object
 	 * @param {string} state ID of object to delete

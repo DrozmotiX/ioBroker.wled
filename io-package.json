@@ -1,263 +1,179 @@
 {
-    "common": {
-        "name": "wled",
-        "version": "0.6.3",
-        "news": {
-            "0.6.3": {
-                "en": "Missing dropdown for ID of effects added\nHotFix: Missing axios dependency added",
-                "de": "Fehlende Dropdown-Liste für die ID der hinzugefügten Effekte\nHotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
-                "ru": "Отсутствует раскрывающийся список для идентификатора добавленных эффектов.\nHotFix: добавлена отсутствующая зависимость axios",
-                "pt": "Lista suspensa ausente para ID de efeitos adicionados\nHotFix: Dependência de axios ausente adicionada",
-                "nl": "Ontbrekende vervolgkeuzelijst voor ID van toegevoegde effecten\nHotFix: ontbrekende axios-afhankelijkheid toegevoegd",
-                "fr": "Liste déroulante manquante pour l'ID des effets ajoutés\nHotFix : Ajout d'une dépendance axios manquante",
-                "it": "Menu a discesa mancante per l'ID degli effetti aggiunti\nHotFix: aggiunta dipendenza Axios mancante",
-                "es": "Falta el menú desplegable para la identificación de los efectos agregados\nHotFix: Se agregó la dependencia de axios faltante",
-                "pl": "Brakujące menu dla identyfikatora dodanych efektów\nPoprawka: dodano brakującą zależność axios",
-                "zh-cn": "缺少添加效果 ID 的下拉菜单\nHotFix：添加了缺少 axios 依赖项"
-            },
-            "0.6.2": {
-                "en": "HotFix: Missing axios dependency added",
-                "de": "HotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
-                "ru": "HotFix: добавлена отсутствующая зависимость axios",
-                "pt": "HotFix: Dependência de axios ausente adicionada",
-                "nl": "HotFix: ontbrekende axios-afhankelijkheid toegevoegd",
-                "fr": "HotFix : Ajout d'une dépendance axios manquante",
-                "it": "HotFix: aggiunta dipendenza Axios mancante",
-                "es": "HotFix: Se agregó la dependencia de axios faltante",
-                "pl": "Poprawka: dodano brakującą zależność axios",
-                "zh-cn": "HotFix：添加了缺少 axios 依赖项"
-            },
-            "0.6.1": {
-                "en": "Missing state definitions WLED FW 0.13.0-b12 added.",
-                "de": "Fehlende Zustandsdefinitionen WLED FW 0.13.0-b12 hinzugefügt.",
-                "ru": "Добавлены отсутствующие определения состояний WLED FW 0.13.0-b12.",
-                "pt": "Definições de estado ausentes WLED FW 0.13.0-b12 adicionadas.",
-                "nl": "Ontbrekende statusdefinities WLED FW 0.13.0-b12 toegevoegd.",
-                "fr": "Définitions d'état manquantes ajoutées WLED FW 0.13.0-b12.",
-                "it": "Aggiunte definizioni di stato mancanti WLED FW 0.13.0-b12.",
-                "es": "Faltan definiciones de estado WLED FW 0.13.0-b12 agregadas.",
-                "pl": "Dodano brakujące definicje stanu WLED FW 0.13.0-b12.",
-                "zh-cn": "添加了缺少状态定义 WLED FW 0.13.0-b12。"
-            },
-            "0.6.0": {
-                "en": "System load reduced\nAll warnings related to JS-Controller 3.x checks solved\nEnsure legacy support of WLED FW < 0.12 (fallback to http-API instead of websocket)\nCommunication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12",
-                "de": "Systemlast reduziert\nAlle Warnungen zu JS-Controller 3.x-Prüfungen behoben\nSicherstellen der Legacy-Unterstützung von WLED FW < 0.12 (Fallback auf http-API statt Websocket)\nKommunikation per Websocket implementiert, diese Funktion ermöglicht Live-Datenaktualisierungen (anstelle von Intervallabfragen). Benötigt WLED-Firmware >= 12",
-                "ru": "Снижена нагрузка на систему\nВсе предупреждения, связанные с проверками JS-Controller 3.x, устранены\nОбеспечьте устаревшую поддержку WLED FW <0.12 (откат к http-API вместо веб-сокета)\nРеализована связь через веб-сокет, эта функция позволяет обновлять данные в реальном времени (вместо интервального опроса). Требуется прошивка WLED> = 12",
-                "pt": "Carga do sistema reduzida\nTodos os avisos relacionados às verificações do JS-Controller 3.x resolvidos\nGaranta suporte legado de WLED FW <0,12 (fallback para http-API em vez de websocket)\nImplementada a comunicação por websocket, esse recurso permite atualizações de dados ao vivo (em vez de polling de intervalo). Requer firmware WLED> = 12",
-                "nl": "Systeembelasting verminderd\nAlle waarschuwingen met betrekking tot JS-Controller 3.x-controles opgelost\nZorg voor legacy-ondersteuning van WLED FW < 0.12 (fallback naar http-API in plaats van websocket)\nCommunicatie via websocket geïmplementeerd, deze functie maakt live gegevensupdates mogelijk (in plaats van intervalpolling). Vereist WLED-firmware >= 12",
-                "fr": "Charge du système réduite\nTous les avertissements liés aux contrôles JS-Controller 3.x résolus\nAssurer la prise en charge héritée de WLED FW < 0,12 (repli à http-API au lieu de websocket)\nCommunication par websocket implémentée, cette fonctionnalité permet des mises à jour des données en direct (au lieu de l'interrogation par intervalles). Nécessite le micrologiciel WLED >= 12",
-                "it": "Carico del sistema ridotto\nTutti gli avvisi relativi ai controlli JS-Controller 3.x sono stati risolti\nGarantire il supporto legacy di WLED FW < 0,12 (fallback a http-API anziché websocket)\nImplementata la comunicazione tramite websocket, questa funzione consente aggiornamenti dei dati in tempo reale (invece del polling a intervalli). Richiede firmware WLED >= 12",
-                "es": "Carga del sistema reducida\nTodas las advertencias relacionadas con las comprobaciones de JS-Controller 3.x resueltas\nAsegure el soporte heredado de WLED FW <0.12 (respaldo a http-API en lugar de websocket)\nImplementada la comunicación por websocket, esta función permite actualizaciones de datos en vivo (en lugar de sondeos por intervalos). Requiere firmware WLED> = 12",
-                "pl": "Zmniejszone obciążenie systemu\nWszystkie ostrzeżenia związane z kontrolami JS-Controller 3.x rozwiązane\nZapewnij starszą obsługę WLED FW < 0,12 (powrót do http-API zamiast websocket)\nZaimplementowana komunikacja przez websocket, ta funkcja umożliwia aktualizację danych na żywo (zamiast odpytywania interwałowego). Wymaga oprogramowania WLED >= 12",
-                "zh-cn": "系统负载减少\n解决了与 JS-Controller 3.x 检查相关的所有警告\n确保 WLED FW < 0.12 的传统支持（回退到 http-API 而不是 websocket）\n通过 websocket 实现通信，此功能允许实时数据更新（而不是间隔轮询）。需要 WLED 固件 >= 12"
-            },
-            "0.5.9": {
-                "en": "added new state attributes reported by Sentry\nadded min & max for brightness value to support iOT adapter",
-                "de": "neue Statusattribute hinzugefügt, die von Sentry gemeldet wurden\nMin & Max für Helligkeitswert hinzugefügt, um den iOT-Adapter zu unterstützen",
-                "ru": "добавлены новые атрибуты состояния, сообщаемые Sentry\nдобавлены минимальные и максимальные значения яркости для поддержки адаптера iOT",
-                "pt": "adicionado novos atributos de estado relatados pelo Sentry\nadicionado mínimo e máximo para valor de brilho para suportar adaptador iOT",
-                "nl": "nieuwe statusattributen toegevoegd, gerapporteerd door Sentry\nmin & max toegevoegd voor helderheidswaarde om iOT-adapter te ondersteunen",
-                "fr": "ajout de nouveaux attributs d'état signalés par Sentry\nmin et max ajoutés pour la valeur de luminosité pour prendre en charge l'adaptateur iOT",
-                "it": "aggiunti nuovi attributi di stato segnalati da Sentry\naggiunto min e max per il valore di luminosità per supportare l'adattatore iOT",
-                "es": "Se agregaron nuevos atributos de estado informados por Sentry.\nagregado mínimo y máximo para el valor de brillo para admitir el adaptador iOT",
-                "pl": "dodano nowe atrybuty stanu zgłaszane przez Sentry\ndodano min i max dla wartości jasności do obsługi adaptera iOT",
-                "zh-cn": "添加了 Sentry 报告的新状态属性\n添加最小和最大亮度值以支持 iOT 适配器"
-            },
-            "0.5.8": {
-                "en": "added new state attributes reported by Sentry\nBugfix Live override datapoint created as read-only #252\nexcluded value \"PIR\" from data write due to current formatting",
-                "de": "neue Statusattribute hinzugefügt, die von Sentry gemeldet wurden\nBugfix Live-Überschreibungsdatenpunkt als schreibgeschützt erstellt #252\nAusgeschlossener Wert \"PIR\" vom Datenschreiben aufgrund aktueller Formatierung",
-                "ru": "добавлены новые атрибуты состояния, сообщаемые Sentry\nИсправление ошибки Live override datapoint, созданный как доступный только для чтения # 252\nисключено значение \"PIR\" из записи данных из-за текущего форматирования",
-                "pt": "adicionado novos atributos de estado relatados pelo Sentry\nBugfix Live override datapoint criado como somente leitura # 252\nvalor excluído \"PIR\" da gravação de dados devido à formatação atual",
-                "nl": "nieuwe statusattributen toegevoegd, gerapporteerd door Sentry\nBugfix Live overschrijven datapunt gemaakt als alleen-lezen #252\nuitgesloten waarde \"PIR\" van gegevensschrijven vanwege huidige opmaak",
-                "fr": "ajout de nouveaux attributs d'état signalés par Sentry\nBugfix Live override datapoint créé en lecture seule #252\nvaleur exclue \"PIR\" de l'écriture de données en raison du formatage actuel",
-                "it": "aggiunti nuovi attributi di stato segnalati da Sentry\nBugfix Live override datapoint creato come sola lettura #252\nvalore escluso \"PIR\" dalla scrittura dei dati a causa della formattazione corrente",
-                "es": "Se agregaron nuevos atributos de estado informados por Sentry.\nBugfix Live override datapoint creado como de solo lectura # 252\nvalor excluido \"PIR\" de la escritura de datos debido al formato actual",
-                "pl": "dodano nowe atrybuty stanu zgłaszane przez Sentry\nBugfix Live override datapoint utworzony jako tylko do odczytu #252\nwykluczona wartość \"PIR\" z zapisu danych ze względu na aktualne formatowanie",
-                "zh-cn": "添加了 Sentry 报告的新状态属性\n错误修复实时覆盖数据点创建为只读 #252\n由于当前格式，从数据写入中排除了值“PIR”"
-            },
-            "0.5.7": {
-                "en": "we fixed some incorrect object types, fixes warnings with JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github.com/DrozmotiX/ioBroker.wled/issues/209)\nadd support for WLED 0.13.x (added types fps, ndc, ip, of)",
-                "de": "wir haben einige falsche Objekttypen behoben, Warnungen mit JS-Controller 3.3.x behoben [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\nUnterstützung für WLED 0.13.x hinzugefügt (Typen fps, ndc, ip, of hinzugefügt)",
-                "ru": "мы исправили некоторые некорректные типы объектов, исправили предупреждения с помощью JS-Controller 3.3.x [# 215] (https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [# 209] (https:// github .com / DrozmotiX / ioBroker.wled / issues / 209)\nдобавлена поддержка WLED 0.13.x (добавлены типы fps, ndc, ip, of)",
-                "pt": "corrigimos alguns tipos de objetos incorretos, corrigimos avisos com JS-Controller 3.3.x [# 215] (https://github.com/DrozmotiX/ioBroker.wled/issues/215) e [# 209] (https:// github .com / DrozmotiX / ioBroker.wled / issues / 209)\nadicionar suporte para WLED 0.13.x (tipos adicionados fps, ndc, ip, of)",
-                "nl": "we hebben een aantal onjuiste objecttypen gerepareerd, waarschuwingen verholpen met JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\nondersteuning toevoegen voor WLED 0.13.x (toegevoegde typen fps, ndc, ip, of)",
-                "fr": "nous avons corrigé certains types d'objets incorrects, corrige les avertissements avec JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\najouter la prise en charge de WLED 0.13.x (types ajoutés fps, ndc, ip, of)",
-                "it": "abbiamo corretto alcuni tipi di oggetti errati, corretti gli avvisi con JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) e [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\naggiungere il supporto per WLED 0.13.x (tipi aggiunti fps, ndc, ip, of)",
-                "es": "arreglamos algunos tipos de objetos incorrectos, arreglamos advertencias con JS-Controller 3.3.x [# 215] (https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [# 209] (https:// github .com / DrozmotiX / ioBroker.wled / issues / 209)\nagregar soporte para WLED 0.13.x (tipos agregados fps, ndc, ip, of)",
-                "pl": "naprawiliśmy kilka niepoprawnych typów obiektów, naprawiono ostrzeżenia za pomocą JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\ndodano obsługę WLED 0.13.x (dodane typy fps, ndc, ip, of)",
-                "zh-cn": "我们修复了一些不正确的对象类型，修复了 JS-Controller 3.3.x [#215](https://github.com/DrozmotiX/ioBroker.wled/issues/215) & [#209](https://github .com/DrozmotiX/ioBroker.wled/issues/209)\n添加对 WLED 0.13.x 的支持（添加类型 fps、ndc、ip、of）"
-            },
-            "0.5.6": {
-                "en": "Bugfix : State type definition for time and pmt",
-                "de": "Bugfix: Definition des Zustandstyps für Zeit und pmt",
-                "ru": "Исправление: определение типа состояния для времени и pmt",
-                "pt": "Correção de bug: definição de tipo de estado para hora e pmt",
-                "nl": "Bugfix: State type definition for time en pmt",
-                "fr": "Correction de bug: définition du type d'état pour l'heure et pmt",
-                "it": "Bugfix: definizione del tipo di stato per time e pmt",
-                "es": "Corrección de error: definición de tipo de estado para la hora y el pago",
-                "pl": "Poprawka: definicja typu stanu dla czasu i godziny",
-                "zh-cn": "错误修正：时间和pmt的状态类型定义"
-            },
-            "0.5.5": {
-                "en": "add development option to disable sentry\nsplit API calls, avoid not needed query's\nBugfix : issue with boolean attributes #40\nadd new state definition for WLED version 0.11\nBugfix : You are assigning a string to the state \"wled.0.xxxx.seg.0.col.0",
-                "de": "Entwicklungsoption hinzufügen, um Wachposten zu deaktivieren\nSplit-API-Aufrufe, vermeiden Sie nicht benötigte Abfragen\nBugfix: Problem mit booleschen Attributen # 40\nNeue Statusdefinition für WLED Version 0.11 hinzufügen\nBugfix: Sie weisen dem Status \"wled.0.xxxx.seg.0.col.0\" eine Zeichenfolge zu",
-                "ru": "добавить возможность разработки для отключения часовой\nразделить вызовы API, избежать ненужных запросов\nИсправление: проблема с логическими атрибутами # 40.\nдобавить новое определение состояния для WLED версии 0.11\nИсправление: вы присваиваете строку состоянию \"wled.0.xxxx.seg.0.col.0",
-                "pt": "adicionar opção de desenvolvimento para desativar sentinela\ndividir chamadas API, evitar consultas desnecessárias\nCorreção de bug: problema com atributos booleanos # 40\nadicionar nova definição de estado para WLED versão 0.11\nCorreção de bug: você está atribuindo uma string ao estado \"wled.0.xxxx.seg.0.col.0",
-                "nl": "ontwikkeloptie toevoegen om schildwacht uit te schakelen\nsplit API-oproepen, vermijd niet benodigde query's\nBugfix: probleem met booleaanse attributen # 40\nvoeg een nieuwe statusdefinitie toe voor WLED-versie 0.11\nBugfix: U wijst een string toe aan de status \"wled.0.xxxx.seg.0.col.0",
-                "fr": "ajouter une option de développement pour désactiver la sentinelle\nDiviser les appels d'API, éviter les requêtes inutiles\nCorrection de bug: problème avec les attributs booléens # 40\najouter une nouvelle définition d'état pour la version WLED 0.11\nCorrectif: vous attribuez une chaîne à l'état \"wled.0.xxxx.seg.0.col.0",
-                "it": "aggiungere un'opzione di sviluppo per disabilitare la sentinella\nchiamate API divise, evita le query non necessarie\nBugfix: problema con gli attributi booleani # 40\naggiungere una nuova definizione di stato per WLED versione 0.11\nBugfix: stai assegnando una stringa allo stato \"wled.0.xxxx.seg.0.col.0",
-                "es": "agregar opción de desarrollo para deshabilitar centinela\ndividir las llamadas a la API, evitar consultas no necesarias\nCorrección de error: problema con los atributos booleanos # 40\nagregar una nueva definición de estado para WLED versión 0.11\nCorrección de error: está asignando una cadena al estado \"wled.0.xxxx.seg.0.col.0",
-                "pl": "dodaj opcję rozwoju, aby wyłączyć wartownik\npodziel wywołania API, unikaj niepotrzebnych zapytań\nPoprawka: problem z atrybutami logicznymi # 40\ndodaj nową definicję stanu dla WLED w wersji 0.11\nPoprawka: przypisujesz ciąg do stanu „wled.0.xxxx.seg.0.col.0",
-                "zh-cn": "添加开发选项以禁用哨兵\n拆分API调用，避免不必要的查询\n错误修正：布尔属性＃40出现问题\n为WLED版本0.11添加新的状态定义\n错误修正：您正在为状态“ wled.0.xxxx.seg.0.col.0”分配一个字符串"
-            },
-            "0.5.4": {
-                "en": "Support WLED 0.10.2, new state definitions implemented\nUpdate state definitions\nRemove log messages for missing states (Sentry report only)\nBugfix : 0.5.3 decommissioned, update to 0.5.4 !",
-                "de": "Unterstützt WLED 0.10.2, neue Statusdefinitionen implementiert\nStatusdefinitionen aktualisieren\nEntfernen Sie Protokollnachrichten für fehlende Status (nur Wachpostenbericht).\nBugfix: 0.5.3 außer Betrieb genommen, Update auf 0.5.4!",
-                "ru": "Поддержка WLED 0.10.2, реализованы новые определения состояний\nОбновить определения состояний\nУдалить сообщения журнала для отсутствующих состояний (только отчет Sentry)\nИсправление: 0.5.3 списана, обновление до 0.5.4!",
-                "pt": "Suporte WLED 0.10.2, novas definições de estado implementadas\nAtualizar definições de estado\nRemover mensagens de registro para estados ausentes (relatório Sentry apenas)\nCorreção de bug: 0.5.3 descomissionado, atualizar para 0.5.4!",
-                "nl": "Ondersteuning van WLED 0.10.2, nieuwe statusdefinities geïmplementeerd\nUpdate status definities\nLogboekberichten verwijderen voor ontbrekende staten (alleen Sentry-rapport)\nBugfix: 0.5.3 ontmanteld, update naar 0.5.4!",
-                "fr": "Prise en charge de WLED 0.10.2, nouvelles définitions d'état implémentées\nMettre à jour les définitions d'état\nSupprimer les messages du journal pour les états manquants (rapport Sentry uniquement)\nCorrectif: 0.5.3 mis hors service, mise à jour vers 0.5.4!",
-                "it": "Supporta WLED 0.10.2, implementate nuove definizioni di stato\nAggiorna le definizioni di stato\nRimuovi i messaggi di registro per gli stati mancanti (solo rapporto Sentry)\nBugfix: 0.5.3 disattivato, aggiornamento a 0.5.4!",
-                "es": "Admite WLED 0.10.2, nuevas definiciones de estado implementadas\nActualizar definiciones de estado\nEliminar mensajes de registro para los estados que faltan (solo informe Sentry)\nCorrección de error: 0.5.3 retirado, actualización a 0.5.4.",
-                "pl": "Obsługa WLED 0.10.2, zaimplementowano nowe definicje stanów\nZaktualizuj definicje stanu\nUsuń komunikaty dziennika dla brakujących stanów (tylko raport Sentry)\nPoprawka: 0.5.3 wycofane, aktualizacja do 0.5.4!",
-                "zh-cn": "支持WLED 0.10.2，实现了新的状态定义\n更新状态定义\n删除缺少状态的日志消息（仅针对哨兵报告）\n错误修正：0.5.3退役，更新至0.5.4！"
-            },
-            "0.5.3": {
-                "en": "Support WLED 0.10.2, new state definitions implemented\nUpdate state definitions\nRemove log messages for missing states (Sentry report only)",
-                "de": "Unterstützt WLED 0.10.2, neue Statusdefinitionen implementiert\nStatusdefinitionen aktualisieren\nEntfernen Sie Protokollnachrichten für fehlende Status (nur Wachpostenbericht).",
-                "ru": "Поддержка WLED 0.10.2, реализованы новые определения состояний\nОбновить определения состояний\nУдалить сообщения журнала для отсутствующих состояний (только отчет Sentry)",
-                "pt": "Suporte WLED 0.10.2, novas definições de estado implementadas\nAtualizar definições de estado\nRemover mensagens de registro para estados ausentes (relatório Sentry apenas)",
-                "nl": "Ondersteuning van WLED 0.10.2, nieuwe statusdefinities geïmplementeerd\nUpdate status definities\nLogboekberichten verwijderen voor ontbrekende staten (alleen Sentry-rapport)",
-                "fr": "Prise en charge de WLED 0.10.2, nouvelles définitions d'état implémentées\nMettre à jour les définitions d'état\nSupprimer les messages du journal pour les états manquants (rapport Sentry uniquement)",
-                "it": "Supporta WLED 0.10.2, implementate nuove definizioni di stato\nAggiorna le definizioni di stato\nRimuovi i messaggi di registro per gli stati mancanti (solo rapporto Sentry)",
-                "es": "Admite WLED 0.10.2, nuevas definiciones de estado implementadas\nActualizar definiciones de estado\nEliminar mensajes de registro para los estados que faltan (solo informe Sentry)",
-                "pl": "Obsługa WLED 0.10.2, zaimplementowano nowe definicje stanów\nZaktualizuj definicje stanu\nUsuń komunikaty dziennika dla brakujących stanów (tylko raport Sentry)",
-                "zh-cn": "支持WLED 0.10.2，实现了新的状态定义\n更新状态定义\n删除缺少状态的日志消息（仅针对哨兵报告）"
-            },
-            "0.5.2": {
-                "en": "Bugfix : Add missing Attributes with WLED 0.10.0",
-                "de": "Bugfix: Fehlende Attribute mit WLED 0.10.0 hinzufügen",
-                "ru": "Исправление: добавление недостающих атрибутов с WLED 0.10.0",
-                "pt": "Correção de bug: adicionar atributos ausentes com WLED 0.10.0",
-                "nl": "Bugfix: voeg ontbrekende attributen toe met WLED 0.10.0",
-                "fr": "Correctif: ajouter des attributs manquants avec WLED 0.10.0",
-                "it": "Bugfix: aggiungi attributi mancanti con WLED 0.10.0",
-                "es": "Corrección de error: agregue atributos faltantes con WLED 0.10.0",
-                "pl": "Poprawka: Dodaj brakujące atrybuty za pomocą WLED 0.10.0",
-                "zh-cn": "错误修正：使用WLED 0.10.0添加缺少的属性"
-            },
-            "0.5.1": {
-                "en": "Avoid writing objects unnecessarily, Sentry implemented",
-                "de": "Vermeiden Sie unnötiges Schreiben von Objekten, implementiert Sentry",
-                "ru": "Избегайте писать объекты без необходимости, Sentry реализован",
-                "pt": "Evite escrever objetos desnecessariamente, implementou o Sentry",
-                "nl": "Vermijd onnodig schrijven van objecten, heeft Sentry geïmplementeerd",
-                "fr": "Évitez d'écrire des objets inutilement, Sentry implémenté",
-                "it": "Evita di scrivere oggetti inutilmente, implementato Sentry",
-                "es": "Evite escribir objetos innecesariamente, Sentry implementó",
-                "pl": "Unikaj niepotrzebnego pisania obiektów, zaimplementowano Sentry",
-                "zh-cn": "Sentry实现了避免不必要地编写对象"
-            },
-            "0.5.0": {
-                "en": "Stable release",
-                "de": "Stable-release",
-                "ru": "Стабильный релиз",
-                "pt": "Versão estável",
-                "nl": "Stabiele release",
-                "fr": "La version Stable",
-                "it": "Release stabile",
-                "es": "La versión estable",
-                "pl": "Wersja stabilna",
-                "zh-cn": "稳定释放"
-            }
-        },
-        "title": "WLED",
-        "titleLang": {
-            "en": "WLED",
-            "de": "WLED",
-            "ru": "WLED",
-            "pt": "WLED",
-            "nl": "WLED",
-            "fr": "WLED",
-            "it": "WLED",
-            "es": "WLED",
-            "pl": "WLED",
-            "zh-cn": "白光LED"
-        },
-        "desc": {
-            "en": "A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!",
-            "de": "Eine schnelle und funktionsreiche Implementierung eines ESP8266 / ESP32-Webservers zur Steuerung von NeoPixel-LEDs (WS2812B, WS2811, SK6812, APA102)!",
-            "ru": "Быстрая и многофункциональная реализация веб-сервера ESP8266 / ESP32 для управления светодиодами NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "pt": "Uma implementação rápida e rica em recursos de um servidor da web ESP8266 / ESP32 para controlar os LEDs NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "nl": "Een snelle en veelzijdige implementatie van een ESP8266 / ESP32 webserver om NeoPixel (WS2812B, WS2811, SK6812, APA102) LED's te bedienen!",
-            "fr": "Une implémentation rapide et riche en fonctionnalités d'un serveur Web ESP8266 / ESP32 pour contrôler les LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "it": "Un'implementazione veloce e ricca di funzionalità di un server web ESP8266 / ESP32 per controllare i LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "es": "¡Una implementación rápida y rica en funciones de un servidor web ESP8266 / ESP32 para controlar los LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "pl": "Szybka i bogata w funkcje implementacja serwera ESP8266 / ESP32 do sterowania diodami LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "zh-cn": "ESP8266 / ESP32网络服务器的快速且功能丰富的实现，用于控制NeoPixel（WS2812B，WS2811，SK6812，APA102）LED！"
-        },
-        "authors": [
-            "DutchmanNL <rdrozda86@gmail.com>"
-        ],
-        "keywords": [
-            "WLED",
-            "WS2812b",
-            "RGB",
-            "RGBW"
-        ],
-        "license": "MIT",
-        "platform": "Javascript/Node.js",
-        "main": "main.js",
-        "icon": "wled.png",
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/DrozmotiX/ioBroker.wled/main/admin/wled.png",
-        "readme": "https://github.com/DrozmotiX/ioBroker.wled/blob/main/README.md",
-        "loglevel": "info",
-        "mode": "daemon",
-        "type": "lighting",
-        "compact": true,
-        "connectionType": "local",
-        "dataSource": "poll",
-        "materialize": true,
-        "plugins": {
-            "sentry": {
-                "dsn": "https://d7941b0f76ca40788b03af2479eada08@sentry.drozmotix.eu/4"
-            }
-        },
-        "messagebox": true,
-        "dependencies": [
-            {
-                "js-controller": ">=3.0.0"
-            }
-        ]
+  "common": {
+    "name": "wled",
+    "version": "0.6.4",
+    "news": {
+      "0.6.4": {
+        "en": "Dependency updates\nBugfix: Devices reported as offline #307\nImprove error messages & sentry reporting",
+        "de": "Abhängigkeitsaktualisierungen\nBugfix: Als offline gemeldete Geräte #307\nVerbessern Sie Fehlermeldungen und Sentry-Berichte",
+        "ru": "Обновления зависимостей\nИсправление: устройства сообщаются как не в сети # 307\nУлучшить сообщения об ошибках и отчеты об ошибках",
+        "pt": "Atualizações de dependência\nCorreção de bug: Dispositivos relatados como offline #307\nMelhore as mensagens de erro e os relatórios de sentinela",
+        "nl": "Afhankelijkheidsupdates\nBugfix: apparaten gerapporteerd als offline #307\nVerbeter foutmeldingen en schildwachtrapportage",
+        "fr": "Mises à jour des dépendances\nCorrection de bug : Appareils signalés comme étant hors ligne #307\nAméliorez les messages d'erreur et les rapports de sentinelle",
+        "it": "Aggiornamenti delle dipendenze\nBugfix: dispositivi segnalati come offline #307\nMigliora i messaggi di errore e la segnalazione delle sentinelle",
+        "es": "actualizaciones de dependencia\nCorrección de error: Dispositivos reportados como fuera de línea #307\nMejorar los mensajes de error y los informes de centinela",
+        "pl": "Aktualizacje zależności\nBugfix: Urządzenia zgłoszone jako offline #307\nPopraw komunikaty o błędach i raportowanie wartowników",
+        "zh-cn": "依赖更新\n错误修复：设备报告为离线 #307\n改进错误消息和哨兵报告"
+      },
+      "0.6.3": {
+        "en": "Missing dropdown for ID of effects added\nHotFix: Missing axios dependency added",
+        "de": "Fehlende Dropdown-Liste für die ID der hinzugefügten Effekte\nHotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
+        "ru": "Отсутствует раскрывающийся список для идентификатора добавленных эффектов.\nHotFix: добавлена отсутствующая зависимость axios",
+        "pt": "Lista suspensa ausente para ID de efeitos adicionados\nHotFix: Dependência de axios ausente adicionada",
+        "nl": "Ontbrekende vervolgkeuzelijst voor ID van toegevoegde effecten\nHotFix: ontbrekende axios-afhankelijkheid toegevoegd",
+        "fr": "Liste déroulante manquante pour l'ID des effets ajoutés\nHotFix : Ajout d'une dépendance axios manquante",
+        "it": "Menu a discesa mancante per l'ID degli effetti aggiunti\nHotFix: aggiunta dipendenza Axios mancante",
+        "es": "Falta el menú desplegable para la identificación de los efectos agregados\nHotFix: Se agregó la dependencia de axios faltante",
+        "pl": "Brakujące menu dla identyfikatora dodanych efektów\nPoprawka: dodano brakującą zależność axios",
+        "zh-cn": "缺少添加效果 ID 的下拉菜单\nHotFix：添加了缺少 axios 依赖项"
+      },
+      "0.6.2": {
+        "en": "HotFix: Missing axios dependency added",
+        "de": "HotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
+        "ru": "HotFix: добавлена отсутствующая зависимость axios",
+        "pt": "HotFix: Dependência de axios ausente adicionada",
+        "nl": "HotFix: ontbrekende axios-afhankelijkheid toegevoegd",
+        "fr": "HotFix : Ajout d'une dépendance axios manquante",
+        "it": "HotFix: aggiunta dipendenza Axios mancante",
+        "es": "HotFix: Se agregó la dependencia de axios faltante",
+        "pl": "Poprawka: dodano brakującą zależność axios",
+        "zh-cn": "HotFix：添加了缺少 axios 依赖项"
+      },
+      "0.6.1": {
+        "en": "Missing state definitions WLED FW 0.13.0-b12 added.",
+        "de": "Fehlende Zustandsdefinitionen WLED FW 0.13.0-b12 hinzugefügt.",
+        "ru": "Добавлены отсутствующие определения состояний WLED FW 0.13.0-b12.",
+        "pt": "Definições de estado ausentes WLED FW 0.13.0-b12 adicionadas.",
+        "nl": "Ontbrekende statusdefinities WLED FW 0.13.0-b12 toegevoegd.",
+        "fr": "Définitions d'état manquantes ajoutées WLED FW 0.13.0-b12.",
+        "it": "Aggiunte definizioni di stato mancanti WLED FW 0.13.0-b12.",
+        "es": "Faltan definiciones de estado WLED FW 0.13.0-b12 agregadas.",
+        "pl": "Dodano brakujące definicje stanu WLED FW 0.13.0-b12.",
+        "zh-cn": "添加了缺少状态定义 WLED FW 0.13.0-b12。"
+      },
+      "0.6.0": {
+        "en": "System load reduced\nAll warnings related to JS-Controller 3.x checks solved\nEnsure legacy support of WLED FW < 0.12 (fallback to http-API instead of websocket)\nCommunication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12",
+        "de": "Systemlast reduziert\nAlle Warnungen zu JS-Controller 3.x-Prüfungen behoben\nSicherstellen der Legacy-Unterstützung von WLED FW < 0.12 (Fallback auf http-API statt Websocket)\nKommunikation per Websocket implementiert, diese Funktion ermöglicht Live-Datenaktualisierungen (anstelle von Intervallabfragen). Benötigt WLED-Firmware >= 12",
+        "ru": "Снижена нагрузка на систему\nВсе предупреждения, связанные с проверками JS-Controller 3.x, устранены\nОбеспечьте устаревшую поддержку WLED FW <0.12 (откат к http-API вместо веб-сокета)\nРеализована связь через веб-сокет, эта функция позволяет обновлять данные в реальном времени (вместо интервального опроса). Требуется прошивка WLED> = 12",
+        "pt": "Carga do sistema reduzida\nTodos os avisos relacionados às verificações do JS-Controller 3.x resolvidos\nGaranta suporte legado de WLED FW <0,12 (fallback para http-API em vez de websocket)\nImplementada a comunicação por websocket, esse recurso permite atualizações de dados ao vivo (em vez de polling de intervalo). Requer firmware WLED> = 12",
+        "nl": "Systeembelasting verminderd\nAlle waarschuwingen met betrekking tot JS-Controller 3.x-controles opgelost\nZorg voor legacy-ondersteuning van WLED FW < 0.12 (fallback naar http-API in plaats van websocket)\nCommunicatie via websocket geïmplementeerd, deze functie maakt live gegevensupdates mogelijk (in plaats van intervalpolling). Vereist WLED-firmware >= 12",
+        "fr": "Charge du système réduite\nTous les avertissements liés aux contrôles JS-Controller 3.x résolus\nAssurer la prise en charge héritée de WLED FW < 0,12 (repli à http-API au lieu de websocket)\nCommunication par websocket implémentée, cette fonctionnalité permet des mises à jour des données en direct (au lieu de l'interrogation par intervalles). Nécessite le micrologiciel WLED >= 12",
+        "it": "Carico del sistema ridotto\nTutti gli avvisi relativi ai controlli JS-Controller 3.x sono stati risolti\nGarantire il supporto legacy di WLED FW < 0,12 (fallback a http-API anziché websocket)\nImplementata la comunicazione tramite websocket, questa funzione consente aggiornamenti dei dati in tempo reale (invece del polling a intervalli). Richiede firmware WLED >= 12",
+        "es": "Carga del sistema reducida\nTodas las advertencias relacionadas con las comprobaciones de JS-Controller 3.x resueltas\nAsegure el soporte heredado de WLED FW <0.12 (respaldo a http-API en lugar de websocket)\nImplementada la comunicación por websocket, esta función permite actualizaciones de datos en vivo (en lugar de sondeos por intervalos). Requiere firmware WLED> = 12",
+        "pl": "Zmniejszone obciążenie systemu\nWszystkie ostrzeżenia związane z kontrolami JS-Controller 3.x rozwiązane\nZapewnij starszą obsługę WLED FW < 0,12 (powrót do http-API zamiast websocket)\nZaimplementowana komunikacja przez websocket, ta funkcja umożliwia aktualizację danych na żywo (zamiast odpytywania interwałowego). Wymaga oprogramowania WLED >= 12",
+        "zh-cn": "系统负载减少\n解决了与 JS-Controller 3.x 检查相关的所有警告\n确保 WLED FW < 0.12 的传统支持（回退到 http-API 而不是 websocket）\n通过 websocket 实现通信，此功能允许实时数据更新（而不是间隔轮询）。需要 WLED 固件 >= 12"
+      },
+      "0.5.9": {
+        "en": "added new state attributes reported by Sentry\nadded min & max for brightness value to support iOT adapter",
+        "de": "neue Statusattribute hinzugefügt, die von Sentry gemeldet wurden\nMin & Max für Helligkeitswert hinzugefügt, um den iOT-Adapter zu unterstützen",
+        "ru": "добавлены новые атрибуты состояния, сообщаемые Sentry\nдобавлены минимальные и максимальные значения яркости для поддержки адаптера iOT",
+        "pt": "adicionado novos atributos de estado relatados pelo Sentry\nadicionado mínimo e máximo para valor de brilho para suportar adaptador iOT",
+        "nl": "nieuwe statusattributen toegevoegd, gerapporteerd door Sentry\nmin & max toegevoegd voor helderheidswaarde om iOT-adapter te ondersteunen",
+        "fr": "ajout de nouveaux attributs d'état signalés par Sentry\nmin et max ajoutés pour la valeur de luminosité pour prendre en charge l'adaptateur iOT",
+        "it": "aggiunti nuovi attributi di stato segnalati da Sentry\naggiunto min e max per il valore di luminosità per supportare l'adattatore iOT",
+        "es": "Se agregaron nuevos atributos de estado informados por Sentry.\nagregado mínimo y máximo para el valor de brillo para admitir el adaptador iOT",
+        "pl": "dodano nowe atrybuty stanu zgłaszane przez Sentry\ndodano min i max dla wartości jasności do obsługi adaptera iOT",
+        "zh-cn": "添加了 Sentry 报告的新状态属性\n添加最小和最大亮度值以支持 iOT 适配器"
+      },
+      "0.5.8": {
+        "en": "added new state attributes reported by Sentry\nBugfix Live override datapoint created as read-only #252\nexcluded value \"PIR\" from data write due to current formatting",
+        "de": "neue Statusattribute hinzugefügt, die von Sentry gemeldet wurden\nBugfix Live-Überschreibungsdatenpunkt als schreibgeschützt erstellt #252\nAusgeschlossener Wert \"PIR\" vom Datenschreiben aufgrund aktueller Formatierung",
+        "ru": "добавлены новые атрибуты состояния, сообщаемые Sentry\nИсправление ошибки Live override datapoint, созданный как доступный только для чтения # 252\nисключено значение \"PIR\" из записи данных из-за текущего форматирования",
+        "pt": "adicionado novos atributos de estado relatados pelo Sentry\nBugfix Live override datapoint criado como somente leitura # 252\nvalor excluído \"PIR\" da gravação de dados devido à formatação atual",
+        "nl": "nieuwe statusattributen toegevoegd, gerapporteerd door Sentry\nBugfix Live overschrijven datapunt gemaakt als alleen-lezen #252\nuitgesloten waarde \"PIR\" van gegevensschrijven vanwege huidige opmaak",
+        "fr": "ajout de nouveaux attributs d'état signalés par Sentry\nBugfix Live override datapoint créé en lecture seule #252\nvaleur exclue \"PIR\" de l'écriture de données en raison du formatage actuel",
+        "it": "aggiunti nuovi attributi di stato segnalati da Sentry\nBugfix Live override datapoint creato come sola lettura #252\nvalore escluso \"PIR\" dalla scrittura dei dati a causa della formattazione corrente",
+        "es": "Se agregaron nuevos atributos de estado informados por Sentry.\nBugfix Live override datapoint creado como de solo lectura # 252\nvalor excluido \"PIR\" de la escritura de datos debido al formato actual",
+        "pl": "dodano nowe atrybuty stanu zgłaszane przez Sentry\nBugfix Live override datapoint utworzony jako tylko do odczytu #252\nwykluczona wartość \"PIR\" z zapisu danych ze względu na aktualne formatowanie",
+        "zh-cn": "添加了 Sentry 报告的新状态属性\n错误修复实时覆盖数据点创建为只读 #252\n由于当前格式，从数据写入中排除了值“PIR”"
+      }
     },
-    "native": {
-        "devices": [],
-        "Time_Sync": 30
+    "title": "WLED",
+    "titleLang": {
+      "en": "WLED",
+      "de": "WLED",
+      "ru": "WLED",
+      "pt": "WLED",
+      "nl": "WLED",
+      "fr": "WLED",
+      "it": "WLED",
+      "es": "WLED",
+      "pl": "WLED",
+      "zh-cn": "白光LED"
     },
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "WLED service ready to connecto to devices",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
-        }
+    "desc": {
+      "en": "A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!",
+      "de": "Eine schnelle und funktionsreiche Implementierung eines ESP8266 / ESP32-Webservers zur Steuerung von NeoPixel-LEDs (WS2812B, WS2811, SK6812, APA102)!",
+      "ru": "Быстрая и многофункциональная реализация веб-сервера ESP8266 / ESP32 для управления светодиодами NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "pt": "Uma implementação rápida e rica em recursos de um servidor da web ESP8266 / ESP32 para controlar os LEDs NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "nl": "Een snelle en veelzijdige implementatie van een ESP8266 / ESP32 webserver om NeoPixel (WS2812B, WS2811, SK6812, APA102) LED's te bedienen!",
+      "fr": "Une implémentation rapide et riche en fonctionnalités d'un serveur Web ESP8266 / ESP32 pour contrôler les LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "it": "Un'implementazione veloce e ricca di funzionalità di un server web ESP8266 / ESP32 per controllare i LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "es": "¡Una implementación rápida y rica en funciones de un servidor web ESP8266 / ESP32 para controlar los LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "pl": "Szybka i bogata w funkcje implementacja serwera ESP8266 / ESP32 do sterowania diodami LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "zh-cn": "ESP8266 / ESP32网络服务器的快速且功能丰富的实现，用于控制NeoPixel（WS2812B，WS2811，SK6812，APA102）LED！"
+    },
+    "authors": [
+      "DutchmanNL <rdrozda86@gmail.com>"
+    ],
+    "keywords": [
+      "WLED",
+      "WS2812b",
+      "RGB",
+      "RGBW"
+    ],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "main.js",
+    "icon": "wled.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/DrozmotiX/ioBroker.wled/main/admin/wled.png",
+    "readme": "https://github.com/DrozmotiX/ioBroker.wled/blob/main/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "lighting",
+    "compact": true,
+    "connectionType": "local",
+    "dataSource": "poll",
+    "materialize": true,
+    "plugins": {
+      "sentry": {
+        "dsn": "https://d7941b0f76ca40788b03af2479eada08@sentry.drozmotix.eu/4"
+      }
+    },
+    "messagebox": true,
+    "dependencies": [
+      {
+        "js-controller": ">=3.0.0"
+      }
     ]
+  },
+  "native": {
+    "devices": [],
+    "Time_Sync": 30
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "WLED service ready to connecto to devices",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }

@@ -8,6 +8,7 @@ updates:
     timezone: Europe/Berlin
     allow:
       - dependency-type: 'production'
+  target-branch: "dependencyAutoUpdate"
   open-pull-requests-limit: 20
   assignees:
   - DrozmotiX

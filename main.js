@@ -958,13 +958,9 @@ class Wled extends utils.Adapter {
 			// Try to get details from state lib, if not use defaults. throw warning is states is not known in attribute list
 			const common = {};
 			if (!stateAttr[name]) {
-				let warnMessage = `State attribute definition missing for : ${name}`;
+				const warnMessage = `State attribute definition missing for : ${name}`;
 				if (warnMessages[name] !== warnMessage) {
-					warnMessages[name] = warnMessage;
-
-					// Send information to Sentry with value
-					warnMessage = `State attribute definition missing for : ${name} with value : ${value} `;
-					this.sendSentry(warnMessage, null);
+					this.log.warn(`State attribute definition missing for : ${name} with value : ${value}`);
 				}
 			}
 

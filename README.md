@@ -48,6 +48,10 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+* (DutchmanNL) Log messages and error reporting improved
+* (DutchmanNL) Do not send missing attribute definitions to sentry
+
 ### 0.6.5 (2022-06-04) - Correct indication of connection state
 * (DutchmanNL) Dependency updates
 * (DutchmanNL) Bugfix: Correct indication of connection state #307

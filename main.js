@@ -82,54 +82,59 @@ class Wled extends utils.Adapter {
 	 * @param {() => void} callback
 	 */
 	onUnload(callback) {
-
-		// Clear running polling timers
-		if (watchDogStartDelay) {
-			clearTimeout(watchDogStartDelay);
-			watchDogStartDelay = null;
-		}
-		for (const device in watchdogWsTimer){
-			if (watchdogWsTimer[device]) {
-				clearTimeout(watchdogWsTimer[device]);
-				delete watchdogWsTimer[device];
-			}
-		}
-		for (const device in watchdogTimer){
-			if (watchdogTimer[device]) {
-				clearTimeout(watchdogTimer[device]);
-				delete watchdogTimer[device];
-			}
-		}
-		for (const device in stateExpire){
-			if (stateExpire[device]) {
-				clearTimeout(stateExpire[device]);
-				delete stateExpire[device];
-			}
-		}
-
-		// Close WebSocket connections
-		for (const device in ws){
-			try {
-				// Close socket connection
-				ws[device].close();
-			} catch (e) {
-				this.log.error(e);
-			}
-		}
-
-		// Set all online states to false
-		for (const i in this.devices) {
-			this.setState(this.devices[i].mac + '._info' + '._online', {val: false, ack: true});
-		}
-
 		try {
-			this.log.info('cleaned everything up...');
-			this.setState('info.connection', false, true);
-			callback();
+
+			// Clear running polling timers
+			if (watchDogStartDelay) {
+				clearTimeout(watchDogStartDelay);
+				watchDogStartDelay = null;
+			}
+			for (const device in watchdogWsTimer){
+				if (watchdogWsTimer[device]) {
+					clearTimeout(watchdogWsTimer[device]);
+					delete watchdogWsTimer[device];
+				}
+			}
+			for (const device in watchdogTimer){
+				if (watchdogTimer[device]) {
+					clearTimeout(watchdogTimer[device]);
+					delete watchdogTimer[device];
+				}
+			}
+			for (const device in stateExpire){
+				if (stateExpire[device]) {
+					clearTimeout(stateExpire[device]);
+					delete stateExpire[device];
+				}
+			}
+
+			// Close WebSocket connections
+			for (const device in ws){
+				try {
+					// Close socket connection
+					ws[device].close();
+				} catch (e) {
+					this.log.error(e);
+				}
+			}
+
+			// Set all online states to false
+			for (const i in this.devices) {
+				this.setState(this.devices[i].mac + '._info' + '._online', {val: false, ack: true});
+			}
+
+			try {
+				this.log.info('cleaned everything up...');
+				this.setState('info.connection', false, true);
+				callback();
+			} catch (error) {
+				this.errorHandler(`[onStateChange]`, error)
+				this.setState('info.connection', false, true);
+				callback();
+			}
+
 		} catch (error) {
-			this.log.error('Error at adapter stop : ' + error);
-			this.setState('info.connection', false, true);
-			callback();
+			this.errorHandler(`[onStateChange]`, error)
 		}
 
 	}
@@ -140,190 +145,195 @@ class Wled extends utils.Adapter {
 	 * @param {ioBroker.State | null | undefined} state
 	 */
 	async onStateChange(id, state) {
+		try {
 
-		if (state && state.ack === false) {
-			// The state was changed and is not (yet) acknowledged
-			this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+			if (state && state.ack === false) {
+				// The state was changed and is not (yet) acknowledged
+				this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 
-			// Split state name in segments to be used later
-			const deviceId = id.split('.');
+				// Split state name in segments to be used later
+				const deviceId = id.split('.');
 
-			// Prepare array's needed to send new states
-			let values = null, rgb_all = null;
+				// Prepare array's needed to send new states
+				let values = null, rgb_all = null;
 
-			// Build send command for state changes
-			if (deviceId[4] === undefined) {
-				this.log.debug('Send state');
-				values = {
-					[deviceId[3]]: state.val
-				};
-				this.log.debug('values 4 ' + JSON.stringify(values));
-
-			} else {
-
-				// Send command 1 - level  nesting
-				if (deviceId[5] === undefined) {
-
-					this.log.debug('Send nested state');
-
-					// Send state change & value state forward to WLED API
+				// Build send command for state changes
+				if (deviceId[4] === undefined) {
+					this.log.debug('Send state');
 					values = {
-						[deviceId[3]]: {
-							[deviceId[4]]: state.val
-						}
+						[deviceId[3]]: state.val
 					};
-					this.log.debug('values 5 ' + JSON.stringify(values));
-				}
+					this.log.debug('values 4 ' + JSON.stringify(values));
 
-				// Handle segments logic
-				if (deviceId[3] === 'seg') {
-					this.log.debug('Send seg');
-					const valAsNumbers = parseFloat(deviceId[4]);
-					this.log.debug('test number : ' + valAsNumbers);
+				} else {
 
-					// Check if changed state is related to color
-					if (deviceId[5] === 'col') {
-						this.log.debug('Send col');
-						const color_root = deviceId[2] + '.' + deviceId[3] + '.' + deviceId[4] + '.' + deviceId[5];
-						this.log.debug(color_root);
+					// Send command 1 - level  nesting
+					if (deviceId[5] === undefined) {
 
-						// Handle logic for HEX values, must be translated to RGB which is used by WLED
-						if (deviceId[6] === '0_HEX' || deviceId[6] === '1_HEX' || deviceId[6] === '2_HEX') {
-
-							this.log.debug('HEX color change initiated, convert to RGB and send data');
-
-							try {
-
-								// Get all 3 HEX values from states
-								const colorPrimaryHex = await this.getStateAsync(color_root + '.0_HEX');
-								if (!colorPrimaryHex) return;
-								const colorSecondaryHex = await this.getStateAsync(color_root + '.1_HEX');
-								if (!colorSecondaryHex) return;
-								const colorTertiaryHex = await this.getStateAsync(color_root + '.1_HEX');
-								if (!colorTertiaryHex) return;
-
-								// Use library to translate HEX values into proper RGB
-								const colorPrimaryRGB = hexRgb(colorPrimaryHex.val);
-								const colorSecondaryRGB = hexRgb(colorSecondaryHex.val);
-								const colorTertiaryRGB = hexRgb(colorTertiaryHex.val);
-
-								// Build RGB JSON string to be send to WLED
-								rgb_all = [
-									[colorPrimaryRGB.red, colorPrimaryRGB.green, colorPrimaryRGB.blue],
-									[colorSecondaryRGB.red, colorSecondaryRGB.green, colorSecondaryRGB.blue],
-									[colorTertiaryRGB.red, colorTertiaryRGB.green, colorTertiaryRGB.blue]
-								];
-
-								this.log.debug('Converted RGB values of HEX input : ' + colorPrimaryRGB + ' : ' + colorSecondaryRGB + ' : ' + colorTertiaryRGB);
-
-							} catch (error) {
-								this.log.error('Hex conversion failed : ' + error);
-								return;
-							}
-
-							// Handle logic for RGB values, must be translated to RGB which is used by WLED
-						} else if ((deviceId[6] === '0' || deviceId[6] === '1' || deviceId[6] === '2')) {
-
-							this.log.debug('RGB color change initiated, convert to RGB and send data');
-
-							try {
-
-								// Get all 3 RGB values from states and ensure all 3 color's are always submitted in 1 JSON string !
-								let color_primary = await this.getStateAsync(color_root + '.0');
-								if (!color_primary) return;
-								this.log.debug('Primary color before split : ' + color_primary.val);
-								try {
-									color_primary = color_primary.val.split(',').map(s => parseInt(s));
-								} catch (error) {
-									if (!color_primary) return;
-									color_primary = color_primary.val;
-								}
-
-								let color_secondary = await this.getStateAsync(color_root + '.1');
-								if (!color_secondary) return;
-								this.log.debug('Secondary color : ' + color_secondary.val);
-								try {
-									color_secondary = color_secondary.val.split(',').map(s => parseInt(s));
-								} catch (error) {
-									if (!color_secondary) return;
-									color_secondary = color_secondary.val;
-								}
-
-								let color_tertiary = await this.getStateAsync(color_root + '.2');
-								if (!color_tertiary) return;
-								this.log.debug('Tertiary color : ' + color_tertiary.val);
-								try {
-									color_tertiary = color_tertiary.val.split(',').map(s => parseInt(s));
-								} catch (error) {
-									if (!color_tertiary) return;
-									color_tertiary = color_tertiary.val;
-								}
-
-								this.log.debug('Color values from states : ' + color_primary + ' : ' + color_secondary + ' : ' + color_tertiary);
-
-								// Build proper RGB array in WLED format with all 3 color states
-								rgb_all = [color_primary, color_secondary, color_tertiary];
-
-							} catch (error) {
-								this.log.error(error);
-								return;
-							}
-
-						}
-
-						// Build JSON string to be send to WLED, cancel function if
-						values = {
-							'seg': {
-								'id': valAsNumbers,
-								'col': rgb_all
-							}
-						};
-
-					} else {
+						this.log.debug('Send nested state');
 
 						// Send state change & value state forward to WLED API
 						values = {
 							[deviceId[3]]: {
-								id: valAsNumbers,
-								[deviceId[5]]: state.val
+								[deviceId[4]]: state.val
 							}
 						};
-
+						this.log.debug('values 5 ' + JSON.stringify(values));
 					}
-					this.log.debug('values segment ' + JSON.stringify(values));
+
+					// Handle segments logic
+					if (deviceId[3] === 'seg') {
+						this.log.debug('Send seg');
+						const valAsNumbers = parseFloat(deviceId[4]);
+						this.log.debug('test number : ' + valAsNumbers);
+
+						// Check if changed state is related to color
+						if (deviceId[5] === 'col') {
+							this.log.debug('Send col');
+							const color_root = deviceId[2] + '.' + deviceId[3] + '.' + deviceId[4] + '.' + deviceId[5];
+							this.log.debug(color_root);
+
+							// Handle logic for HEX values, must be translated to RGB which is used by WLED
+							if (deviceId[6] === '0_HEX' || deviceId[6] === '1_HEX' || deviceId[6] === '2_HEX') {
+
+								this.log.debug('HEX color change initiated, convert to RGB and send data');
+
+								try {
+
+									// Get all 3 HEX values from states
+									const colorPrimaryHex = await this.getStateAsync(color_root + '.0_HEX');
+									if (!colorPrimaryHex) return;
+									const colorSecondaryHex = await this.getStateAsync(color_root + '.1_HEX');
+									if (!colorSecondaryHex) return;
+									const colorTertiaryHex = await this.getStateAsync(color_root + '.1_HEX');
+									if (!colorTertiaryHex) return;
+
+									// Use library to translate HEX values into proper RGB
+									const colorPrimaryRGB = hexRgb(colorPrimaryHex.val);
+									const colorSecondaryRGB = hexRgb(colorSecondaryHex.val);
+									const colorTertiaryRGB = hexRgb(colorTertiaryHex.val);
+
+									// Build RGB JSON string to be send to WLED
+									rgb_all = [
+										[colorPrimaryRGB.red, colorPrimaryRGB.green, colorPrimaryRGB.blue],
+										[colorSecondaryRGB.red, colorSecondaryRGB.green, colorSecondaryRGB.blue],
+										[colorTertiaryRGB.red, colorTertiaryRGB.green, colorTertiaryRGB.blue]
+									];
+
+									this.log.debug('Converted RGB values of HEX input : ' + colorPrimaryRGB + ' : ' + colorSecondaryRGB + ' : ' + colorTertiaryRGB);
+
+								} catch (error) {
+									this.log.error('Hex conversion failed : ' + error);
+									return;
+								}
+
+								// Handle logic for RGB values, must be translated to RGB which is used by WLED
+							} else if ((deviceId[6] === '0' || deviceId[6] === '1' || deviceId[6] === '2')) {
+
+								this.log.debug('RGB color change initiated, convert to RGB and send data');
+
+								try {
+
+									// Get all 3 RGB values from states and ensure all 3 color's are always submitted in 1 JSON string !
+									let color_primary = await this.getStateAsync(color_root + '.0');
+									if (!color_primary) return;
+									this.log.debug('Primary color before split : ' + color_primary.val);
+									try {
+										color_primary = color_primary.val.split(',').map(s => parseInt(s));
+									} catch (error) {
+										if (!color_primary) return;
+										color_primary = color_primary.val;
+									}
+
+									let color_secondary = await this.getStateAsync(color_root + '.1');
+									if (!color_secondary) return;
+									this.log.debug('Secondary color : ' + color_secondary.val);
+									try {
+										color_secondary = color_secondary.val.split(',').map(s => parseInt(s));
+									} catch (error) {
+										if (!color_secondary) return;
+										color_secondary = color_secondary.val;
+									}
+
+									let color_tertiary = await this.getStateAsync(color_root + '.2');
+									if (!color_tertiary) return;
+									this.log.debug('Tertiary color : ' + color_tertiary.val);
+									try {
+										color_tertiary = color_tertiary.val.split(',').map(s => parseInt(s));
+									} catch (error) {
+										if (!color_tertiary) return;
+										color_tertiary = color_tertiary.val;
+									}
+
+									this.log.debug('Color values from states : ' + color_primary + ' : ' + color_secondary + ' : ' + color_tertiary);
+
+									// Build proper RGB array in WLED format with all 3 color states
+									rgb_all = [color_primary, color_secondary, color_tertiary];
+
+								} catch (error) {
+									this.log.error(error);
+									return;
+								}
+
+							}
+
+							// Build JSON string to be send to WLED, cancel function if
+							values = {
+								'seg': {
+									'id': valAsNumbers,
+									'col': rgb_all
+								}
+							};
+
+						} else {
+
+							// Send state change & value state forward to WLED API
+							values = {
+								[deviceId[3]]: {
+									id: valAsNumbers,
+									[deviceId[5]]: state.val
+								}
+							};
+
+						}
+						this.log.debug('values segment ' + JSON.stringify(values));
+					}
+				}
+
+				this.log.debug('Prepare API call for device : ' + deviceId[2] + ' and values + ' + values);
+				let device_ip = await this.getForeignObjectAsync('wled.' + this.instance + '.' + deviceId[2]);
+				if (!device_ip) return;
+				device_ip = device_ip.native.ip;
+
+				// Only make API call when values are correct
+				if (values !== null && device_ip !== null) {
+
+					// If websocket is connected, send message by websocket otherwise http-API
+					if (this.devices[device_ip].wsConnected){
+						this.log.debug(`Sending state change by websocket ${JSON.stringify(values)}`);
+
+						ws[device_ip].send(JSON.stringify(values));
+					} else {
+						this.log.debug(`Sending state change by http-API ${JSON.stringify(values)}`);
+
+						// Send API Post command
+						const result = await this.postAPI('http://' + device_ip + '/json', values);
+						if (!result) return;
+						this.log.debug('API feedback' + JSON.stringify(result));
+
+						if (result.success === true) {
+							// Set state acknowledgement if  API call was successfully
+							this.setState(id, {
+								val: state.val,
+								ack: true
+							});
+						}
+					}
 				}
 			}
 
-			this.log.debug('Prepare API call for device : ' + deviceId[2] + ' and values + ' + values);
-			let device_ip = await this.getForeignObjectAsync('wled.' + this.instance + '.' + deviceId[2]);
-			if (!device_ip) return;
-			device_ip = device_ip.native.ip;
-
-			// Only make API call when values are correct
-			if (values !== null && device_ip !== null) {
-
-				// If websocket is connected, send message by websocket otherwise http-API
-				if (this.devices[device_ip].wsConnected){
-					this.log.debug(`Sending state change by websocket ${JSON.stringify(values)}`);
-
-					ws[device_ip].send(JSON.stringify(values));
-				} else {
-					this.log.debug(`Sending state change by http-API ${JSON.stringify(values)}`);
-
-					// Send API Post command
-					const result = await this.postAPI('http://' + device_ip + '/json', values);
-					if (!result) return;
-					this.log.debug('API feedback' + JSON.stringify(result));
-
-					if (result.success === true) {
-						// Set state acknowledgement if  API call was successfully
-						this.setState(id, {
-							val: state.val,
-							ack: true
-						});
-					}
-				}
-			}
+		} catch (error) {
+			this.errorHandler(`[onStateChange]`, error)
 		}
 	}
 
@@ -335,30 +345,34 @@ class Wled extends utils.Adapter {
 	 */
 	async onMessage(obj) {
 
-		// responds to the adapter that sent the original message
-		function respond(response, that) {
-			if (obj.callback)
-				that.sendTo(obj.from, obj.command, response, obj.callback);
+		try {
+			// responds to the adapter that sent the original message
+			function respond(response, that) {
+				if (obj.callback)
+					that.sendTo(obj.from, obj.command, response, obj.callback);
+			}
+
+			this.log.debug('Data from configuration received : ' + JSON.stringify(obj));
+
+			//Response to manual adding of devices & device deletion
+			switch (obj.command) {
+				case 'addDevice':
+					// Disable check of const declaration in case function
+					// eslint-disable-next-line no-case-declarations
+					const result = await this.getDeviceJSON(obj.message);
+					this.log.debug('Response from Read Data : ' + JSON.stringify(result));
+					if (result === 'success') {
+						respond('success', this);
+
+					} else {
+						respond('failed', this);
+					}
+					break;
+			}
+
+		} catch (error) {
+			this.errorHandler(`[onMessage]`, error)
 		}
-
-		this.log.debug('Data from configuration received : ' + JSON.stringify(obj));
-
-		//Response to manual adding of devices & device deletion
-		switch (obj.command) {
-			case 'addDevice':
-				// Disable check of const declaration in case function
-				// eslint-disable-next-line no-case-declarations
-				const result = await this.getDeviceJSON(obj.message);
-				this.log.debug('Response from Read Data : ' + JSON.stringify(result));
-				if (result === 'success') {
-					respond('success', this);
-
-				} else {
-					respond('failed', this);
-				}
-				break;
-		}
-
 	}
 
 	/**
@@ -469,6 +483,7 @@ class Wled extends utils.Adapter {
 				}
 			} catch (e){
 				this.log.debug(`Cannot create effect dropdown`)
+				this.errorHandler(`[handleBasicStates]`, `Cannot create effect dropdown`, true)
 			}
 
 			// Store / Update  pallets
@@ -490,7 +505,7 @@ class Wled extends utils.Adapter {
 			await this.handleStates(deviceData, deviceIP);
 
 		} catch (error) {
-			this.sendSentry(`[handleBasicStates]`, `${error}`);
+			this.errorHandler(`[handleBasicStates]`, error)
 		}
 	}
 
@@ -695,7 +710,7 @@ class Wled extends utils.Adapter {
 			this.create_state(infoStates.mac  + '._info' + '._online', `Online status`, true);
 
 		} catch (error) {
-			this.sendSentry(`[handleStates]`, `${error}`);
+			this.errorHandler(`[handleStates]`, error)
 		}
 	}
 
@@ -704,58 +719,63 @@ class Wled extends utils.Adapter {
 	 * @param {string} deviceIP IP-Address of device
 	 */
 	async watchDog(deviceIP) {
+		try {
+			this.log.debug('Watchdog for ' + JSON.stringify(this.devices[deviceIP]));
 
-		this.log.debug('Watchdog for ' + JSON.stringify(this.devices[deviceIP]));
-
-		// Check if used WLED version supports websocket Ping-Pong messages and connection, if not handle watchdog by http-API
-		if (this.devices[deviceIP].wsPingSupported) {
-			if (this.devices[deviceIP].wsConnected) {
-				try {
-					// Send ping by websocket
-					this.devices[deviceIP].wsPong = false;
-					ws[deviceIP].send('ping');
-					if (watchdogWsTimer[deviceIP]) {
-						clearTimeout(watchdogWsTimer[deviceIP]);
-						watchdogTimer[deviceIP] = null;
-					}
-					watchdogWsTimer[deviceIP] = setTimeout(() => {
-						if (!this.devices[deviceIP].wsPong) {
-							this.devices[deviceIP].initialized = false;
-							this.devices[deviceIP].wsConnected = false;
-							this.devices[deviceIP].wsConnected = false;
-							// Update device working state
-							if (this.devices[deviceIP].mac != null) {
-								this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', false);
+			// Check if used WLED version supports websocket Ping-Pong messages and connection, if not handle watchdog by http-API
+			if (this.devices[deviceIP].wsPingSupported) {
+				if (this.devices[deviceIP].wsConnected) {
+					try {
+						// Send ping by websocket
+						this.devices[deviceIP].wsPong = false;
+						ws[deviceIP].send('ping');
+						if (watchdogWsTimer[deviceIP]) {
+							clearTimeout(watchdogWsTimer[deviceIP]);
+							watchdogTimer[deviceIP] = null;
+						}
+						watchdogWsTimer[deviceIP] = setTimeout(() => {
+							if (!this.devices[deviceIP].wsPong) {
+								this.devices[deviceIP].initialized = false;
+								this.devices[deviceIP].wsConnected = false;
+								this.devices[deviceIP].wsConnected = false;
+								// Update device working state
+								if (this.devices[deviceIP].mac != null) {
+									this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', false);
+								}
 							}
-						}
-						// Close socket
-						try {
-							ws[deviceIP].close();
-						} catch (e) {
-							console.error(e);
-						}
+							// Close socket
+							try {
+								ws[deviceIP].close();
+							} catch (e) {
+								console.error(e);
+							}
 
-					}, (this.config.Time_Sync * 1000));
+						}, (this.config.Time_Sync * 1000));
 
-				} catch (e) {
-					// Try http-API in case of error
-					this.log.error(`WS Ping error : ${e}`);
-					await this.getDeviceJSON(deviceIP);
+					} catch (e) {
+						// Try http-API in case of error
+						this.log.error(`WS Ping error : ${e}`);
+						await this.getDeviceJSON(deviceIP);
+					}
+				} else { // If WS-Ping not supported, use http-API
+					try {
+						await this.getDeviceJSON(deviceIP);
+					} catch (error) {
+						this.errorHandler(`[watchDog]`, error)
+					}
 				}
 			} else { // If WS-Ping not supported, use http-API
 				try {
 					await this.getDeviceJSON(deviceIP);
 				} catch (error) {
-					this.sendSentry(`[watchDog]`, `${error}`);
+					this.errorHandler(`[watchDog]`, error)
+
 				}
 			}
-		} else { // If WS-Ping not supported, use http-API
-			try {
-				await this.getDeviceJSON(deviceIP);
-			} catch (error) {
-				this.sendSentry(`[watchDog]`, `${error}`);
+
+		} catch (error) {
+				this.errorHandler(`[handleStates]`, error)
 			}
-		}
 
 		// Reset timer (if running) and start new one for next watchdog interval
 		if (watchdogTimer[deviceIP]) {
@@ -773,87 +793,91 @@ class Wled extends utils.Adapter {
 	 * @param {string} deviceIP IP-Address of device
 	 */
 	async getDeviceJSON(deviceIP) {
-		this.log.debug(`getDeviceJSON called for : ${deviceIP}`);
-
 		try {
+			this.log.debug(`getDeviceJSON called for : ${deviceIP}`);
 
-			const requestDeviceDataByAPI = async () => {
-				const response = await axios.get(`http://${deviceIP}/json`, {timeout: 3000}); // Timout of 3 seconds for API call
-				this.log.debug(JSON.stringify('API response data : ' + response.data));
-				const deviceData = response.data;
-				return deviceData;
-			};
+			try {
 
-			// Check if connection is handled by websocket before proceeding
-			if (this.devices[deviceIP]
-				&& (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected && this.devices[deviceIP].wsPingSupported)) {
-				// Nothing to do, device is connected by websocket and will handle state updates
-			} else { // No Websocket connection, handle data by http_API
+				const requestDeviceDataByAPI = async () => {
+					const response = await axios.get(`http://${deviceIP}/json`, {timeout: 3000}); // Timout of 3 seconds for API call
+					this.log.debug(JSON.stringify('API response data : ' + response.data));
+					const deviceData = response.data;
+					return deviceData;
+				};
 
-				const deviceData = await requestDeviceDataByAPI();
-
-				// If device is initialised, only handle state updates otherwise complete initialisation
+				// Check if connection is handled by websocket before proceeding
 				if (this.devices[deviceIP]
-					&& (this.devices[deviceIP].connected && this.devices[deviceIP].initialized)){
+					&& (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected && this.devices[deviceIP].wsPingSupported)) {
+					// Nothing to do, device is connected by websocket and will handle state updates
+				} else { // No Websocket connection, handle data by http_API
 
-					if (!deviceData) {
-						this.log.warn(`Heartbeat of device ${deviceIP} failed, will try to reconnect`);
-						this.devices[deviceIP].connected = false;
-						this.devices[deviceIP].initialized = false;
-						this.devices[deviceIP].wsConnected = false;
-						await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', false);
-						return 'failed';
-					} else {
-						this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
-						if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
-							// Only reset heartbeat, device is connected by websocket and will handle state updates
-							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', {val: true, ack: true});
-							return 'success';
-						} else {
-							await this.handleStates(deviceData, deviceIP);
+					const deviceData = await requestDeviceDataByAPI();
+
+					// If device is initialised, only handle state updates otherwise complete initialisation
+					if (this.devices[deviceIP]
+						&& (this.devices[deviceIP].connected && this.devices[deviceIP].initialized)){
+
+						if (!deviceData) {
+							this.log.warn(`Heartbeat of device ${deviceIP} failed, will try to reconnect`);
+							this.devices[deviceIP].connected = false;
+							this.devices[deviceIP].initialized = false;
 							this.devices[deviceIP].wsConnected = false;
-							this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', {val: true, ack: true});
+							await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', false);
+							return 'failed';
+						} else {
+							this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
+							if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
+								// Only reset heartbeat, device is connected by websocket and will handle state updates
+								this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', {val: true, ack: true});
+								return 'success';
+							} else {
+								await this.handleStates(deviceData, deviceIP);
+								this.devices[deviceIP].wsConnected = false;
+								this.setStateChanged(this.devices[deviceIP].mac + '._info' + '._online', {val: true, ack: true});
+								return 'success';
+							}
+						}
+
+					} else {
+
+						if (!deviceData) {
+							this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+							this.devices[deviceIP].initialized = false;
+							// Update device working state
+							if (this.devices[deviceIP].mac != null) {
+								await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', {val: false, ack: true});
+							}
+							return 'failed';
+						} else {
+							this.log.debug('Info Data received from WLED device ' + JSON.stringify(deviceData));
+							this.log.info(`Initialising : " ${deviceData.info.name}" on IP :  ${deviceIP}`);
+							await this.handleBasicStates(deviceIP, deviceData);
 							return 'success';
 						}
 					}
 
-				} else {
+				}
 
-					if (!deviceData) {
-						this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
-						this.devices[deviceIP].initialized = false;
-						// Update device working state
-						if (this.devices[deviceIP].mac != null) {
-							await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', {val: false, ack: true});
-						}
-						return 'failed';
-					} else {
-						this.log.debug('Info Data received from WLED device ' + JSON.stringify(deviceData));
-						this.log.info(`Initialising : " ${deviceData.info.name}" on IP :  ${deviceIP}`);
-						await this.handleBasicStates(deviceIP, deviceData);
-						return 'success';
+			} catch (error) {
+
+				if (this.devices[deviceIP] && this.devices[deviceIP].connected){
+					this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
+					if (this.devices[deviceIP].mac != null) {
+						await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', {val: false, ack: true});
+					}
+					this.devices[deviceIP].connected = false;
+					this.devices[deviceIP].wsConnected = false;
+					this.devices[deviceIP].initialized = false;
+					try {
+						ws[deviceIP].close();
+					} catch (e) {
+						console.error(e);
 					}
 				}
-
+				return 'failed';
 			}
-
 		} catch (error) {
-
-			if (this.devices[deviceIP] && this.devices[deviceIP].connected){
-				this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
-				if (this.devices[deviceIP].mac != null) {
-					await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', {val: false, ack: true});
-				}
-				this.devices[deviceIP].connected = false;
-				this.devices[deviceIP].wsConnected = false;
-				this.devices[deviceIP].initialized = false;
-				try {
-					ws[deviceIP].close();
-				} catch (e) {
-					console.error(e);
-				}
-			}
-			return 'failed';
+			this.errorHandler(`[getDeviceJSON]`, error)
 		}
 	}
 
@@ -875,7 +899,7 @@ class Wled extends utils.Adapter {
 				});
 			return result;
 		} catch (error) {
-			this.log.error(error);
+			this.errorHandler(`[postAPI]`, error)
 		}
 	}
 
@@ -884,59 +908,68 @@ class Wled extends utils.Adapter {
 	 */
 	async tryKnownDevices() {
 
-		const knownDevices = await this.getDevicesAsync();
-		if (!knownDevices) return; // exit function if no known device are detected
-		if (knownDevices.length > 0) this.log.info(`Try to contact ${knownDevices.length} known devices`);
+		try {
+			const knownDevices = await this.getDevicesAsync();
+			if (!knownDevices) return; // exit function if no known device are detected
+			if (knownDevices.length > 0) this.log.info(`Try to contact ${knownDevices.length} known devices`);
 
-		// Get IP-Address of known devices and try too establish connection
-		for (const i in knownDevices) {
-			const deviceIP = knownDevices[i].native.ip;
+			// Get IP-Address of known devices and try too establish connection
+			for (const i in knownDevices) {
+				const deviceIP = knownDevices[i].native.ip;
 
-			this.log.info('Try to contact : "' + knownDevices[i].common.name + '" on IP : ' + deviceIP);
+				this.log.info('Try to contact : "' + knownDevices[i].common.name + '" on IP : ' + deviceIP);
 
-			// Add IP address to polling array
-			this.devices[deviceIP] = {};
-			this.devices[deviceIP].ip = knownDevices[i].native.ip;
-			this.devices[deviceIP].mac = knownDevices[i].native.mac;
-			this.devices[deviceIP].connected = false;
-			this.devices[deviceIP].initialized = false;
-			await this.getDeviceJSON(deviceIP);
+				// Add IP address to polling array
+				this.devices[deviceIP] = {};
+				this.devices[deviceIP].ip = knownDevices[i].native.ip;
+				this.devices[deviceIP].mac = knownDevices[i].native.mac;
+				this.devices[deviceIP].connected = false;
+				this.devices[deviceIP].initialized = false;
+				await this.getDeviceJSON(deviceIP);
+			}
+		}catch (error) {
+			this.errorHandler(`[tryKnownDevices]`, error)
 		}
+
 	}
 
 	/**
 	 * Scan network with Bonjour service to detect new WLED devices
 	 */
 	async scanDevices() {
-		// Browse and listen for WLED devices
-		const browser = await bonjour.find({
-			'type': 'wled'
-		});
-		this.log.info('Bonjour service started, new  devices  will  be detected automatically');
+		try {
+			// Browse and listen for WLED devices
+			const browser = await bonjour.find({
+				'type': 'wled'
+			});
+			this.log.info('Bonjour service started, new  devices  will  be detected automatically');
 
-		// Event listener if new devices are detected
-		browser.on('up', (data) => {
-			const id = data.txt.mac;
-			const ip = data.referer.address;
+			// Event listener if new devices are detected
+			browser.on('up', (data) => {
+				const id = data.txt.mac;
+				const ip = data.referer.address;
 
-			// Check if device is already know
-			if (this.devices[ip] == null) {
-				this.log.info('New WLED  device found ' + data.name + ' on IP ' + data.referer.address);
+				// Check if device is already know
+				if (this.devices[ip] == null) {
+					this.log.info('New WLED  device found ' + data.name + ' on IP ' + data.referer.address);
 
-				//  Add device to array
-				this.devices[ip] = {};
-				this.devices[ip].mac = id;
-				this.devices[ip].ip = ip;
+					//  Add device to array
+					this.devices[ip] = {};
+					this.devices[ip].mac = id;
+					this.devices[ip].ip = ip;
+					this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
+					this.devices[ip].connected = false;
+					// Initialize device
+					this.getDeviceJSON(ip);
+				} else {
+					// Update ip information in case of change
+					this.devices[ip].ip = ip;
+				}
 				this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
-				this.devices[ip].connected = false;
-				// Initialize device
-				this.getDeviceJSON(ip);
-			} else {
-				// Update ip information in case of change
-				this.devices[ip].ip = ip;
-			}
-			this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
-		});
+			});
+		} catch (error) {
+			this.errorHandler(`[scanDevices]`, error)
+		}
 	}
 
 	/**
@@ -1060,20 +1093,33 @@ class Wled extends utils.Adapter {
 			common.write && this.subscribeStates(stateName);
 
 		} catch (error) {
-			this.log.error('Create state error = ' + error);
+			this.errorHandler(`[create_state]`, error)
+		}
+	}
+
+	/**
+	 * Wrapper for error handling
+	 * @param {string} source Message to send
+	 * @param {any} error Error message (including stack) to handle exceptions
+	 * @param {boolean=} debugMode - Error message (including stack) to handle exceptions
+	 */
+	errorHandler(source, error, debugMode) {
+		let message = error;
+		if (error instanceof Error && error.stack != null) message = error.stack;
+		if (!debugMode) {
+			this.log.error(`${source} ${error}`);
+			this.sendSentry(`${message}`);
+		} else {
+			this.log.error(`${source} ${error}`);
+			this.log.debug(`${source} ${message}`);
 		}
 	}
 
 	/**
 	 * Sentry error message handler
-	 * @param {string} msg Message to send
-	 * @param {object} error Error message (including stack) to handle exceptions
+	 * @param {string} sentryMessage Message to send
 	 */
-	sendSentry(msg, error) {
-
-		let sentryMessage = msg; // If no (stack) error is provided just send the message
-		if (error) sentryMessage = `${msg} | Error : ${error} | StackTrace : ${error.stack}}`;
-
+	sendSentry(sentryMessage) {
 
 		if (!disableSentry) {
 			if (this.supportsFeature && this.supportsFeature('PLUGINS')) {

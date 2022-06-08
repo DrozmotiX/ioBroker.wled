@@ -1,8 +1,8 @@
 version: 2
 updates:
-- package-ecosystem: npm
-  directory: "/"
-  schedule:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
     interval: monthly
     time: "04:00"
     timezone: Europe/Berlin
@@ -11,5 +11,5 @@ updates:
   target-branch: "dependencyAutoUpdate"
   open-pull-requests-limit: 20
   assignees:
-  - DrozmotiX
+      - DutchmanNL
   versioning-strategy: increase

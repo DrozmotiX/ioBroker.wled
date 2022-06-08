@@ -11,5 +11,5 @@ updates:
   target-branch: "dependencyAutoUpdate"
   open-pull-requests-limit: 20
   assignees:
-      - DutchmanNL
+  - DutchmanNL
   versioning-strategy: increase

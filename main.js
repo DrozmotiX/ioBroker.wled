@@ -113,8 +113,10 @@ class Wled extends utils.Adapter {
 				try {
 					// Close socket connection
 					ws[device].close();
-				} catch (e) {
-					this.log.error(e);
+				} catch (error) {
+					let message = error;
+					if (error instanceof Error && error.stack != null) message = error.stack;
+					this.log.error(`Error closing webSocket connection to ${device} | ${message}`);
 				}
 			}
 
@@ -128,13 +130,13 @@ class Wled extends utils.Adapter {
 				this.setState('info.connection', false, true);
 				callback();
 			} catch (error) {
-				this.errorHandler(`[onStateChange]`, error)
+				this.errorHandler(`[onStateChange]`, error);
 				this.setState('info.connection', false, true);
 				callback();
 			}
 
 		} catch (error) {
-			this.errorHandler(`[onStateChange]`, error)
+			this.errorHandler(`[onStateChange]`, error);
 		}
 
 	}
@@ -333,7 +335,7 @@ class Wled extends utils.Adapter {
 			}
 
 		} catch (error) {
-			this.errorHandler(`[onStateChange]`, error)
+			this.errorHandler(`[onStateChange]`, error);
 		}
 	}
 
@@ -347,11 +349,10 @@ class Wled extends utils.Adapter {
 
 		try {
 			// responds to the adapter that sent the original message
-			function respond(response, that) {
+			const respond = (response, that) => {
 				if (obj.callback)
 					that.sendTo(obj.from, obj.command, response, obj.callback);
-			}
-
+			};
 			this.log.debug('Data from configuration received : ' + JSON.stringify(obj));
 
 			//Response to manual adding of devices & device deletion
@@ -371,7 +372,7 @@ class Wled extends utils.Adapter {
 			}
 
 		} catch (error) {
-			this.errorHandler(`[onMessage]`, error)
+			this.errorHandler(`[onMessage]`, error);
 		}
 	}
 
@@ -414,8 +415,10 @@ class Wled extends utils.Adapter {
 				} else {
 					this.log.warn(`Unhandled message received ${data}`);
 				}
-			}  catch (e) {
-				this.log.error(e);
+			}  catch (error) {
+				let message = error;
+				if (error instanceof Error && error.stack != null) message = error.stack;
+				this.log.error(`WebSocket message error for ${deviceIP} | ${message}`);
 			}
 		});
 
@@ -482,8 +485,8 @@ class Wled extends utils.Adapter {
 					this.effects[device_id][i] = effects[i];
 				}
 			} catch (e){
-				this.log.debug(`Cannot create effect dropdown`)
-				this.errorHandler(`[handleBasicStates]`, `Cannot create effect dropdown`, true)
+				this.log.debug(`Cannot create effect dropdown`);
+				this.errorHandler(`[handleBasicStates]`, `Cannot create effect dropdown`, true);
 			}
 
 			// Store / Update  pallets
@@ -505,7 +508,7 @@ class Wled extends utils.Adapter {
 			await this.handleStates(deviceData, deviceIP);
 
 		} catch (error) {
-			this.errorHandler(`[handleBasicStates]`, error)
+			this.errorHandler(`[handleBasicStates]`, error);
 		}
 	}
 
@@ -710,7 +713,7 @@ class Wled extends utils.Adapter {
 			this.create_state(infoStates.mac  + '._info' + '._online', `Online status`, true);
 
 		} catch (error) {
-			this.errorHandler(`[handleStates]`, error)
+			this.errorHandler(`[handleStates]`, error);
 		}
 	}
 
@@ -761,21 +764,21 @@ class Wled extends utils.Adapter {
 					try {
 						await this.getDeviceJSON(deviceIP);
 					} catch (error) {
-						this.errorHandler(`[watchDog]`, error)
+						this.errorHandler(`[watchDog]`, error);
 					}
 				}
 			} else { // If WS-Ping not supported, use http-API
 				try {
 					await this.getDeviceJSON(deviceIP);
 				} catch (error) {
-					this.errorHandler(`[watchDog]`, error)
+					this.errorHandler(`[watchDog]`, error);
 
 				}
 			}
 
 		} catch (error) {
-				this.errorHandler(`[handleStates]`, error)
-			}
+			this.errorHandler(`[handleStates]`, error);
+		}
 
 		// Reset timer (if running) and start new one for next watchdog interval
 		if (watchdogTimer[deviceIP]) {
@@ -877,7 +880,7 @@ class Wled extends utils.Adapter {
 				return 'failed';
 			}
 		} catch (error) {
-			this.errorHandler(`[getDeviceJSON]`, error)
+			this.errorHandler(`[getDeviceJSON]`, error);
 		}
 	}
 
@@ -899,7 +902,7 @@ class Wled extends utils.Adapter {
 				});
 			return result;
 		} catch (error) {
-			this.errorHandler(`[postAPI]`, error)
+			this.errorHandler(`[postAPI]`, error);
 		}
 	}
 
@@ -928,7 +931,7 @@ class Wled extends utils.Adapter {
 				await this.getDeviceJSON(deviceIP);
 			}
 		}catch (error) {
-			this.errorHandler(`[tryKnownDevices]`, error)
+			this.errorHandler(`[tryKnownDevices]`, error);
 		}
 
 	}
@@ -968,7 +971,7 @@ class Wled extends utils.Adapter {
 				this.log.debug('Devices array from bonjour scan : ' + JSON.stringify(this.devices));
 			});
 		} catch (error) {
-			this.errorHandler(`[scanDevices]`, error)
+			this.errorHandler(`[scanDevices]`, error);
 		}
 	}
 
@@ -1093,7 +1096,7 @@ class Wled extends utils.Adapter {
 			common.write && this.subscribeStates(stateName);
 
 		} catch (error) {
-			this.errorHandler(`[create_state]`, error)
+			this.errorHandler(`[create_state]`, error);
 		}
 	}
 

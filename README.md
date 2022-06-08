@@ -48,8 +48,8 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__ - Bugfix [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
-* (DutchmanNL) Cannot read property 'initialized' of undefined handleStates solve [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
+### 0.6.7 (2022-06-08) - Bugfix [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
+* (DutchmanNL) Bugfix: Cannot read property 'initialized' of undefined handleStates solved [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
 
 ### 0.6.6 (2022-06-08) - Log messages and error reporting improved
 * (DutchmanNL) Log messages and error reporting improved
@@ -66,12 +66,6 @@ When the adapter crashes or another Code error happens, this error message that 
 
 ### 0.6.1 (2021-09-08)
 * (DutchmanNL) Missing state definitions WLED FW 0.13.0-b12 added.
-
-### 0.6.0 (2021-08-31) - Support Websocket connections
-* (DutchmanNL) System load reduced
-* (DutchmanNL) All warnings related to JS-Controller 3.x checks solved
-* (DutchmanNL) Ensure legacy support of WLED FW < 0.12 (fallback to http-API instead of websocket)
-* (DutchmanNL) Communication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12
 
 ## License
 MIT License

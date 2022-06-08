@@ -1,4 +1,10 @@
 # Older changes
+## 0.6.0 (2021-08-31) - Support Websocket connections
+* (DutchmanNL) System load reduced
+* (DutchmanNL) All warnings related to JS-Controller 3.x checks solved
+* (DutchmanNL) Ensure legacy support of WLED FW < 0.12 (fallback to http-API instead of websocket)
+* (DutchmanNL) Communication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12
+
 ## 0.5.9 (2021-08-11)
 * (DutchmanNL) added new state attributes reported by Sentry
 * (DutchmanNL) added min & max for brightness value to support iOT adapter

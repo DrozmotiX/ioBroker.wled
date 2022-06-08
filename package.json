@@ -1,6 +1,6 @@
 {
   "name": "iobroker.wled",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!",
   "author": {
     "name": "DutchmanNL",
@@ -38,6 +38,7 @@
     "@alcalzone/release-script": "3.5.9",
     "@alcalzone/release-script-plugin-iobroker": "3.5.9",
     "@alcalzone/release-script-plugin-license": "3.5.9",
+    "@iobroker/adapter-dev": "^1.0.0",
     "@iobroker/testing": "^3.0.2",
     "@types/chai": "^4.3.1",
     "@types/chai-as-promised": "^7.1.5",
@@ -65,7 +66,8 @@
     "test:integration": "mocha test/integration --exit",
     "test": "npm run test:js && npm run test:package",
     "lint": "eslint",
-    "release": "release-script"
+    "release": "release-script",
+    "translate": "translate-adapter"
   },
   "bugs": {
     "url": "https://github.com/DrozmotiX/ioBroker.wled/issues"

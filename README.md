@@ -48,9 +48,9 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__
+### 0.6.6 (2022-06-08) - Log messages and error reporting improved
 * (DutchmanNL) Log messages and error reporting improved
-* (DutchmanNL) Do not send missing attribute definitions to sentry
+* (DutchmanNL) Don't send missing attribute definitions to Sentry
 
 ### 0.6.5 (2022-06-04) - Correct indication of connection state
 * (DutchmanNL) Dependency updates
@@ -69,10 +69,6 @@ When the adapter crashes or another Code error happens, this error message that 
 * (DutchmanNL) All warnings related to JS-Controller 3.x checks solved
 * (DutchmanNL) Ensure legacy support of WLED FW < 0.12 (fallback to http-API instead of websocket)
 * (DutchmanNL) Communication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12
-
-### 0.5.9 (2021-08-11)
-* (DutchmanNL) added new state attributes reported by Sentry
-* (DutchmanNL) added min & max for brightness value to support iOT adapter
 
 ## License
 MIT License

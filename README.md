@@ -48,6 +48,9 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__ - Bugfix [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
+* (DutchmanNL) Cannot read property 'initialized' of undefined handleStates solve [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
+
 ### 0.6.6 (2022-06-08) - Log messages and error reporting improved
 * (DutchmanNL) Log messages and error reporting improved
 * (DutchmanNL) Don't send missing attribute definitions to Sentry

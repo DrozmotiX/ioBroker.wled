@@ -520,7 +520,7 @@ class Wled extends utils.Adapter {
 			const deviceStates = deviceData.state;
 			infoStates.ip = infoStates.ip !== undefined ? infoStates.ip : ipAddress;
 
-			if (!this.devices[infoStates.ip].initialized) {
+			if (!this.devices[ipAddress].initialized) {
 				await this.setObjectNotExistsAsync(infoStates.mac + '._info', {
 					type: 'channel',
 					common: {
@@ -534,7 +534,7 @@ class Wled extends utils.Adapter {
 			for (const i in infoStates) {
 
 				// Create Info channels
-				if (!this.devices[infoStates.ip].initialized) {
+				if (!this.devices[ipAddress].initialized) {
 
 					// Create Channels for led and  wifi configuration
 					switch (i) {
@@ -591,7 +591,7 @@ class Wled extends utils.Adapter {
 				// Create Channels for nested states
 				switch (i) {
 					case ('ccnf'):
-						if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.ccnf', {
+						if (!this.devices[ipAddress].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.ccnf', {
 							type: 'channel',
 							common: {
 								name: 'ccnf',
@@ -601,7 +601,7 @@ class Wled extends utils.Adapter {
 						break;
 
 					case ('nl'):
-						if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.nl', {
+						if (!this.devices[ipAddress].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.nl', {
 							type: 'channel',
 							common: {
 								name: 'Nightlight',
@@ -611,7 +611,7 @@ class Wled extends utils.Adapter {
 						break;
 
 					case ('udpn'):
-						if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.udpn', {
+						if (!this.devices[ipAddress].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.udpn', {
 							type: 'channel',
 							common: {
 								name: 'Broadcast (UDP sync)',
@@ -624,7 +624,7 @@ class Wled extends utils.Adapter {
 
 						this.log.debug('Segment Array : ' + JSON.stringify(deviceStates[i]));
 
-						if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.seg', {
+						if (!this.devices[ipAddress].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.seg', {
 							type: 'channel',
 							common: {
 								name: 'Segmentation',
@@ -634,7 +634,7 @@ class Wled extends utils.Adapter {
 
 						for (const y in deviceStates[i]) {
 
-							if (!this.devices[infoStates.ip].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.seg.' + y, {
+							if (!this.devices[ipAddress].initialized) await this.setObjectNotExistsAsync(infoStates.mac + '.seg.' + y, {
 								type: 'channel',
 								common: {
 									name: 'Segment ' + y,
@@ -699,14 +699,14 @@ class Wled extends utils.Adapter {
 				}
 			}
 
-			if (!this.devices[infoStates.ip].initialized) {
-				this.devices[infoStates.ip].initialized = true;
+			if (!this.devices[ipAddress].initialized) {
+				this.devices[ipAddress].initialized = true;
 				// Start websocket connection and and listen to state changes
-				await this.handleWebSocket(infoStates.ip);
+				await this.handleWebSocket(ipAddress);
 			}
 
 			// Update device working state
-			if (!this.devices[infoStates.ip].connected) this.devices[infoStates.ip].connected = true;
+			if (!this.devices[ipAddress].connected) this.devices[ipAddress].connected = true;
 			this.create_state(infoStates.mac  + '._info' + '._online', `Online status`, true);
 
 		} catch (error) {

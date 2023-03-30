@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "wled",
-    "version": "0.6.7",
+    "version": "0.6.8",
     "news": {
       "0.6.7": {
         "en": "Bugfix: Cannot read property 'initialized' of undefined handleStates solved [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",

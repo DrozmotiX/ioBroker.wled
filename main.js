@@ -211,15 +211,20 @@ class Wled extends utils.Adapter {
 									if (!colorTertiaryHex) return;
 
 									// Use library to translate HEX values into proper RGB
+									//hex RGB calculate Alpha channel in 0 to 1 Wled need a value between 0 and 255 so the alpha channel from HEXRGB has to multiple by 255
 									const colorPrimaryRGB = hexRgb(colorPrimaryHex.val);
+									colorPrimaryRGB.alpha = colorPrimaryRGB.alpha*255
 									const colorSecondaryRGB = hexRgb(colorSecondaryHex.val);
+									colorSecondaryRGB.alpha = colorSecondaryRGB.alpha*255
 									const colorTertiaryRGB = hexRgb(colorTertiaryHex.val);
+									colorTertiaryRGB.alpha = colorTertiaryRGB.alpha*255
 
 									// Build RGB JSON string to be send to WLED
+									//add aditional Alpha channel when RGBW is used
 									rgb_all = [
-										[colorPrimaryRGB.red, colorPrimaryRGB.green, colorPrimaryRGB.blue],
-										[colorSecondaryRGB.red, colorSecondaryRGB.green, colorSecondaryRGB.blue],
-										[colorTertiaryRGB.red, colorTertiaryRGB.green, colorTertiaryRGB.blue]
+										[colorPrimaryRGB.red, colorPrimaryRGB.green, colorPrimaryRGB.blue,colorPrimaryRGB.alpha],
+										[colorSecondaryRGB.red, colorSecondaryRGB.green, colorSecondaryRGB.blue,colorSecondaryRGB.alpha],
+										[colorTertiaryRGB.red, colorTertiaryRGB.green, colorTertiaryRGB.blue,colorTertiaryRGB.alpha]
 									];
 
 									this.log.debug('Converted RGB values of HEX input : ' + colorPrimaryRGB + ' : ' + colorSecondaryRGB + ' : ' + colorTertiaryRGB);
@@ -237,10 +242,12 @@ class Wled extends utils.Adapter {
 								try {
 
 									// Get all 3 RGB values from states and ensure all 3 color's are always submitted in 1 JSON string !
+									//Val String is [R,G,B] so the first part of array will be '[R' which will result in NAN on parseInt. The '[' has to be cut out of the string before split and parseInt
 									let color_primary = await this.getStateAsync(color_root + '.0');
 									if (!color_primary) return;
 									this.log.debug('Primary color before split : ' + color_primary.val);
 									try {
+										color_primary.val = color_primary.val.replace("[","");
 										color_primary = color_primary.val.split(',').map(s => parseInt(s));
 									} catch (error) {
 										if (!color_primary) return;
@@ -251,6 +258,7 @@ class Wled extends utils.Adapter {
 									if (!color_secondary) return;
 									this.log.debug('Secondary color : ' + color_secondary.val);
 									try {
+										color_secondary.val = color_secondary.val.replace("[","");
 										color_secondary = color_secondary.val.split(',').map(s => parseInt(s));
 									} catch (error) {
 										if (!color_secondary) return;
@@ -261,6 +269,7 @@ class Wled extends utils.Adapter {
 									if (!color_tertiary) return;
 									this.log.debug('Tertiary color : ' + color_tertiary.val);
 									try {
+										color_tertiary.val = color_tertiary.val.replace("[","");
 										color_tertiary = color_tertiary.val.split(',').map(s => parseInt(s));
 									} catch (error) {
 										if (!color_tertiary) return;
@@ -656,12 +665,15 @@ class Wled extends utils.Adapter {
 									this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(deviceStates[i][y][x][0]));
 
 									// Translate RGB values to HEX
-									const primaryRGB = deviceStates[i][y][x][0].toString().split(',');
-									const primaryHex = rgbHex(parseInt(primaryRGB[0]), parseInt(primaryRGB[1]), parseInt(primaryRGB[2]));
+									//added additional Alpha channel, necessary if WLED is setup for RGBW Stripes. 
+									//so on normal RGB Stripes Hex has 6 digits on RGBW Stripes Hex as 8 digits. The 2 additional digits for the white channel slider
+									cconst primaryRGB = deviceStates[i][y][x][0].toString().split(',');
+									const primaryHex = rgbHex(parseInt(primaryRGB[0]), parseInt(primaryRGB[1]), parseInt(primaryRGB[2]),isNaN(parseInt(primaryRGB[3]) /255) ? undefined : parseInt(primaryRGB[3]) /255);
 									const secondaryRGB = deviceStates[i][y][x][1].toString().split(',');
-									const secondaryHex = rgbHex(parseInt(secondaryRGB[0]), parseInt(secondaryRGB[1]), parseInt(secondaryRGB[2]));
+									const secondaryHex = rgbHex(parseInt(secondaryRGB[0]), parseInt(secondaryRGB[1]), parseInt(secondaryRGB[2]),isNaN(parseInt(secondaryRGB[3]) /255) ? undefined : parseInt(secondaryRGB[3]) /255);
 									const tertiaryRGB = deviceStates[i][y][x][2].toString().split(',');
-									const tertiaryHex = rgbHex(parseInt(tertiaryRGB[0]), parseInt(tertiaryRGB[1]), parseInt(tertiaryRGB[2]));
+									const tertiaryHex = rgbHex(parseInt(tertiaryRGB[0]), parseInt(tertiaryRGB[1]), parseInt(tertiaryRGB[2]), isNaN(parseInt(tertiaryRGB[3]) /255) ? undefined : parseInt(tertiaryRGB[3]) /255);
+
 
 									// Write RGB and HEX information to states
 									await this.create_state(infoStates.mac + '.' + i + '.' + y + '.' + x + '.0', 'Primary Color RGB', deviceStates[i][y][x][0]);

@@ -667,7 +667,7 @@ class Wled extends utils.Adapter {
 									// Translate RGB values to HEX
 									//added additional Alpha channel, necessary if WLED is setup for RGBW Stripes. 
 									//so on normal RGB Stripes Hex has 6 digits on RGBW Stripes Hex as 8 digits. The 2 additional digits for the white channel slider
-									cconst primaryRGB = deviceStates[i][y][x][0].toString().split(',');
+									const primaryRGB = deviceStates[i][y][x][0].toString().split(',');
 									const primaryHex = rgbHex(parseInt(primaryRGB[0]), parseInt(primaryRGB[1]), parseInt(primaryRGB[2]),isNaN(parseInt(primaryRGB[3]) /255) ? undefined : parseInt(primaryRGB[3]) /255);
 									const secondaryRGB = deviceStates[i][y][x][1].toString().split(',');
 									const secondaryHex = rgbHex(parseInt(secondaryRGB[0]), parseInt(secondaryRGB[1]), parseInt(secondaryRGB[2]),isNaN(parseInt(secondaryRGB[3]) /255) ? undefined : parseInt(secondaryRGB[3]) /255);

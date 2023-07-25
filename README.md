@@ -48,7 +48,13 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+
+### __WORK IN PROGRESS__
+* several fixes by [HaggardFFM](https://github.com/HaggardFFM) fixes #479, #423
+* implement white color channel by [HaggardFFM](https://github.com/HaggardFFM), fixes #306, #306
+
 ### 0.6.7 (2022-06-08) - Bugfix [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
+* several fixes by @HaggardFFM
 * (DutchmanNL) Bugfix: Cannot read property 'initialized' of undefined handleStates solved [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
 
 ### 0.6.6 (2022-06-08) - Log messages and error reporting improved

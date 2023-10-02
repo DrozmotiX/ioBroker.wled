@@ -48,7 +48,7 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-### 0.7.1 (2023-07-25)
+### 0.7.1 (2023-10-02)
 * several fixes by [HaggardFFM](https://github.com/HaggardFFM) fixes #479, #423
 * (DutchmanNL) missing state attribute definitions added
 * implement white color channel by [HaggardFFM](https://github.com/HaggardFFM), fixes #306, #306

@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "wled",
-        "version": "0.7.0",
+        "version": "0.7.1",
         "news": {
-            "0.7.0": {
+            "0.7.1": {
                 "en": "White color channel implemented, bugfixes",
                 "de": "Weißer Farbkanal implementiert, Bugfixes",
                 "ru": "Реализован канал белого цвета, исправления",

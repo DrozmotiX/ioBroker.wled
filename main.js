@@ -665,7 +665,7 @@ class Wled extends utils.Adapter {
 									this.log.debug('Naming  : ' + x + ' with content : ' + JSON.stringify(deviceStates[i][y][x][0]));
 
 									// Translate RGB values to HEX
-									//added additional Alpha channel, necessary if WLED is setup for RGBW Stripes. 
+									//added additional Alpha channel, necessary if WLED is setup for RGBW Stripes.
 									//so on normal RGB Stripes Hex has 6 digits on RGBW Stripes Hex as 8 digits. The 2 additional digits for the white channel slider
 									const primaryRGB = deviceStates[i][y][x][0].toString().split(',');
 									const primaryHex = rgbHex(parseInt(primaryRGB[0]), parseInt(primaryRGB[1]), parseInt(primaryRGB[2]),isNaN(parseInt(primaryRGB[3]) /255) ? undefined : parseInt(primaryRGB[3]) /255);
@@ -1008,7 +1008,7 @@ class Wled extends utils.Adapter {
 			if (!stateAttr[name]) {
 				const warnMessage = `State attribute definition missing for : ${name}`;
 				if (warnMessages[name] !== warnMessage) {
-					this.log.warn(`State attribute definition missing for : ${name} with value : ${value}`);
+					this.log.debug(`State attribute definition missing for : ${name} with value : ${value}`);
 				}
 			}
 

@@ -28,7 +28,7 @@ Don't worry, in that case you can add the device manually by IP-Address.
 
 1) Ensure your WLED device is running and reachable by network
 2) Install the adapter
-3) Configure intervall times for data polling and auto-detect cycles  
+3) Configure interval times for data polling and auto-detect cycles  
 4 - A) Start the adapter, devices should be detected automatically  
 4 - B) If A fails, use the Add-Device button and provide the device IP-Address  
 5) Adapter will send changes immediately and polls data every x seconds (configurable)
@@ -48,6 +48,10 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+
+### __WORK IN PROGRESS__
+* (DutchmanNL) Show online state of device in object tree
+
 ### 0.7.1 (2023-10-02)
 * several fixes by [HaggardFFM](https://github.com/HaggardFFM) fixes #479, #423
 * (DutchmanNL) missing state attribute definitions added

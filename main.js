@@ -51,6 +51,9 @@ class Wled extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
+
+		await this.resetOnlineStates();
+
 		// Read already known devices
 		await this.tryKnownDevices();
 
@@ -476,7 +479,11 @@ class Wled extends utils.Adapter {
 				await this.extendObjectAsync(device_id, {
 					type: 'device',
 					common: {
-						name: deviceData.info.name
+						name: deviceData.info.name,
+						statusStates: {
+							onlineId: `${this.namespace}.${device_id}._info._online`
+						}
+
 					},
 					native: {
 						ip: deviceIP,
@@ -1165,6 +1172,37 @@ class Wled extends utils.Adapter {
 
 		} catch (error) {
 			// do nothing
+		}
+	}
+
+	async resetOnlineStates(){
+		try {
+			// Set parameters for object view to only include objects within adapter namespace
+			const params = {
+				startkey : `${this.namespace}.`,
+				endkey : `${this.namespace}.\u9999`,
+			};
+
+			// Get all current devices in adapter tree
+			const _devices = await this.getObjectViewAsync('system', 'device', params);
+			// List all found devices & set online state to false
+			for (const currDevice in _devices.rows) {
+
+				// Extend online state to device (to ensure migration of version < 0.3.1
+				await this.extendObjectAsync(_devices.rows[currDevice].id, {
+					common: {
+						statusStates: {
+							onlineId: `${_devices.rows[currDevice].id}._info._online`
+						}
+					},
+				});
+
+				// Set online state to false, will be set to true at successfully connected
+				this.setState(`${_devices.rows[currDevice].id}._info._online`, {val: false, ack: true});
+			}
+
+		} catch (e) {
+			this.log.error(`[resetOnlineState] ${e}`);
 		}
 	}
 }

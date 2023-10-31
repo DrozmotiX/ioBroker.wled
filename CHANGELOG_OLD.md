@@ -1,4 +1,8 @@
 # Older changes
+## 0.6.3 (2021-09-08) - HotFixes
+* (DutchmanNL) Missing dropdown for ID of effects added
+* (DutchmanNL) HotFix: Missing axios dependency added
+
 ## 0.6.1 (2021-09-08)
 * (DutchmanNL) Missing state definitions WLED FW 0.13.0-b12 added.
 

@@ -1,201 +1,188 @@
 {
-    "common": {
-        "name": "wled",
-        "version": "0.7.1",
-        "news": {
-            "0.7.1": {
-                "en": "White color channel implemented, bugfixes",
-                "de": "Weißer Farbkanal implementiert, Bugfixes",
-                "ru": "Реализован канал белого цвета, исправления",
-                "pt": "Canal de cor branca implementado, correções de bugs",
-                "nl": "Wit kleurenkanaal geïmplementeerd, bugfixes",
-                "fr": "Canal de couleur blanche implémenté, corrections de bugs",
-                "it": "Canale di colore bianco implementato, correzioni di bug",
-                "es": "Canal de color blanco implementado, corrección de errores",
-                "pl": "Zaimplementowano kanał koloru białego, poprawki błędów",
-                "uk": "Реалізовано канал білого кольору, виправлено помилки",
-                "zh-cn": "实施白色通道，修复错误"
-            },
-            "0.6.7": {
-                "en": "Bugfix: Cannot read property 'initialized' of undefined handleStates solved [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-                "de": "Bugfix: Kann nicht lesen Eigenschaft initialisiert undefinierten Griff Staaten gelöst [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-                "ru": "Bugfix: Не смогите прочитать свойство инициализировать неопределенную ручку Государства решены [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-                "pt": "Bugfix: Não é possível ler propriedade inicializada de alça indefinida Estados resolvidos [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-                "nl": "Bugfix: Kan geen eigendom lezen van onbepaalde regeling Quality over Quantity (QoQ) Releases Vertaling:",
-                "fr": "Bugfix: Cannot read property initialized of undefined handle États résolus [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-                "it": "Bugfix: Non può leggere la proprietà inizializzata di maniglia non definita Stati risolti [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-                "es": "Bugfix: No se puede leer propiedad inicializada de mango indefinido Estados resueltos [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-                "pl": "Bugfix: Cannot odczytuje własność nieokreśloną Państwa rozwiązane są na #400 (https:/github.com/DrozmotiX/ioBroker.wled/400)",
-                "zh-cn": "Bugfix: 未确定处理的财产 国家解决[第400号](http://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-                "uk": "Виправлення: неможливо прочитати властивість «initialized» невизначеного handleStates [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)"
-            },
-            "0.6.6": {
-                "en": "Log messages and error reporting improved\nDon't send missing attribute definitions to Sentry",
-                "de": "Protokollmeldungen und Fehlermeldungen verbessert\nSendet keine fehlenden Attributdefinitionen an Sentry",
-                "ru": "Улучшены сообщения журнала и отчеты об ошибках.\n",
-                "pt": "Mensagens de log e relatórios de erros aprimorados\n",
-                "nl": "Logberichten en foutrapportage verbeterd\nStuur ontbrekende attribuutdefinities niet naar Sentry",
-                "fr": "Messages du journal et rapports d'erreurs améliorés\n",
-                "it": "Messaggi di registro e segnalazione degli errori migliorati\n",
-                "es": "Mensajes de registro e informes de errores mejorados\n",
-                "pl": "Poprawiono komunikaty dziennika i raportowanie błędów\n",
-                "zh-cn": "改进了日志消息和错误报告\n",
-                "uk": "Покращено журнал повідомлень і звіт про помилки\nНе надсилайте визначення відсутніх атрибутів до Sentry"
-            },
-            "0.6.5": {
-                "en": "Dependency updates\nBugfix: Correct indication of connection state #307\nImprove error messages & sentry reporting",
-                "de": "Abhängigkeitsaktualisierungen\nBugfix: Korrekte Anzeige des Verbindungsstatus #307\nVerbessern Sie Fehlermeldungen und Sentry-Berichte",
-                "ru": "Обновления зависимостей\nИсправление: корректная индикация состояния подключения #307.\nУлучшить сообщения об ошибках и отчеты об ошибках",
-                "pt": "Atualizações de dependência\nBugfix: Indicação correta do estado de conexão #307\nMelhore as mensagens de erro e os relatórios de sentinela",
-                "nl": "Afhankelijkheidsupdates\nBugfix: Correcte indicatie van verbindingsstatus #307\nVerbeter foutmeldingen en schildwachtrapportage",
-                "fr": "Mises à jour des dépendances\nCorrectif : indication correcte de l'état de la connexion #307\nAméliorez les messages d'erreur et les rapports de sentinelle",
-                "it": "Aggiornamenti delle dipendenze\nBugfix: corretta indicazione dello stato di connessione #307\nMigliora i messaggi di errore e la segnalazione delle sentinelle",
-                "es": "actualizaciones de dependencia\nCorrección de error: Indicación correcta del estado de conexión #307\nMejorar los mensajes de error y los informes de centinela",
-                "pl": "Aktualizacje zależności\nBugfix: Poprawne wskazanie stanu połączenia #307\nPopraw komunikaty o błędach i raportowanie wartowników",
-                "zh-cn": "依赖更新\n错误修正：正确指示连接状态 #307\n改进错误消息和哨兵报告",
-                "uk": "Оновлення залежностей\nВиправлення: правильна індикація стану підключення №307\nПокращення повідомлень про помилки та сторожових звітів"
-            },
-            "0.6.3": {
-                "en": "Missing dropdown for ID of effects added\nHotFix: Missing axios dependency added",
-                "de": "Fehlende Dropdown-Liste für die ID der hinzugefügten Effekte\nHotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
-                "ru": "Отсутствует раскрывающийся список для идентификатора добавленных эффектов.\nHotFix: добавлена отсутствующая зависимость axios",
-                "pt": "Lista suspensa ausente para ID de efeitos adicionados\nHotFix: Dependência de axios ausente adicionada",
-                "nl": "Ontbrekende vervolgkeuzelijst voor ID van toegevoegde effecten\nHotFix: ontbrekende axios-afhankelijkheid toegevoegd",
-                "fr": "Liste déroulante manquante pour l'ID des effets ajoutés\nHotFix : Ajout d'une dépendance axios manquante",
-                "it": "Menu a discesa mancante per l'ID degli effetti aggiunti\nHotFix: aggiunta dipendenza Axios mancante",
-                "es": "Falta el menú desplegable para la identificación de los efectos agregados\nHotFix: Se agregó la dependencia de axios faltante",
-                "pl": "Brakujące menu dla identyfikatora dodanych efektów\nPoprawka: dodano brakującą zależność axios",
-                "zh-cn": "缺少添加效果 ID 的下拉菜单\nHotFix：添加了缺少 axios 依赖项",
-                "uk": "Відсутнє спадне меню для ідентифікатора доданих ефектів\nВиправлення: додано відсутність залежності axios"
-            },
-            "0.6.2": {
-                "en": "HotFix: Missing axios dependency added",
-                "de": "HotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
-                "ru": "HotFix: добавлена отсутствующая зависимость axios",
-                "pt": "HotFix: Dependência de axios ausente adicionada",
-                "nl": "HotFix: ontbrekende axios-afhankelijkheid toegevoegd",
-                "fr": "HotFix : Ajout d'une dépendance axios manquante",
-                "it": "HotFix: aggiunta dipendenza Axios mancante",
-                "es": "HotFix: Se agregó la dependencia de axios faltante",
-                "pl": "Poprawka: dodano brakującą zależność axios",
-                "zh-cn": "HotFix：添加了缺少 axios 依赖项",
-                "uk": "Виправлення: додано відсутність залежності axios"
-            },
-            "0.6.1": {
-                "en": "Missing state definitions WLED FW 0.13.0-b12 added.",
-                "de": "Fehlende Zustandsdefinitionen WLED FW 0.13.0-b12 hinzugefügt.",
-                "ru": "Добавлены отсутствующие определения состояний WLED FW 0.13.0-b12.",
-                "pt": "Definições de estado ausentes WLED FW 0.13.0-b12 adicionadas.",
-                "nl": "Ontbrekende statusdefinities WLED FW 0.13.0-b12 toegevoegd.",
-                "fr": "Définitions d'état manquantes ajoutées WLED FW 0.13.0-b12.",
-                "it": "Aggiunte definizioni di stato mancanti WLED FW 0.13.0-b12.",
-                "es": "Faltan definiciones de estado WLED FW 0.13.0-b12 agregadas.",
-                "pl": "Dodano brakujące definicje stanu WLED FW 0.13.0-b12.",
-                "zh-cn": "添加了缺少状态定义 WLED FW 0.13.0-b12。",
-                "uk": "Відсутні визначення стану WLED FW 0.13.0-b12 додано."
-            },
-            "0.6.0": {
-                "en": "System load reduced\nAll warnings related to JS-Controller 3.x checks solved\nEnsure legacy support of WLED FW < 0.12 (fallback to http-API instead of websocket)\nCommunication by websocket implemented, this feature allows live data updates (instead of interval polling). Requires WLED firmware >= 12",
-                "de": "Systemlast reduziert\nAlle Warnungen zu JS-Controller 3.x-Prüfungen behoben\nSicherstellen der Legacy-Unterstützung von WLED FW < 0.12 (Fallback auf http-API statt Websocket)\nKommunikation per Websocket implementiert, diese Funktion ermöglicht Live-Datenaktualisierungen (anstelle von Intervallabfragen). Benötigt WLED-Firmware >= 12",
-                "ru": "Снижена нагрузка на систему\nВсе предупреждения, связанные с проверками JS-Controller 3.x, устранены\nОбеспечьте устаревшую поддержку WLED FW <0.12 (откат к http-API вместо веб-сокета)\nРеализована связь через веб-сокет, эта функция позволяет обновлять данные в реальном времени (вместо интервального опроса). Требуется прошивка WLED> = 12",
-                "pt": "Carga do sistema reduzida\nTodos os avisos relacionados às verificações do JS-Controller 3.x resolvidos\nGaranta suporte legado de WLED FW <0,12 (fallback para http-API em vez de websocket)\nImplementada a comunicação por websocket, esse recurso permite atualizações de dados ao vivo (em vez de polling de intervalo). Requer firmware WLED> = 12",
-                "nl": "Systeembelasting verminderd\nAlle waarschuwingen met betrekking tot JS-Controller 3.x-controles opgelost\nZorg voor legacy-ondersteuning van WLED FW < 0.12 (fallback naar http-API in plaats van websocket)\nCommunicatie via websocket geïmplementeerd, deze functie maakt live gegevensupdates mogelijk (in plaats van intervalpolling). Vereist WLED-firmware >= 12",
-                "fr": "Charge du système réduite\nTous les avertissements liés aux contrôles JS-Controller 3.x résolus\nAssurer la prise en charge héritée de WLED FW < 0,12 (repli à http-API au lieu de websocket)\nCommunication par websocket implémentée, cette fonctionnalité permet des mises à jour des données en direct (au lieu de l'interrogation par intervalles). Nécessite le micrologiciel WLED >= 12",
-                "it": "Carico del sistema ridotto\nTutti gli avvisi relativi ai controlli JS-Controller 3.x sono stati risolti\nGarantire il supporto legacy di WLED FW < 0,12 (fallback a http-API anziché websocket)\nImplementata la comunicazione tramite websocket, questa funzione consente aggiornamenti dei dati in tempo reale (invece del polling a intervalli). Richiede firmware WLED >= 12",
-                "es": "Carga del sistema reducida\nTodas las advertencias relacionadas con las comprobaciones de JS-Controller 3.x resueltas\nAsegure el soporte heredado de WLED FW <0.12 (respaldo a http-API en lugar de websocket)\nImplementada la comunicación por websocket, esta función permite actualizaciones de datos en vivo (en lugar de sondeos por intervalos). Requiere firmware WLED> = 12",
-                "pl": "Zmniejszone obciążenie systemu\nWszystkie ostrzeżenia związane z kontrolami JS-Controller 3.x rozwiązane\nZapewnij starszą obsługę WLED FW < 0,12 (powrót do http-API zamiast websocket)\nZaimplementowana komunikacja przez websocket, ta funkcja umożliwia aktualizację danych na żywo (zamiast odpytywania interwałowego). Wymaga oprogramowania WLED >= 12",
-                "zh-cn": "系统负载减少\n解决了与 JS-Controller 3.x 检查相关的所有警告\n确保 WLED FW < 0.12 的传统支持（回退到 http-API 而不是 websocket）\n通过 websocket 实现通信，此功能允许实时数据更新（而不是间隔轮询）。需要 WLED 固件 >= 12",
-                "uk": "Знижене навантаження на систему\nУсі попередження, пов’язані з перевірками JS-Controller 3.x, вирішено\nЗабезпечити застарілу підтримку WLED FW < 0.12 (резервний вихід до http-API замість websocket)\nРеалізовано зв’язок через веб-сокет, ця функція дозволяє оновлювати дані в реальному часі (замість інтервального опитування). Потрібна прошивка WLED >= 12"
-            }
-        },
-        "title": "WLED",
-        "titleLang": {
-            "en": "WLED",
-            "de": "WLED",
-            "ru": "WLED",
-            "pt": "WLED",
-            "nl": "WLED",
-            "fr": "WLED",
-            "it": "WLED",
-            "es": "WLED",
-            "pl": "WLED",
-            "zh-cn": "白光LED",
-            "uk": "WLED"
-        },
-        "desc": {
-            "en": "A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!",
-            "de": "Eine schnelle und funktionsreiche Implementierung eines ESP8266 / ESP32-Webservers zur Steuerung von NeoPixel-LEDs (WS2812B, WS2811, SK6812, APA102)!",
-            "ru": "Быстрая и многофункциональная реализация веб-сервера ESP8266 / ESP32 для управления светодиодами NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "pt": "Uma implementação rápida e rica em recursos de um servidor da web ESP8266 / ESP32 para controlar os LEDs NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "nl": "Een snelle en veelzijdige implementatie van een ESP8266 / ESP32 webserver om NeoPixel (WS2812B, WS2811, SK6812, APA102) LED's te bedienen!",
-            "fr": "Une implémentation rapide et riche en fonctionnalités d'un serveur Web ESP8266 / ESP32 pour contrôler les LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "it": "Un'implementazione veloce e ricca di funzionalità di un server web ESP8266 / ESP32 per controllare i LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "es": "¡Una implementación rápida y rica en funciones de un servidor web ESP8266 / ESP32 para controlar los LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "pl": "Szybka i bogata w funkcje implementacja serwera ESP8266 / ESP32 do sterowania diodami LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
-            "zh-cn": "ESP8266 / ESP32网络服务器的快速且功能丰富的实现，用于控制NeoPixel（WS2812B，WS2811，SK6812，APA102）LED！",
-            "uk": "Швидка та багатофункціональна реалізація веб-сервера ESP8266/ESP32 для керування світлодіодами NeoPixel (WS2812B, WS2811, SK6812, APA102)!"
-        },
-        "authors": [
-            "DutchmanNL <rdrozda86@gmail.com>"
-        ],
-        "keywords": [
-            "WLED",
-            "WS2812b",
-            "RGB",
-            "RGBW"
-        ],
-        "license": "MIT",
-        "platform": "Javascript/Node.js",
-        "main": "main.js",
-        "icon": "wled.png",
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/DrozmotiX/ioBroker.wled/main/admin/wled.png",
-        "readme": "https://github.com/DrozmotiX/ioBroker.wled/blob/main/README.md",
-        "loglevel": "info",
-        "mode": "daemon",
-        "type": "lighting",
-        "compact": true,
-        "connectionType": "local",
-        "dataSource": "poll",
-        "materialize": true,
-        "plugins": {
-            "sentry": {
-                "dsn": "https://4fdfefb6abec406d84e9e1515c331cd8@sentry.drozmotix.eu/3"
-            }
-        },
-        "messagebox": true,
-        "dependencies": [
-            {
-                "js-controller": ">=3.0.0"
-            }
-        ]
+  "common": {
+    "name": "wled",
+    "version": "0.7.2",
+    "news": {
+      "0.7.2": {
+        "en": "Show online state of device in object tree\nBugfix: Update online state correctly in situation connection is lost, fixes #611\nReset brightness to 0 and on to false during adapter start and if a device disconnects, fixes #565",
+        "de": "Online-Zustand des Geräts in Objektbaum anzeigen\nBugfix: Aktualisieren Sie den Online-Zustand korrekt in Situation Verbindung verloren geht, repariert #611\nZurücksetzen der Helligkeit auf 0 und auf false während des Adapterstarts und wenn ein Gerät abschaltet, repariert #565",
+        "ru": "Показать онлайн состояние устройства в дереве объекта\nBugfix: Обновить онлайн состояние правильно в связи с ситуацией теряется, исправляет #611\nСбросить яркость до 0 и на ложный во время запуска адаптера и если устройство отключается, исправляет #565",
+        "pt": "Mostrar estado de dispositivo online na árvore de objetos\nBugfix: Atualizar estado on-line corretamente na conexão de situação é perdido, correções #611\nRepor o brilho a 0 e em falso durante o início do adaptador e se um dispositivo desligar, corrige #565",
+        "nl": "Toon online staat van apparaat in object boom\nBugfix: Update online staat correct in de situatie is verloren, fixes 611\nHerstel helderheid tot 0 en vals tijdens de adapter start en als een apparaat afbreekt, herstelt 565",
+        "fr": "Afficher l'état en ligne de l'appareil dans l'arbre objet\nBugfix: Mettre à jour l'état en ligne correctement dans la connexion de situation est perdu, corrige #611\nRéinitialiser la luminosité à 0 et à false pendant le démarrage de l'adaptateur et si un dispositif se déconnecte, corrige #565",
+        "it": "Mostra lo stato di dispositivo online in albero di oggetti\nBugfix: Aggiornare lo stato online correttamente in connessione situazione è perso, correzioni #611\nRipristina la luminosità a 0 e a false durante l'avvio dell'adattatore e se un dispositivo si disconnette, corregge #565",
+        "es": "Mostrar estado en línea del dispositivo en el árbol del objeto\nBugfix: Actualizar el estado en línea correctamente en relación con la situación se pierde, soluciones #611\nReiniciar brillo a 0 y en falso durante el inicio del adaptador y si un dispositivo se desconecta, fija #565",
+        "pl": "Strona internetowa urządzenie w drzewie obiektowym\nBugfix: W związku z tym utracono poprawnie aktualizację systemu online o numerze #611\nZwiększenie jasności do 0 i na fałszywym podczas startu adaptera i jeśli urządzenie nie odłącza #565",
+        "uk": "Показати онлайн стан пристрою в дереві об'єкта\nПомилки: Оновити онлайн стан правильно в ситуації з'єднання втрачено, фіксує #611\nВідновити яскравість до 0 і на false під час запуску адаптера і якщо пристрій відключається, закріплює #565",
+        "zh-cn": "目标树中的设备在线状况\nBugfix: 最新网上国家对局势的正确状况损失,指示第611号行动\n第565号法令规定,在适应人员开始期间,如果装置不连接,那么光明达到0.和虚假度。"
+      },
+      "0.7.1": {
+        "en": "White color channel implemented, bugfixes",
+        "de": "Weißer Farbkanal implementiert, Bugfixes",
+        "ru": "Реализован канал белого цвета, исправления",
+        "pt": "Canal de cor branca implementado, correções de bugs",
+        "nl": "Wit kleurenkanaal geïmplementeerd, bugfixes",
+        "fr": "Canal de couleur blanche implémenté, corrections de bugs",
+        "it": "Canale di colore bianco implementato, correzioni di bug",
+        "es": "Canal de color blanco implementado, corrección de errores",
+        "pl": "Zaimplementowano kanał koloru białego, poprawki błędów",
+        "uk": "Реалізовано канал білого кольору, виправлено помилки",
+        "zh-cn": "实施白色通道，修复错误"
+      },
+      "0.6.7": {
+        "en": "Bugfix: Cannot read property 'initialized' of undefined handleStates solved [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
+        "de": "Bugfix: Kann nicht lesen Eigenschaft initialisiert undefinierten Griff Staaten gelöst [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
+        "ru": "Bugfix: Не смогите прочитать свойство инициализировать неопределенную ручку Государства решены [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
+        "pt": "Bugfix: Não é possível ler propriedade inicializada de alça indefinida Estados resolvidos [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
+        "nl": "Bugfix: Kan geen eigendom lezen van onbepaalde regeling Quality over Quantity (QoQ) Releases Vertaling:",
+        "fr": "Bugfix: Cannot read property initialized of undefined handle États résolus [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
+        "it": "Bugfix: Non può leggere la proprietà inizializzata di maniglia non definita Stati risolti [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
+        "es": "Bugfix: No se puede leer propiedad inicializada de mango indefinido Estados resueltos [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
+        "pl": "Bugfix: Cannot odczytuje własność nieokreśloną Państwa rozwiązane są na #400 (https:/github.com/DrozmotiX/ioBroker.wled/400)",
+        "zh-cn": "Bugfix: 未确定处理的财产 国家解决[第400号](http://github.com/DrozmotiX/ioBroker.wled/issues/400)",
+        "uk": "Виправлення: неможливо прочитати властивість «initialized» невизначеного handleStates [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)"
+      },
+      "0.6.6": {
+        "en": "Log messages and error reporting improved\nDon't send missing attribute definitions to Sentry",
+        "de": "Protokollmeldungen und Fehlermeldungen verbessert\nSendet keine fehlenden Attributdefinitionen an Sentry",
+        "ru": "Улучшены сообщения журнала и отчеты об ошибках.\n",
+        "pt": "Mensagens de log e relatórios de erros aprimorados\n",
+        "nl": "Logberichten en foutrapportage verbeterd\nStuur ontbrekende attribuutdefinities niet naar Sentry",
+        "fr": "Messages du journal et rapports d'erreurs améliorés\n",
+        "it": "Messaggi di registro e segnalazione degli errori migliorati\n",
+        "es": "Mensajes de registro e informes de errores mejorados\n",
+        "pl": "Poprawiono komunikaty dziennika i raportowanie błędów\n",
+        "zh-cn": "改进了日志消息和错误报告\n",
+        "uk": "Покращено журнал повідомлень і звіт про помилки\nНе надсилайте визначення відсутніх атрибутів до Sentry"
+      },
+      "0.6.5": {
+        "en": "Dependency updates\nBugfix: Correct indication of connection state #307\nImprove error messages & sentry reporting",
+        "de": "Abhängigkeitsaktualisierungen\nBugfix: Korrekte Anzeige des Verbindungsstatus #307\nVerbessern Sie Fehlermeldungen und Sentry-Berichte",
+        "ru": "Обновления зависимостей\nИсправление: корректная индикация состояния подключения #307.\nУлучшить сообщения об ошибках и отчеты об ошибках",
+        "pt": "Atualizações de dependência\nBugfix: Indicação correta do estado de conexão #307\nMelhore as mensagens de erro e os relatórios de sentinela",
+        "nl": "Afhankelijkheidsupdates\nBugfix: Correcte indicatie van verbindingsstatus #307\nVerbeter foutmeldingen en schildwachtrapportage",
+        "fr": "Mises à jour des dépendances\nCorrectif : indication correcte de l'état de la connexion #307\nAméliorez les messages d'erreur et les rapports de sentinelle",
+        "it": "Aggiornamenti delle dipendenze\nBugfix: corretta indicazione dello stato di connessione #307\nMigliora i messaggi di errore e la segnalazione delle sentinelle",
+        "es": "actualizaciones de dependencia\nCorrección de error: Indicación correcta del estado de conexión #307\nMejorar los mensajes de error y los informes de centinela",
+        "pl": "Aktualizacje zależności\nBugfix: Poprawne wskazanie stanu połączenia #307\nPopraw komunikaty o błędach i raportowanie wartowników",
+        "zh-cn": "依赖更新\n错误修正：正确指示连接状态 #307\n改进错误消息和哨兵报告",
+        "uk": "Оновлення залежностей\nВиправлення: правильна індикація стану підключення №307\nПокращення повідомлень про помилки та сторожових звітів"
+      },
+      "0.6.3": {
+        "en": "Missing dropdown for ID of effects added\nHotFix: Missing axios dependency added",
+        "de": "Fehlende Dropdown-Liste für die ID der hinzugefügten Effekte\nHotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
+        "ru": "Отсутствует раскрывающийся список для идентификатора добавленных эффектов.\nHotFix: добавлена отсутствующая зависимость axios",
+        "pt": "Lista suspensa ausente para ID de efeitos adicionados\nHotFix: Dependência de axios ausente adicionada",
+        "nl": "Ontbrekende vervolgkeuzelijst voor ID van toegevoegde effecten\nHotFix: ontbrekende axios-afhankelijkheid toegevoegd",
+        "fr": "Liste déroulante manquante pour l'ID des effets ajoutés\nHotFix : Ajout d'une dépendance axios manquante",
+        "it": "Menu a discesa mancante per l'ID degli effetti aggiunti\nHotFix: aggiunta dipendenza Axios mancante",
+        "es": "Falta el menú desplegable para la identificación de los efectos agregados\nHotFix: Se agregó la dependencia de axios faltante",
+        "pl": "Brakujące menu dla identyfikatora dodanych efektów\nPoprawka: dodano brakującą zależność axios",
+        "zh-cn": "缺少添加效果 ID 的下拉菜单\nHotFix：添加了缺少 axios 依赖项",
+        "uk": "Відсутнє спадне меню для ідентифікатора доданих ефектів\nВиправлення: додано відсутність залежності axios"
+      },
+      "0.6.2": {
+        "en": "HotFix: Missing axios dependency added",
+        "de": "HotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
+        "ru": "HotFix: добавлена отсутствующая зависимость axios",
+        "pt": "HotFix: Dependência de axios ausente adicionada",
+        "nl": "HotFix: ontbrekende axios-afhankelijkheid toegevoegd",
+        "fr": "HotFix : Ajout d'une dépendance axios manquante",
+        "it": "HotFix: aggiunta dipendenza Axios mancante",
+        "es": "HotFix: Se agregó la dependencia de axios faltante",
+        "pl": "Poprawka: dodano brakującą zależność axios",
+        "zh-cn": "HotFix：添加了缺少 axios 依赖项",
+        "uk": "Виправлення: додано відсутність залежності axios"
+      }
     },
-    "native": {
-        "devices": [],
-        "Time_Sync": 30
+    "title": "WLED",
+    "titleLang": {
+      "en": "WLED",
+      "de": "WLED",
+      "ru": "WLED",
+      "pt": "WLED",
+      "nl": "WLED",
+      "fr": "WLED",
+      "it": "WLED",
+      "es": "WLED",
+      "pl": "WLED",
+      "zh-cn": "白光LED",
+      "uk": "WLED"
     },
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "WLED service ready to connecto to devices",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
-        }
+    "desc": {
+      "en": "A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control NeoPixel (WS2812B, WS2811, SK6812, APA102) LEDs!",
+      "de": "Eine schnelle und funktionsreiche Implementierung eines ESP8266 / ESP32-Webservers zur Steuerung von NeoPixel-LEDs (WS2812B, WS2811, SK6812, APA102)!",
+      "ru": "Быстрая и многофункциональная реализация веб-сервера ESP8266 / ESP32 для управления светодиодами NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "pt": "Uma implementação rápida e rica em recursos de um servidor da web ESP8266 / ESP32 para controlar os LEDs NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "nl": "Een snelle en veelzijdige implementatie van een ESP8266 / ESP32 webserver om NeoPixel (WS2812B, WS2811, SK6812, APA102) LED's te bedienen!",
+      "fr": "Une implémentation rapide et riche en fonctionnalités d'un serveur Web ESP8266 / ESP32 pour contrôler les LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "it": "Un'implementazione veloce e ricca di funzionalità di un server web ESP8266 / ESP32 per controllare i LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "es": "¡Una implementación rápida y rica en funciones de un servidor web ESP8266 / ESP32 para controlar los LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "pl": "Szybka i bogata w funkcje implementacja serwera ESP8266 / ESP32 do sterowania diodami LED NeoPixel (WS2812B, WS2811, SK6812, APA102)!",
+      "zh-cn": "ESP8266 / ESP32网络服务器的快速且功能丰富的实现，用于控制NeoPixel（WS2812B，WS2811，SK6812，APA102）LED！",
+      "uk": "Швидка та багатофункціональна реалізація веб-сервера ESP8266/ESP32 для керування світлодіодами NeoPixel (WS2812B, WS2811, SK6812, APA102)!"
+    },
+    "authors": [
+      "DutchmanNL <rdrozda86@gmail.com>"
+    ],
+    "keywords": [
+      "WLED",
+      "WS2812b",
+      "RGB",
+      "RGBW"
+    ],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "main.js",
+    "icon": "wled.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/DrozmotiX/ioBroker.wled/main/admin/wled.png",
+    "readme": "https://github.com/DrozmotiX/ioBroker.wled/blob/main/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "lighting",
+    "compact": true,
+    "connectionType": "local",
+    "dataSource": "poll",
+    "materialize": true,
+    "plugins": {
+      "sentry": {
+        "dsn": "https://4fdfefb6abec406d84e9e1515c331cd8@sentry.drozmotix.eu/3"
+      }
+    },
+    "messagebox": true,
+    "dependencies": [
+      {
+        "js-controller": ">=3.0.0"
+      }
     ]
+  },
+  "native": {
+    "devices": [],
+    "Time_Sync": 30
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "WLED service ready to connecto to devices",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }

@@ -48,8 +48,7 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-
-### __WORK IN PROGRESS__ - Improve online visibility of devices
+### 0.7.2 (2023-10-31) - Improve online visibility of devices
 * (DutchmanNL) Show online state of device in object tree
 * (DutchmanNL) Bugfix: Update online state correctly in situation connection is lost, fixes #611
 * (DutchmanNL) Reset brightness to 0 and on to false during adapter start and if a device disconnects, fixes #565
@@ -71,10 +70,6 @@ When the adapter crashes or another Code error happens, this error message that 
 * (DutchmanNL) Dependency updates
 * (DutchmanNL) Bugfix: Correct indication of connection state #307
 * (DutchmanNL) Improve error messages & sentry reporting
-
-### 0.6.3 (2021-09-08) - HotFixes
-* (DutchmanNL) Missing dropdown for ID of effects added
-* (DutchmanNL) HotFix: Missing axios dependency added
 
 ## License
 MIT License

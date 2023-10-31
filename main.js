@@ -885,7 +885,7 @@ class Wled extends utils.Adapter {
 				if (this.devices[deviceIP] && this.devices[deviceIP].connected){
 					this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
 					if (this.devices[deviceIP].mac != null) {
-						await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', {val: false, ack: true});
+						await this.create_state(this.devices[deviceIP].mac + '._info' + '._online', 'Online status', false);
 					}
 					this.devices[deviceIP].connected = false;
 					this.devices[deviceIP].wsConnected = false;

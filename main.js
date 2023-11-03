@@ -7,6 +7,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require('@iobroker/adapter-core');
+const dmWled  = require('./lib/devicemgmt.js');
 
 // Load your modules here, e.g.:
 const rgbHex = require('rgb-hex'); // Lib to translate rgb to hex
@@ -45,6 +46,8 @@ class Wled extends utils.Adapter {
 		this.effects = {};
 		this.palettes = {};
 		this.createdStatesDetails = {};
+
+		this.deviceManagement = new dmWled(this);
 	}
 
 	/**
@@ -359,6 +362,9 @@ class Wled extends utils.Adapter {
 	 */
 	async onMessage(obj) {
 
+		// If the message starts with dm: it is a device management message so ignore it
+		if (obj.command.startsWith('dm:')) return;
+
 		try {
 			// responds to the adapter that sent the original message
 			const respond = (response, that) => {
@@ -436,7 +442,7 @@ class Wled extends utils.Adapter {
 
 		// Handle closure of socket connection
 		ws[deviceIP].on('close', () => {
-			if (this.devices[deviceIP].wsSupported === true){
+			if (this.devices[deviceIP]?.wsSupported === true){
 				this.log.info(`${this.devices[deviceIP].name} disconnected`);
 				this.devices[deviceIP].connected = false;
 				this.devices[deviceIP].initialized = false;
@@ -746,6 +752,9 @@ class Wled extends utils.Adapter {
 	 * @param {string} deviceIP IP-Address of device
 	 */
 	async watchDog(deviceIP) {
+		// Check if device is in list of devices
+		if (!this.devices[deviceIP]) return;
+
 		try {
 			this.log.debug('Watchdog for ' + JSON.stringify(this.devices[deviceIP]));
 
@@ -826,16 +835,22 @@ class Wled extends utils.Adapter {
 			try {
 
 				const requestDeviceDataByAPI = async () => {
-					const response = await axios.get(`http://${deviceIP}/json`, {timeout: 3000}); // Timout of 3 seconds for API call
-					this.log.debug(JSON.stringify('API response data : ' + response.data));
-					const deviceData = response.data;
-					return deviceData;
+					try {
+						const response = await axios.get(`http://${deviceIP}/json`, {timeout: 3000}); // Timout of 3 seconds for API call
+						this.log.debug(JSON.stringify('API response data : ' + response.data));
+						const deviceData = response.data;
+						return deviceData;
+					} catch (error){
+						return error;
+					}
 				};
+
 
 				// Check if connection is handled by websocket before proceeding
 				if (this.devices[deviceIP]
 					&& (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected && this.devices[deviceIP].wsPingSupported)) {
 					// Nothing to do, device is connected by websocket and will handle state updates
+					this.log.info(`This message appears if you deleted a device from the object tab. Please restart the adapter to remove the device completly`);
 				} else { // No Websocket connection, handle data by http_API
 
 					const deviceData = await requestDeviceDataByAPI();
@@ -999,6 +1014,7 @@ class Wled extends utils.Adapter {
 			});
 		} catch (error) {
 			this.errorHandler(`[scanDevices]`, error);
+			return 'failed';
 		}
 	}
 
@@ -1163,6 +1179,42 @@ class Wled extends utils.Adapter {
 			}
 		} else {
 			this.log.error(`Sentry disabled, error caught : ${sentryMessage}`);
+		}
+	}
+
+	/**
+	 * Delete device
+	 * @param {string} deviceId
+	 * @return {Promise<boolean>}
+	 */
+	async delDevice(deviceId) {
+		const obj = await this.getObjectAsync(deviceId);
+		if (obj) {
+			const ip = obj.native.ip;
+			ws[ip].close();
+			// Check all created states in memory if their are related to this device
+			for (const state in this.createdStatesDetails) {
+				// Remove states from cache
+				if (state.split('.')[0] === deviceId.replace(/wled\.\d\./, '')) {
+					delete this.createdStatesDetails[state];
+				}
+			}
+
+			this.log.info(JSON.stringify(this.createdStatesDetails));
+
+			// Delete entry from this.devices
+			delete this.devices[ip];
+			this.log.info(`Devices: ${JSON.stringify(this.devices)}`);
+		}
+		const name = deviceId.replace(/wled\.\d\./, '');
+		const res = await this.deleteDeviceAsync(name);
+		if(res !== null) {
+			this.log.info(`${name} deleted`);
+
+			return true;
+		} else {
+			this.log.error(`Can not delete device ${name}: ${JSON.stringify(res)}`);
+			return false;
 		}
 	}
 

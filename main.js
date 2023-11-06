@@ -840,9 +840,10 @@ class Wled extends utils.Adapter {
 						this.log.debug(JSON.stringify('API response data : ' + response.data));
 						const deviceData = response.data;
 						return deviceData;
-					} catch (error){
-						return error;
+					} catch (e) {
+						this.log.error(`[requestDeviceDataByAPI] ${e}`)
 					}
+
 				};
 
 
@@ -850,7 +851,7 @@ class Wled extends utils.Adapter {
 				if (this.devices[deviceIP]
 					&& (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected && this.devices[deviceIP].wsPingSupported)) {
 					// Nothing to do, device is connected by websocket and will handle state updates
-					this.log.info(`This message appears if you deleted a device from the object tab. Please restart the adapter to remove the device completly`);
+
 				} else { // No Websocket connection, handle data by http_API
 
 					const deviceData = await requestDeviceDataByAPI();

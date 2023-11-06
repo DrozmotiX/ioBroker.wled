@@ -145,6 +145,7 @@
     "connectionType": "local",
     "dataSource": "poll",
     "materialize": true,
+    "deviceManager": true,
     "plugins": {
       "sentry": {
         "dsn": "https://4fdfefb6abec406d84e9e1515c331cd8@sentry.drozmotix.eu/3"

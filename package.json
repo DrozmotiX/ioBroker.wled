@@ -27,7 +27,7 @@
     "url": "https://github.com/DrozmotiX/ioBroker.wled"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^2.6.0",
+    "@iobroker/adapter-core": "^3.0.4",
     "axios": "^0.27.2",
     "bonjour": "^3.5.0",
     "hex-rgb": "^4.3.0",

@@ -1,4 +1,11 @@
 # Older changes
+## 0.6.3 (2021-09-08) - HotFixes
+* (DutchmanNL) Missing dropdown for ID of effects added
+* (DutchmanNL) HotFix: Missing axios dependency added
+
+## 0.6.1 (2021-09-08)
+* (DutchmanNL) Missing state definitions WLED FW 0.13.0-b12 added.
+
 ## 0.6.0 (2021-08-31) - Support Websocket connections
 * (DutchmanNL) System load reduced
 * (DutchmanNL) All warnings related to JS-Controller 3.x checks solved

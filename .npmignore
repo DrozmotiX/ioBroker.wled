@@ -34,3 +34,6 @@ tsconfig.*.json
 # ESLint configuration
 .eslintrc.json
 .eslintrc.js
+
+# ioBroker dev-server
+.dev-server/

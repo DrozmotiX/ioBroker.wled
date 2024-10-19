@@ -841,7 +841,7 @@ class Wled extends utils.Adapter {
 						const deviceData = response.data;
 						return deviceData;
 					} catch (e) {
-						this.log.error(`[requestDeviceDataByAPI] ${e}`)
+						this.log.debug(`[requestDeviceDataByAPI] ${e}`)
 					}
 
 				};

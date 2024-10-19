@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "wled",
-    "version": "0.7.3-beta.0",
+    "version": "0.7.3-beta.1",
     "news": {
       "0.7.2": {
         "en": "Show online state of device in object tree\nBugfix: Update online state correctly in situation connection is lost, fixes #611\nReset brightness to 0 and on to false during adapter start and if a device disconnects, fixes #565",

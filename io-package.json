@@ -146,6 +146,9 @@
     "compact": true,
     "connectionType": "local",
     "dataSource": "poll",
+    "adminUI": {
+      "config": "materialize"
+    },
     "plugins": {
       "sentry": {
         "dsn": "https://4fdfefb6abec406d84e9e1515c331cd8@sentry.drozmotix.eu/3"

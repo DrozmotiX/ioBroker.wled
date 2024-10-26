@@ -1,4 +1,9 @@
 # Older changes
+## 0.6.5 (2022-06-04) - Correct indication of connection state
+* (DutchmanNL) Dependency updates
+* (DutchmanNL) Bugfix: Correct indication of connection state #307
+* (DutchmanNL) Improve error messages & sentry reporting
+
 ## 0.6.3 (2021-09-08) - HotFixes
 * (DutchmanNL) Missing dropdown for ID of effects added
 * (DutchmanNL) HotFix: Missing axios dependency added

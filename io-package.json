@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "wled",
-    "version": "0.7.3-beta.1",
+    "version": "0.7.3",
     "news": {
+      "0.7.3": {
+        "en": "allow write on segments, solves #688 #706\nFixed error when a device is not available Solves #698",
+        "de": "Segmente schreiben erlaubenn\nFehlermeldungen reduziert, wenn ein Gerät nicht verfügbar",
+        "ru": "позволяют писать на сегментах, решает #688 #706\nИсправлена ошибка, когда устройство не доступно Solves #698",
+        "pt": "permitir escrever em segmentos, resolve #688 #706\nErro fixo quando um dispositivo não está disponível Solves #698",
+        "nl": "laten schrijven op segmenten, lost #688 #706\nFout vastgesteld wanneer een apparaat niet beschikbaar is Solves #698",
+        "fr": "permettre l'écriture sur les segments, résout #688 #706\nErreur corrigée lorsqu'un périphérique n'est pas disponible Solves #698",
+        "it": "consentire di scrivere su segmenti, risolve #688 #706\nErrore fisso quando un dispositivo non è disponibile Solves #698",
+        "es": "permite escribir en segmentos, resuelve #688 #706\nError fijo cuando un dispositivo no está disponible Solves #698",
+        "pl": "wpisz na segmentach, rozwiązuje # 688 # 706\nNaprawiono błąd, gdy urządzenie nie jest dostępne",
+        "uk": "дозволити написати на сегменти, розчини #688 #706\nВиправлена помилка коли пристрій не доступний Solves #698",
+        "zh-cn": "允许在片段上写入, 解析 #688 #706\n设备不可用时的固定错误"
+      },
       "0.7.2": {
         "en": "Show online state of device in object tree\nBugfix: Update online state correctly in situation connection is lost, fixes #611\nReset brightness to 0 and on to false during adapter start and if a device disconnects, fixes #565",
         "de": "Online-Zustand des Geräts in Objektbaum anzeigen\nBugfix: Aktualisieren Sie den Online-Zustand korrekt in Situation Verbindung verloren geht, repariert #611\nZurücksetzen der Helligkeit auf 0 und auf false während des Adapterstarts und wenn ein Gerät abschaltet, repariert #565",
@@ -80,19 +93,6 @@
         "pl": "Brakujące menu dla identyfikatora dodanych efektów\nPoprawka: dodano brakującą zależność axios",
         "zh-cn": "缺少添加效果 ID 的下拉菜单\nHotFix：添加了缺少 axios 依赖项",
         "uk": "Відсутнє спадне меню для ідентифікатора доданих ефектів\nВиправлення: додано відсутність залежності axios"
-      },
-      "0.6.2": {
-        "en": "HotFix: Missing axios dependency added",
-        "de": "HotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
-        "ru": "HotFix: добавлена отсутствующая зависимость axios",
-        "pt": "HotFix: Dependência de axios ausente adicionada",
-        "nl": "HotFix: ontbrekende axios-afhankelijkheid toegevoegd",
-        "fr": "HotFix : Ajout d'une dépendance axios manquante",
-        "it": "HotFix: aggiunta dipendenza Axios mancante",
-        "es": "HotFix: Se agregó la dependencia de axios faltante",
-        "pl": "Poprawka: dodano brakującą zależność axios",
-        "zh-cn": "HotFix：添加了缺少 axios 依赖项",
-        "uk": "Виправлення: додано відсутність залежності axios"
       }
     },
     "titleLang": {
@@ -154,7 +154,7 @@
         "dsn": "https://4fdfefb6abec406d84e9e1515c331cd8@sentry.drozmotix.eu/3"
       }
     },
-    "supportedMessages" : {
+    "supportedMessages": {
       "deviceManager": true
     },
     "messagebox": true,

@@ -78,7 +78,7 @@ When the adapter crashes or another Code error happens, this error message that 
 ## License
 MIT License
 
-Copyright (c) 2023 DutchmanNL <oss@drozmotix.eu>
+Copyright (c) 2024 DutchmanNL <oss@drozmotix.eu>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -95,7 +95,6 @@
         "uk": "Виправлення: додано відсутність залежності axios"
       }
     },
-    "title": "WLED",
     "titleLang": {
       "en": "WLED",
       "de": "WLED",
@@ -131,9 +130,12 @@
       "RGB",
       "RGBW"
     ],
-    "license": "MIT",
+    "licenseInformation": {
+      "license": "MIT",
+      "link": "https://github.com/DrozmotiX/ioBroker.wled/blob/main/LICENSE",
+      "type": "free"
+    },
     "platform": "Javascript/Node.js",
-    "main": "main.js",
     "icon": "wled.png",
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/DrozmotiX/ioBroker.wled/main/admin/wled.png",
@@ -144,7 +146,6 @@
     "compact": true,
     "connectionType": "local",
     "dataSource": "poll",
-    "materialize": true,
     "plugins": {
       "sentry": {
         "dsn": "https://4fdfefb6abec406d84e9e1515c331cd8@sentry.drozmotix.eu/3"
@@ -156,9 +157,10 @@
     "messagebox": true,
     "dependencies": [
       {
-        "js-controller": ">=3.0.0"
+        "js-controller": ">=5.0.19"
       }
-    ]
+    ],
+    "tier": 3
   },
   "native": {
     "devices": [],

@@ -539,7 +539,7 @@ class Wled extends utils.Adapter {
 			await this.create_state(device_id + '.psave', 'psave', '');
 			await this.create_state(device_id + '.udpn.nn', 'nn', '');
 			await this.create_state(device_id + '.time', 'time', null);
-			await this.create_state(device_id + '.action', 'action', null);
+			await this.create_state(device_id + '.action', 'action', '');
 
 			// Create structure for all states
 			await this.handleStates(deviceData, deviceIP);

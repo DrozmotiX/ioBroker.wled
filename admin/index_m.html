@@ -2,14 +2,18 @@
 
 <head>
     <!-- Load ioBroker scripts and styles-->
+    <link rel="stylesheet" type="text/css" href="../../lib/css/fancytree/ui.fancytree.min.css" />
     <link rel="stylesheet" type="text/css" href="../../css/adapter.css" />
     <link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
 
     <script type="text/javascript" src="../../lib/js/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="../../socket.io/socket.io.js"></script>
 
-    <script type="text/javascript" src="../../js/translate.js"></script>
     <script type="text/javascript" src="../../lib/js/materialize.js"></script>
+    <script type="text/javascript" src="../../lib/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../../lib/js/jquery.fancytree-all.min.js"></script>
+
+    <script type="text/javascript" src="../../js/translate.js"></script>
     <script type="text/javascript" src="../../js/adapter-settings.js"></script>
 
     <!-- Load our own files -->
@@ -199,7 +203,7 @@
     <div class="m adapter-container">
 
         <div class="row">
-            <div class="input-field col s6 m4 l6">
+            <div class="input-field col s12 m6 l4">
                 <img src="wled.png" class="logo">
             </div>
         </div>
@@ -209,19 +213,19 @@
 
             <div class="row">
 
-                <div class="input-field">
+                <div class="input-field col s12 m6 l4">
                     <a id="add-device"
-                        class="table-button-add col s2 waves-effect waves-light btn btn-large blue modal-trigger translate"
+                        class="table-button-add waves-effect waves-light btn btn-large blue modal-trigger translate"
                         data-target="modal-add-device"><i class="large left material-icons">add_circle</i>Add Device</a>
                 </div>
 
-                <div class="input-field col s2 right">
+                <div class="input-field col s12 m6 l4 right">
                     <input type="number" id="Time_Sync" class="value center" min="0" max="65565" />
                     <label for="Time_Sync" class="translate">Intervall in seconds</label>
                 </div>
             </div>
 
-            <div class="col s10 m10 l10 xl10 row">
+            <div class="col s12 m12 l12 row">
                 <div class="table-values-div">
                     <table class="table-values centered">
                         <thead>
@@ -245,7 +249,7 @@
                 <div class="modal-content">
                     <h5 class="translate center">Add device manualy</h5>
                     <div class="row center">
-                        <div class="input-field col s3">
+                        <div class="input-field col s12 m6 l4 offset-m3 offset-l4">
                             <input placeholder="192.168.0.1" class="value" id="device-ip" type="text"></input>
                             <label for="device-ip" class="translate">IP</label>
                         </div>

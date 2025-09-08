@@ -33,3 +33,74 @@
 }
 
 /* Add your styles here */
+
+/* Style for small Screens */
+@media screen and (max-width: 768px) {
+  .table-values-div {
+    overflow-x: auto;
+  }
+  
+  .table-values {
+    min-width: 100%;
+    font-size: 14px;
+  }
+  
+  .table-values th,
+  .table-values td {
+    padding: 8px 4px;
+    white-space: nowrap;
+  }
+  
+  .btn-large {
+    padding: 0 16px;
+    font-size: 14px;
+    height: 48px;
+    line-height: 48px;
+  }
+  
+  .logo {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .modal {
+    width: 90%;
+    max-height: 90%;
+  }
+}
+
+/* Style for very small Screens */
+@media screen and (max-width: 600px) {
+  .table-values {
+    font-size: 12px;
+  }
+  
+  .table-values th,
+  .table-values td {
+    padding: 6px 2px;
+  }
+  
+  .btn-large {
+    padding: 0 12px;
+    font-size: 13px;
+    height: 44px;
+    line-height: 44px;
+  }
+  
+  .btn-large .material-icons {
+    font-size: 20px;
+  }
+  
+  .input-field label {
+    font-size: 14px;
+  }
+  
+  .modal {
+    width: 95%;
+    max-height: 95%;
+  }
+  
+  .modal-content h5 {
+    font-size: 1.4rem;
+  }
+}

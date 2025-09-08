@@ -253,7 +253,7 @@ class Wled extends utils.Adapter {
 									if (!color_primary) return;
 									this.log.debug('Primary color before split : ' + color_primary.val);
 									try {
-										color_primary.val = color_primary.val.replace("[","");
+										color_primary.val = color_primary.val.replace(/\[/g, "");
 										color_primary = color_primary.val.split(',').map(s => parseInt(s));
 									} catch (error) {
 										if (!color_primary) return;
@@ -264,7 +264,7 @@ class Wled extends utils.Adapter {
 									if (!color_secondary) return;
 									this.log.debug('Secondary color : ' + color_secondary.val);
 									try {
-										color_secondary.val = color_secondary.val.replace("[","");
+										color_secondary.val = color_secondary.val.replace(/\[/g, "");
 										color_secondary = color_secondary.val.split(',').map(s => parseInt(s));
 									} catch (error) {
 										if (!color_secondary) return;
@@ -275,7 +275,7 @@ class Wled extends utils.Adapter {
 									if (!color_tertiary) return;
 									this.log.debug('Tertiary color : ' + color_tertiary.val);
 									try {
-										color_tertiary.val = color_tertiary.val.replace("[","");
+										color_tertiary.val = color_tertiary.val.replace(/\[/g, "");
 										color_tertiary = color_tertiary.val.split(',').map(s => parseInt(s));
 									} catch (error) {
 										if (!color_tertiary) return;

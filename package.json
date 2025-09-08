@@ -31,7 +31,7 @@
     "node": ">= 20"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.2.2",
+    "@iobroker/adapter-core": "^3.3.2",
     "@jey-cee/dm-utils": "^0.0.1",
     "axios": "^0.28.0",
     "bonjour": "^3.5.0",
@@ -44,7 +44,7 @@
     "@alcalzone/release-script-plugin-iobroker": "^3.7.2",
     "@alcalzone/release-script-plugin-license": "^3.7.0",
     "@alcalzone/release-script-plugin-manual-review": "^3.7.0",
-    "@iobroker/adapter-dev": "^1.0.0",
+    "@iobroker/adapter-dev": "^1.4.0",
     "@iobroker/testing": "^5.1.1",
     "@types/chai": "^4.3.1",
     "@types/chai-as-promised": "^7.1.5",
@@ -55,7 +55,6 @@
     "@types/sinon": "^17.0.0",
     "@types/sinon-chai": "^3.2.8",
     "@types/ws": "^8.5.10",
-    "axios": "^0.28.0",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
     "eslint": "^8.53.0",

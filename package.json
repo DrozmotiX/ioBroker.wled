@@ -79,5 +79,13 @@
   "bugs": {
     "url": "https://github.com/DrozmotiX/ioBroker.wled/issues"
   },
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "files": [
+    "admin/",
+    "lib/",
+    "main.js",
+    "io-package.json",
+    "LICENSE",
+    "README.md"
+  ]
 }

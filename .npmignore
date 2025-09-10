@@ -31,9 +31,11 @@ maintenance/**
 tsconfig.json
 tsconfig.*.json
 
-# ESLint configuration
+# ESLint and Prettier configuration
 .eslintrc.json
 .eslintrc.js
+eslint.config.mjs
+prettier.config.mjs
 
 # ioBroker dev-server
 .dev-server/

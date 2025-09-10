@@ -3,13 +3,16 @@ updates:
   - package-ecosystem: npm
     directory: "/"
     schedule:
-    interval: monthly
-    time: "04:00"
-    timezone: Europe/Berlin
-    allow:
-      - dependency-type: 'production'
-  target-branch: "dependencyAutoUpdate"
-  open-pull-requests-limit: 20
-  assignees:
-  - DutchmanNL
-  versioning-strategy: increase
+      interval: monthly
+      time: "04:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 30
+    versioning-strategy: increase
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+      time: "04:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 30

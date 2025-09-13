@@ -167,9 +167,11 @@ class Wled extends utils.Adapter {
                     this.log.debug('Send state');
                     if (deviceId[3] === 'action') {
                         try {
-                            if (typeof state.val !== 'string') throw new Error('State value is not a string');
+                            if (typeof state.val !== 'string') {
+                                throw new Error('State value is not a string');
+                            }
                             values = JSON.parse(state.val);
-                        } catch (e) {
+                        } catch {
                             this.log.error(`State ${id} is not a valid JSON string: ${state.val}`);
                             return;
                         }
@@ -572,7 +574,7 @@ class Wled extends utils.Adapter {
             await this.create_state(`${device_id}.psave`, 'psave', '');
             await this.create_state(`${device_id}.udpn.nn`, 'nn', '');
             await this.create_state(`${device_id}.time`, 'time', null);
-            await this.create_state(device_id + '.action', 'action', '');
+            await this.create_state(`${device_id}.action`, 'action', '');
 
             // Create structure for all states
             await this.handleStates(deviceData, deviceIP);

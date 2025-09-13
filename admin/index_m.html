@@ -258,6 +258,18 @@
                     <input type="number" id="Time_Sync" class="value center" min="0" max="65565" />
                     <label for="Time_Sync" class="translate">Intervall in seconds</label>
                 </div>
+
+                <div class="input-field col s12 m6 l4 right">
+                    <input type="number" id="maxRetries" class="value center" min="1" max="20" />
+                    <label for="maxRetries" class="translate">Max retry attempts</label>
+                </div>
+
+                <div class="input-field col s12 m6 l4 right">
+                    <label>
+                        <input type="checkbox" id="retryBackoff" class="value" />
+                        <span class="translate">Enable exponential backoff</span>
+                    </label>
+                </div>
             </div>
 
             <div class="col s12 m12 l12 row">

@@ -172,7 +172,9 @@
   },
   "native": {
     "devices": [],
-    "Time_Sync": 30
+    "Time_Sync": 30,
+    "maxRetries": 5,
+    "retryBackoff": true
   },
   "objects": [],
   "instanceObjects": [

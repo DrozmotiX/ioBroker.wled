@@ -24,6 +24,8 @@ const watchdogWsTimer = {}; // Array containing all times for WS-Ping loops
 const stateExpire = {}; // Array containing all times for online state expire
 const ws = {}; // Array containing websocket connections
 const warnMessages = {}; // Array containing sentry messages
+const deviceRetryCount = {}; // Array containing retry counts for failed devices
+const deviceRetryDelay = {}; // Array containing current retry delays for failed devices
 
 const disableSentry = false; // Ensure to set to true during development !
 
@@ -108,6 +110,14 @@ class Wled extends utils.Adapter {
                     clearTimeout(stateExpire[device]);
                     delete stateExpire[device];
                 }
+            }
+
+            // Clear retry count and delay tracking
+            for (const device in deviceRetryCount) {
+                delete deviceRetryCount[device];
+            }
+            for (const device in deviceRetryDelay) {
+                delete deviceRetryDelay[device];
             }
 
             // Close WebSocket connections
@@ -890,8 +900,38 @@ class Wled extends utils.Adapter {
             return;
         }
 
+        // Initialize retry count and delay if not exists
+        if (deviceRetryCount[deviceIP] === undefined) {
+            deviceRetryCount[deviceIP] = 0;
+            deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
+        }
+
+        // Check if device has exceeded maximum retry attempts
+        const maxRetries = this.config.maxRetries ?? 5;
+        if (deviceRetryCount[deviceIP] >= maxRetries) {
+            // Device has failed too many times, schedule a much longer retry interval
+            if (watchdogTimer[deviceIP]) {
+                clearTimeout(watchdogTimer[deviceIP]);
+                watchdogTimer[deviceIP] = null;
+            }
+
+            // Retry once every hour (3600 seconds) for permanently failed devices
+            const longRetryDelay = 3600 * 1000;
+            watchdogTimer[deviceIP] = setTimeout(() => {
+                // Reset retry count after long delay to give device another chance
+                deviceRetryCount[deviceIP] = 0;
+                deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
+                this.watchDog(deviceIP);
+            }, longRetryDelay);
+
+            this.log.debug(`Device ${deviceIP} has failed ${maxRetries} consecutive times, next retry in 1 hour`);
+            return;
+        }
+
         try {
             this.log.debug(`Watchdog for ${JSON.stringify(this.devices[deviceIP])}`);
+
+            let deviceAvailable = false;
 
             // Check if used WLED version supports websocket Ping-Pong messages and connection, if not handle watchdog by http-API
             if (this.devices[deviceIP].wsPingSupported) {
@@ -925,29 +965,69 @@ class Wled extends utils.Adapter {
                                 console.error(e);
                             }
                         }, this.config.Time_Sync * 1000);
+                        deviceAvailable = true;
                     } catch (e) {
                         // Try http-API in case of error
                         this.log.error(`WS Ping error : ${e}`);
-                        await this.getDeviceJSON(deviceIP);
+                        const result = await this.getDeviceJSON(deviceIP);
+                        deviceAvailable = result === 'success';
                     }
                 } else {
                     // If WS-Ping not supported, use http-API
                     try {
-                        await this.getDeviceJSON(deviceIP);
+                        const result = await this.getDeviceJSON(deviceIP);
+                        deviceAvailable = result === 'success';
                     } catch (error) {
                         this.errorHandler(`[watchDog]`, error);
+                        deviceAvailable = false;
                     }
                 }
             } else {
                 // If WS-Ping not supported, use http-API
                 try {
-                    await this.getDeviceJSON(deviceIP);
+                    const result = await this.getDeviceJSON(deviceIP);
+                    deviceAvailable = result === 'success';
                 } catch (error) {
                     this.errorHandler(`[watchDog]`, error);
+                    deviceAvailable = false;
+                }
+            }
+
+            // Handle retry logic based on device availability
+            if (deviceAvailable) {
+                // Device is available, reset retry count and delay
+                if (deviceRetryCount[deviceIP] > 0) {
+                    this.log.debug(`Device ${deviceIP} is back online, resetting retry count`);
+                }
+                deviceRetryCount[deviceIP] = 0;
+                deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
+            } else {
+                // Device is not available, increment retry count
+                deviceRetryCount[deviceIP]++;
+
+                // Calculate exponential backoff delay if enabled
+                if (this.config.retryBackoff ?? true) {
+                    // Exponential backoff: base delay * 2^(retry-1), max 10 minutes
+                    const baseDelay = this.config.Time_Sync * 1000;
+                    const backoffMultiplier = Math.pow(2, deviceRetryCount[deviceIP] - 1);
+                    deviceRetryDelay[deviceIP] = Math.min(baseDelay * backoffMultiplier, 600 * 1000);
+                }
+
+                // Log retry information based on retry count
+                if (deviceRetryCount[deviceIP] <= 3) {
+                    this.log.info(
+                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
+                    );
+                } else {
+                    this.log.debug(
+                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
+                    );
                 }
             }
         } catch (error) {
-            this.errorHandler(`[handleStates]`, error);
+            this.errorHandler(`[watchDog]`, error);
+            // Treat errors as device unavailable
+            deviceRetryCount[deviceIP] = (deviceRetryCount[deviceIP] || 0) + 1;
         }
 
         // Reset timer (if running) and start new one for next watchdog interval
@@ -955,9 +1035,12 @@ class Wled extends utils.Adapter {
             clearTimeout(watchdogTimer[deviceIP]);
             watchdogTimer[deviceIP] = null;
         }
+
+        // Use the calculated retry delay
+        const nextDelay = deviceRetryDelay[deviceIP] || this.config.Time_Sync * 1000;
         watchdogTimer[deviceIP] = setTimeout(() => {
             this.watchDog(deviceIP);
-        }, this.config.Time_Sync * 1000);
+        }, nextDelay);
     }
 
     /**
@@ -1361,6 +1444,10 @@ class Wled extends utils.Adapter {
             // Delete entry from this.devices
             delete this.devices[ip];
             this.log.info(`Devices: ${JSON.stringify(this.devices)}`);
+
+            // Clean up retry tracking for this device
+            delete deviceRetryCount[ip];
+            delete deviceRetryDelay[ip];
         }
         const name = deviceId.replace(/wled\.\d\./, '');
         const res = await this.deleteDeviceAsync(name);

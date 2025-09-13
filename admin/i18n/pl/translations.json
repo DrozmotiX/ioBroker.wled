@@ -9,5 +9,11 @@
     "Intervall in seconds": "Przerwij w kilka sekund",
     "Name": "Nazwa",
     "WLED devices are discovered automatically, if not you can use the ADD Device button.": "Urządzenia WLED są wykrywane automatycznie, jeśli nie, możesz użyć przycisku DODAJ urządzenie.",
-    "wled adapter settings": "Ustawienia adaptera dla wled"
+    "wled adapter settings": "Ustawienia adaptera dla wled",
+    "Remove": "Remove",
+    "Delete Device": "Delete Device",
+    "Delete device confirmation": "Delete device confirmation",
+    "Are you sure you want to delete this device? All associated states and objects will be removed.": "Are you sure you want to delete this device? All associated states and objects will be removed.",
+    "Device deleted successfully": "Device deleted successfully",
+    "Failed to delete device": "Failed to delete device"
 }

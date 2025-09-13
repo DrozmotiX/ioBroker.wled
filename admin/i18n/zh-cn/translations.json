@@ -9,5 +9,11 @@
     "Intervall in seconds": "间隔秒",
     "Name": "名称",
     "WLED devices are discovered automatically, if not you can use the ADD Device button.": "WLED设备会自动发现，否则，您可以使用ADD Device按钮。",
-    "wled adapter settings": "wled的适配器设置"
+    "wled adapter settings": "wled的适配器设置",
+    "Remove": "Remove",
+    "Delete Device": "Delete Device",
+    "Delete device confirmation": "Delete device confirmation",
+    "Are you sure you want to delete this device? All associated states and objects will be removed.": "Are you sure you want to delete this device? All associated states and objects will be removed.",
+    "Device deleted successfully": "Device deleted successfully",
+    "Failed to delete device": "Failed to delete device"
 }

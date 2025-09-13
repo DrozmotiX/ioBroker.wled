@@ -1006,7 +1006,7 @@ class Wled extends utils.Adapter {
                 deviceRetryCount[deviceIP]++;
 
                 // Calculate exponential backoff delay if enabled
-                if (this.config.retryBackoff !== false) {
+                if (this.config.retryBackoff ?? true) {
                     // Exponential backoff: base delay * 2^(retry-1), max 10 minutes
                     const baseDelay = this.config.Time_Sync * 1000;
                     const backoffMultiplier = Math.pow(2, deviceRetryCount[deviceIP] - 1);

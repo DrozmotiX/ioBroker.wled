@@ -428,6 +428,39 @@ class Wled extends utils.Adapter {
                         respond('failed', this);
                     }
                     break;
+                case 'deleteDevice':
+                    // Delete device by IP address or device ID
+                    // eslint-disable-next-line no-case-declarations
+                    const deviceIP = obj.message;
+                    this.log.debug(`Delete device request received for IP: ${deviceIP}`);
+
+                    try {
+                        // Find device ID by IP address
+                        let deviceId = null;
+                        for (const ip in this.devices) {
+                            if (ip === deviceIP) {
+                                deviceId = this.devices[ip].name;
+                                break;
+                            }
+                        }
+
+                        if (deviceId) {
+                            // Use existing delDevice function
+                            const deleteResult = await this.delDevice(`${this.namespace}.${deviceId}`);
+                            if (deleteResult) {
+                                respond('success', this);
+                            } else {
+                                respond('failed', this);
+                            }
+                        } else {
+                            this.log.warn(`Device with IP ${deviceIP} not found`);
+                            respond('failed', this);
+                        }
+                    } catch (deleteError) {
+                        this.log.error(`Error deleting device ${deviceIP}: ${deleteError.message}`);
+                        respond('failed', this);
+                    }
+                    break;
             }
         } catch (error) {
             this.errorHandler(`[onMessage]`, error);

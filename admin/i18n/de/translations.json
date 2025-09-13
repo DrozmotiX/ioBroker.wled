@@ -8,6 +8,12 @@
     "IP-Adress": "IP Adresse",
     "Intervall in seconds": "Intervall in Sekunden",
     "Name": "Name",
+    "Remove": "Entfernen",
+    "Delete Device": "Gerät löschen",
+    "Delete device confirmation": "Gerät löschen Bestätigung",
+    "Are you sure you want to delete this device? All associated states and objects will be removed.": "Sind Sie sicher, dass Sie dieses Gerät löschen möchten? Alle zugehörigen Zustände und Objekte werden entfernt.",
+    "Device deleted successfully": "Gerät erfolgreich gelöscht",
+    "Failed to delete device": "Gerät konnte nicht gelöscht werden",
     "WLED devices are discovered automatically, if not you can use the ADD Device button.": "WLED-Geräte werden automatisch erkannt. Andernfalls können Sie die Schaltfläche Gerät hinzufügen verwenden.",
     "wled adapter settings": "Adaptereinstellungen für wled"
 }

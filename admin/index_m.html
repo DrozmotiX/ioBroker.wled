@@ -35,6 +35,7 @@
                     text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value=' + obj[i].value.common.name + '></td>'
                     text += '<td> <input id="' + index + '-ip" type="text" disabled="true" class="center-align input-field" value="' + obj[i].value.native.ip + '"></td>'
                     text += '<td> <div class="led-all center-led led-gray"></div></td>'
+                    text += '<td> <button class="btn-small red delete-device-btn waves-effect waves-light" data-ip="' + obj[i].value.native.ip + '" data-name="' + obj[i].value.common.name + '"><i class="material-icons">delete</i></button></td>'
                     text += '</tr>';
                     index = (index + 1);
                 }
@@ -43,7 +44,7 @@
             $('#devices').append(text);
 
             getConnectedState();
-            $('input, .delete-device').each(function () {
+            $('input, .delete-device-btn').each(function () {
                 let $key = $(this);
 
                 $key.on('click', function () {
@@ -129,6 +130,40 @@
                         $("#modal-error-message").modal("open");
                     }
                 })
+            });
+
+            // Handle delete device button click
+            $(document).on('click', '.delete-device-btn', function () {
+                const deviceIP = $(this).data('ip');
+                const deviceName = $(this).data('name');
+                
+                // Store the device info for the confirmation
+                $('#delete-device-name').text(deviceName);
+                $('#delete-device-ip').text(deviceIP);
+                
+                // Store the IP for the actual delete operation
+                $('#btn-confirm-delete').data('ip', deviceIP);
+                
+                // Open confirmation modal
+                $('#modal-delete-device').modal('open');
+            });
+
+            // Handle delete confirmation
+            $("#btn-confirm-delete").on("click", () => {
+                const deviceIP = $('#btn-confirm-delete').data('ip');
+                console.log("Delete device confirmation for IP: " + deviceIP);
+                
+                sendTo(null, "deleteDevice", deviceIP, (data) => {
+                    console.log('Delete response from backend: ' + data);
+                    if (data === 'success') {
+                        $("#modal-delete-success").modal("open");
+                        // Refresh device table
+                        $("#devices > tr").remove();
+                        emitDevices();
+                    } else {
+                        $("#modal-delete-error").modal("open");
+                    }
+                });
             });
 
             $(document).on('click', '[id$=-delete]', function (obj) {
@@ -234,9 +269,7 @@
                                 <th class="translate">Name</th>
                                 <th class="translate">IP-Adress</th>
                                 <th class="translate">Connected</th>
-                                <!--
-                            <th class="translate">Remove</th>
-                            -->
+                                <th class="translate">Remove</th>
                             </tr>
                         </thead>
                         <tbody id="devices"></tbody>
@@ -281,6 +314,49 @@
                 </div>
             </div>
             <!-- Modal for error message -->
+
+            <!-- Modal for delete confirmation -->
+            <div id="modal-delete-device" class="modal">
+                <div class="modal-content">
+                    <h5 class="translate center">Delete device confirmation</h5>
+                    <div class="row center">
+                        <p class="translate">Are you sure you want to delete this device? All associated states and objects will be removed.</p>
+                        <p><strong id="delete-device-name"></strong></p>
+                        <p><strong id="delete-device-ip"></strong></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-confirm-delete"
+                        class="btn waves-effect waves-light red modal-close modal-action translate">Delete Device</button>
+                    <button class="btn waves-effect waves-light modal-close modal-action translate"
+                        href="#!">Close</button>
+                </div>
+            </div>
+            <!-- Modal for delete confirmation -->
+
+            <!-- Modal for delete success -->
+            <div id="modal-delete-success" class="modal">
+                <div class="modal-content">
+                    <h5 class="translate center green-text">Device deleted successfully</h5>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn waves-effect waves-light modal-close modal-action translate"
+                        href="#!">Close</button>
+                </div>
+            </div>
+            <!-- Modal for delete success -->
+
+            <!-- Modal for delete error -->
+            <div id="modal-delete-error" class="modal">
+                <div class="modal-content">
+                    <h5 class="translate center red-text">Failed to delete device</h5>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn waves-effect waves-light modal-close modal-action translate"
+                        href="#!">Close</button>
+                </div>
+            </div>
+            <!-- Modal for delete error -->
 
         </div>
 

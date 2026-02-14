@@ -1,6 +1,6 @@
 # GitHub Action Template: Automated Version Check and Update for ioBroker Copilot Instructions
 # Version: 0.4.0
-# 
+#
 # This action automatically checks for template updates and creates issues when updates are available
 # Copy this to your repository as .github/workflows/check-copilot-template.yml
 
@@ -17,16 +17,16 @@ jobs:
     permissions:
       issues: write
       contents: read
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Dynamic template version check
         id: version-check
         run: |
           echo "🔍 Starting dynamic ioBroker Copilot template version check..."
-          
+
           # Get current version from local copilot instructions
           if [ -f ".github/copilot-instructions.md" ]; then
             CURRENT_VERSION=$(awk '/Version:|Template Version:/ {match($0, /([0-9]+(\.[0-9]+)*)/, arr); if (arr[1] != "") print arr[1]}' .github/copilot-instructions.md | head -1)
@@ -36,7 +36,7 @@ jobs:
             CURRENT_VERSION="none"
             echo "❌ No .github/copilot-instructions.md file found"
           fi
-          
+
           # Get latest version from centralized metadata
           echo "🌐 Fetching latest template version from centralized config..."
           LATEST_VERSION=$(curl -s https://raw.githubusercontent.com/DrozmotiX/ioBroker-Copilot-Instructions/main/config/metadata.json | jq -r '.version' 2>/dev/null || echo "unknown")
@@ -44,12 +44,12 @@ jobs:
             LATEST_VERSION="unknown"
           fi
           echo "📋 Latest available version: $LATEST_VERSION"
-          
+
           # Determine repository status
           COPILOT_INITIALIZED="false"
           UPDATE_NEEDED="false"
           SETUP_NEEDED="false"
-          
+
           if [ "$CURRENT_VERSION" = "none" ]; then
             SETUP_NEEDED="true"
             echo "🆕 Status: Setup needed - no copilot instructions found"
@@ -66,14 +66,14 @@ jobs:
               echo "✅ Status: Up to date - version $CURRENT_VERSION"
             fi
           fi
-          
+
           # Set outputs for later steps
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
           echo "copilot_initialized=$COPILOT_INITIALIZED" >> $GITHUB_OUTPUT
           echo "update_needed=$UPDATE_NEEDED" >> $GITHUB_OUTPUT
           echo "setup_needed=$SETUP_NEEDED" >> $GITHUB_OUTPUT
-          
+
       - name: Check for existing issues
         id: issue-check
         uses: actions/github-script@v7
@@ -85,20 +85,20 @@ jobs:
               state: 'open',
               labels: 'copilot-setup,automation'
             });
-            
-            const setupIssues = issues.filter(issue => 
-              issue.title.includes('Setup ioBroker') || 
+
+            const setupIssues = issues.filter(issue =>
+              issue.title.includes('Setup ioBroker') ||
               issue.title.includes('Update ioBroker') ||
               issue.title.includes('Copilot')
             );
-            
+
             core.setOutput('has_existing_issue', setupIssues.length > 0);
             core.setOutput('existing_count', setupIssues.length);
-            
+
             if (setupIssues.length > 0) {
               console.log(`Found ${setupIssues.length} existing copilot setup/update issue(s)`);
             }
-            
+
       - name: Create initial setup issue
         if: steps.version-check.outputs.setup_needed == 'true' && steps.issue-check.outputs.has_existing_issue == 'false'
         uses: actions/github-script@v7
@@ -137,8 +137,8 @@ jobs:
               body: body,
               labels: ['copilot-setup', 'automation']
             });
-            
-      - name: Create update issue  
+
+      - name: Create update issue
         if: steps.version-check.outputs.update_needed == 'true' && steps.issue-check.outputs.has_existing_issue == 'false'
         uses: actions/github-script@v7
         with:
@@ -184,12 +184,12 @@ jobs:
               body: body,
               labels: ['template-update', 'automation']
             });
-            
+
       - name: Summary
         run: |
           echo "🎯 Template Version Check Complete"
           echo "   Current: ${{ steps.version-check.outputs.current_version }}"
-          echo "   Latest: ${{ steps.version-check.outputs.latest_version }}" 
+          echo "   Latest: ${{ steps.version-check.outputs.latest_version }}"
           echo "   Setup needed: ${{ steps.version-check.outputs.setup_needed }}"
           echo "   Update needed: ${{ steps.version-check.outputs.update_needed }}"
           echo "   Existing issues: ${{ steps.issue-check.outputs.existing_count }}"

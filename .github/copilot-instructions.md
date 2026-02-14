@@ -601,7 +601,7 @@ When creating admin configuration interfaces:
 ## Best Practices for Dependencies
 
 ### HTTP Client Libraries
-- **Preferred:** Use native `fetch` API (Node.js 20+ required for adapters; built-in since Node.js 18)
+- **Preferred:** Use native `fetch` API (Node.js 18+ has native fetch, but this adapter requires Node.js 20+)
 - **Avoid:** `axios` unless specific features are required (reduces bundle size)
 
 ### Example with fetch:

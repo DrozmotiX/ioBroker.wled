@@ -1,5 +1,5 @@
 # GitHub Action Template: Automated Version Check and Update for ioBroker Copilot Instructions
-# Version: 0.4.0
+# Version: 0.4.2
 #
 # This action automatically checks for template updates and creates issues when updates are available
 # Copy this to your repository as .github/workflows/check-copilot-template.yml

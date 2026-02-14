@@ -44,7 +44,7 @@ This adapter provides integration for WLED devices - ESP8266/ESP32-based LED con
 - Maintain connection state indicator for each device
 - Support for multiple WLED devices simultaneously
 - WebSocket reconnection logic for persistent real-time updates
-- Proper cleanup of Bonjour browser and WebSocket connections in unload()
+- Proper cleanup of WebSocket connections in unload() (note: Bonjour browser cleanup not yet implemented)
 
 ## Testing
 
@@ -710,33 +710,45 @@ onUnload(callback) {
 - Handle partial state updates when device communication is intermittent
 
 **Resource Cleanup:**
+
+Current implementation cleans up WebSocket connections and timers. Example from actual code:
 ```javascript
 onUnload(callback) {
   try {
-    // Stop Bonjour browser
-    if (this.bonjourBrowser) {
-      this.bonjourBrowser.stop();
-      this.bonjourBrowser = undefined;
+    // Clear timers
+    for (const device in watchdogWsTimer) {
+      if (watchdogWsTimer[device]) {
+        clearTimeout(watchdogWsTimer[device]);
+        delete watchdogWsTimer[device];
+      }
     }
     
     // Close all WebSocket connections
-    if (this.wsConnections) {
-      for (const [deviceId, ws] of this.wsConnections.entries()) {
-        ws.close();
+    for (const device in ws) {
+      try {
+        ws[device].close();
+      } catch (error) {
+        this.log.error(`Error closing webSocket connection to ${device}`);
       }
-      this.wsConnections.clear();
-    }
-    
-    // Clear polling intervals
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = undefined;
     }
     
     callback();
   } catch (e) {
     callback();
   }
+}
+```
+
+**Future Improvement Needed:**
+The Bonjour browser instance created in `scanDevices()` is currently not stored or cleaned up. To implement proper cleanup:
+```javascript
+// In scanDevices():
+this.bonjourBrowser = await bonjour.find({ type: 'wled' });
+
+// In onUnload():
+if (this.bonjourBrowser) {
+  this.bonjourBrowser.stop();
+  this.bonjourBrowser = undefined;
 }
 ```
 

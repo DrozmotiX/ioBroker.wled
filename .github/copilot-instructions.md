@@ -21,10 +21,16 @@ This adapter provides integration for WLED devices - ESP8266/ESP32-based LED con
 - **Fallback**: Manual device addition via IP address when auto-discovery fails
 
 **Primary Dependencies:**
-- `bonjour`: mDNS/Bonjour service discovery for automatic device detection
-- `axios`: HTTP client for REST API communication with WLED devices
-- `ws`: WebSocket client for real-time device state updates
-- `hex-rgb` & `rgb-hex`: Color format conversion utilities for LED color handling
+- `bonjour` (^3.5.0): mDNS/Bonjour service discovery for automatic device detection
+- `axios` (^1.12.0): HTTP client for REST API communication with WLED devices
+- `ws` (^8.7.0): WebSocket client for real-time device state updates
+- `hex-rgb` (^4.3.0) & `rgb-hex` (^3.0.0): Color format conversion utilities for LED color handling
+
+**Version Notes:**
+- `bonjour`: v3.x provides stable mDNS discovery; no known breaking changes anticipated
+- `axios`: v1.x is stable; maintains compatibility with WLED REST API patterns
+- `ws`: v8.x is the current stable version; upgrade to v9+ should be carefully tested for WebSocket reconnection logic
+- Color libraries: Current versions are stable and unlikely to change significantly
 
 **Configuration Requirements:**
 - Device list management (auto-discovered or manually added)
@@ -601,8 +607,9 @@ When creating admin configuration interfaces:
 ## Best Practices for Dependencies
 
 ### HTTP Client Libraries
-- **Preferred:** Use native `fetch` API (Node.js 18+ has native fetch, but this adapter requires Node.js 20+)
-- **Avoid:** `axios` unless specific features are required (reduces bundle size)
+- **Preferred for new code:** Use native `fetch` API (Node.js 18+ has native fetch, but this adapter requires Node.js 20+)
+- **Current WLED implementation:** Uses `axios` for REST API communication - maintain for stability (see WLED-Specific Dependency Usage section below)
+- **General guidance:** Avoid adding `axios` to new adapters unless specific features are required (reduces bundle size)
 
 ### Example with fetch:
 ```javascript
@@ -626,14 +633,14 @@ try {
 ### WLED-Specific Dependency Usage
 
 **Current Dependencies:**
-- `axios` is currently used for WLED REST API communication - maintain for stability
-- `ws` provides WebSocket connections for real-time device state updates
-- `bonjour` handles mDNS service discovery for automatic device detection
-- `hex-rgb` and `rgb-hex` for color format conversions
+- `axios` (^1.12.0): Currently used for WLED REST API communication - maintain for stability
+- `ws` (^8.7.0): Provides WebSocket connections for real-time device state updates
+- `bonjour` (^3.5.0): Handles mDNS service discovery for automatic device detection
+- `hex-rgb` (^4.3.0) and `rgb-hex` (^3.0.0): For color format conversions between hex and RGB values
 
 **Migration Considerations:**
-- When refactoring HTTP communication, consider migrating from `axios` to native `fetch` API
-- Maintain WebSocket connections with `ws` library for real-time updates
+- When refactoring HTTP communication, consider migrating from `axios` to native `fetch` API for new features
+- Maintain WebSocket connections with `ws` library for real-time updates (v8.x stable, test carefully before upgrading to v9+)
 - Keep `bonjour` for service discovery - no built-in Node.js alternative available
 - Retain color conversion utilities unless implementing custom conversion logic
 

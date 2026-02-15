@@ -195,12 +195,6 @@ class Wled extends utils.Adapter {
 
                                 this.log.debug(`Raw command response: ${JSON.stringify(result.data)}`);
 
-                                // Acknowledge the state change
-                                this.setState(id, {
-                                    val: state.val,
-                                    ack: true,
-                                });
-
                                 // Trigger a device poll to update states after a short delay
                                 setTimeout(() => {
                                     this.watchDog(device_ip);
@@ -208,6 +202,12 @@ class Wled extends utils.Adapter {
                             } catch (error) {
                                 this.log.error(`Failed to send raw command: ${error.message}`);
                             }
+
+                            // Always acknowledge the state change, regardless of success or failure
+                            this.setState(id, {
+                                val: state.val,
+                                ack: true,
+                            });
 
                             return; // Exit early, rawCommand is handled separately
                         } catch (error) {

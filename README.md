@@ -33,6 +33,41 @@ Don't worry, in that case you can add the device manually by IP-Address.
 4 - B) If A fails, use the Add-Device button and provide the device IP-Address  
 5) Adapter will send changes immediately and polls data every x seconds (configurable)
 
+## Features
+
+### Control Methods
+The adapter provides multiple ways to control your WLED devices:
+
+1. **Standard States** - Use individual states for brightness, color, effects, etc.
+2. **JSON Commands** - Send complete JSON commands via the `action` state for advanced control
+3. **Raw HTTP API Commands** - Send legacy HTTP API commands via the `rawCommand` state
+
+### Using Raw HTTP API Commands
+For advanced users who need to send raw HTTP API commands (legacy `/win` endpoint), you can use the `rawCommand` state:
+
+```javascript
+// Example: Set brightness to 255, effect to 0, and colors
+setState('wled.0.XXXXXXXXXXXX.rawCommand', 'A=255&FX=0&R=255&G=0&B=0');
+
+// Example: Complex command with multiple parameters
+setState('wled.0.XXXXXXXXXXXX.rawCommand', 'SM=0&SS=0&SV=2&S=15&S2=299&GP=7&SP=30&RV=0&SB=255&A=255&W=255&R2=0&G2=0&B2=0&W2=&FX=0&T=1');
+```
+
+**Note:** The `rawCommand` state is intended for advanced use cases and compatibility with legacy WLED HTTP API. For most use cases, the standard states or JSON commands (via `action` state) are recommended.
+
+Common raw command parameters:
+- `A` - Master brightness (0-255)
+- `R`, `G`, `B` - Primary color RGB values (0-255)
+- `R2`, `G2`, `B2` - Secondary color RGB values (0-255)
+- `W`, `W2` - White channel values (0-255)
+- `FX` - Effect ID
+- `SX` - Effect speed
+- `IX` - Effect intensity
+- `FP` - Palette ID
+- `T` - Transition time
+
+For a complete list of parameters, refer to the [WLED HTTP API documentation](https://kno.wled.ge/interfaces/http-api/).
+
 ## Support me
 If you like my work, please feel free to provide a personal donation  
 (this is a personal Donate link for DutchmanNL, no relation to the ioBroker Project !)  
@@ -49,6 +84,7 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 ### **WORK IN PROGRESS**
+* (DutchmanNL) **NEW**: Added support for sending raw HTTP API commands via `rawCommand` state (fixes #677)
 * (DutchmanNL) **FIXED**: Corrected online/offline state detection - `_online` state now properly contains boolean values resolves #654
 * (DutchmanNL) **FIXED**: Ensure backend processes and stop when device is deleted in ioBroker object tree (fixes #615)
 * (DutchmanNL) **CI/CD**: Fixed automated deployment failure by removing unused build step for JavaScript-only adapter

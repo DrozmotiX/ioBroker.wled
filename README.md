@@ -142,7 +142,7 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 ### **WORK IN PROGRESS**
-* (copilot) **NEW**: Added segment management via sendTo commands - dynamically add and delete WLED segments from JavaScript
+* (DutchmanNL) **NEW**: Added segment management via sendTo commands - dynamically add and delete WLED segments
 * (DutchmanNL) **NEW**: Added Hue Sync control - synchronize WLED colors with Philips Hue lights (hp state: 0-99, 0=off)
 * (DutchmanNL) **NEW**: Added Reboot control - restart WLED device remotely (rb state: boolean button)
 * (DutchmanNL) **NEW**: Added Realtime UDP control - toggle reception of realtime UDP data (rd state: boolean switch)

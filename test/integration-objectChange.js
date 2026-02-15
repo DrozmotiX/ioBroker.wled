@@ -51,9 +51,19 @@ tests.integration(path.join(__dirname, '..'), {
                     throw new Error('Test device was not deleted');
                 }
 
-                // The adapter should have logged cleanup messages
-                // We can't directly verify backend processes and objects from here,
-                // but we verified the flow works without errors
+                // Verify that the adapter logged the backend cleanup message
+                const logs = harness.getLogs();
+                const cleanupLogFound = logs.some(
+                    (entry) =>
+                        entry &&
+                        typeof entry.message === 'string' &&
+                        entry.message.includes('Cleaning up backend structures for device'),
+                );
+                if (!cleanupLogFound) {
+                    throw new Error(
+                        'Expected cleanup log message "Cleaning up backend structures for device" was not found',
+                    );
+                }
 
                 await harness.stopAdapter();
             });

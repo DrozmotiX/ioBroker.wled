@@ -141,7 +141,7 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__
+### 0.9.1 (2026-02-15)
 * (Copilot) solve auto deployment issues
 
 ### 0.9.0 (2026-02-15)
@@ -169,12 +169,6 @@ When the adapter crashes or another Code error happens, this error message that 
 * (DutchmanNL) Show online state of device in object tree
 * (DutchmanNL) Bugfix: Update online state correctly in situation connection is lost, fixes #611
 * (DutchmanNL) Reset brightness to 0 and on to false during adapter start and if a device disconnects, fixes #565
-
-### 0.7.1 (2023-10-02)
-* several fixes by [HaggardFFM](https://github.com/HaggardFFM) fixes #479, #423
-* (DutchmanNL) missing state attribute definitions added
-* implement white color channel by [HaggardFFM](https://github.com/HaggardFFM), fixes #306, #306
-* (DutchmanNL) Removed error message if definitions are missing, no impact on functionality
 
 ## For Developers
 

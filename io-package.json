@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "wled",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "news": {
+      "0.9.1": {
+        "en": "solve auto deployment issues",
+        "de": "probleme bei der automatischen bereitstellung",
+        "ru": "решение проблем с развертыванием авто",
+        "pt": "resolver problemas de implantação automática",
+        "nl": "problemen met automatische implementatie oplossen",
+        "fr": "résoudre les problèmes de déploiement automatique",
+        "it": "risolvere problemi di implementazione automatica",
+        "es": "resolver problemas de implementación de automóviles",
+        "pl": "rozwiązać problemy z automatycznym wdrażaniem",
+        "uk": "вирішувати питання автоматичного розгортання",
+        "zh-cn": "解决自动部署问题"
+      },
       "0.9.0": {
         "en": "**NEW**: Added segment management via sendTo commands - dynamically add and delete WLED segments\n**NEW**: Added Hue Sync control - synchronize WLED colors with Philips Hue lights (hp state: 0-99, 0=off)\n**NEW**: Added Reboot control - restart WLED device remotely (rb state: boolean button)\n**NEW**: Added Realtime UDP control - toggle reception of realtime UDP data (rd state: boolean switch)\n**NEW**: Added support for sending raw HTTP API commands via `rawCommand` state (fixes #677)\n**FIXED**: Corrected online/offline state detection - `_online` state now properly contains boolean values resolves #654\n**FIXED**: Ensure backend processes and stop when device is deleted in ioBroker object tree (fixes #615)\n**ENHANCED**: Reduced code complexity by extracting validation helpers to separate module (lib/validation.js) #777\n**TESTING**: Added comprehensive unit tests for validation helpers (49 test cases covering edge cases and error handling)\n**CI/CD**: Fixed automated deployment failure by removing unused build step for JavaScript-only adapter",
         "de": "**NEW**: Segmentverwaltung per Absenden hinzugefügt Zu Befehlen - dynamisch hinzufügen und löschen WLED-Segmente\n**NEW**: Hinzugefügt Hue Sync-Steuerung - synchronisieren WLED-Farben mit Philips Hue lights (hp state: 0-99, 0=off)\n**NEW**: Reboot-Steuerung hinzugefügt - WLED-Gerät remote neu starten (rb-Zustand: boolean-Taste)\n**NEW**: Hinzugefügt Echtzeit-UDP-Steuerung - toggle Empfang von Echtzeit-UDP-Daten (rd state: boolean switch)\n**NEW**: Unterstützung für das Senden von rohen HTTP-API-Befehlen über `rawCommand` Zustand hinzugefügt (fixes #677)\n**FIXED**: Korrigierte online/offline Zustandserkennung - `_online` Zustand enthält jetzt korrekt boolean Werte löst #654\n**FIXED**: Sichern Sie Backend-Prozesse und stoppen Sie, wenn das Gerät in ioBroker Objektbaum gelöscht wird (fixes #615)\n**ENHANCED**: Verringerte Code-Komplexität durch Extraktion von Validierungshelfern zum separaten Modul (lib/validation.js) #777\n**TESTING**: Ergänzende Einheitstests für Validierungshelfer (49 Testfälle mit Randfällen und Fehlerbehandlung)\n**CI/CD*: Fehler beim automatisierten Einsatz behoben, indem ungenutzter Build-Schritt für JavaScript-only Adapter entfernt wird",
@@ -80,19 +93,6 @@
         "pl": "Bugfix: Cannot odczytuje własność nieokreśloną Państwa rozwiązane są na #400 (https:/github.com/DrozmotiX/ioBroker.wled/400)",
         "zh-cn": "Bugfix: 未确定处理的财产 国家解决[第400号](http://github.com/DrozmotiX/ioBroker.wled/issues/400)",
         "uk": "Виправлення: неможливо прочитати властивість «initialized» невизначеного handleStates [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)"
-      },
-      "0.6.6": {
-        "en": "Log messages and error reporting improved\nDon't send missing attribute definitions to Sentry",
-        "de": "Protokollmeldungen und Fehlermeldungen verbessert\nSendet keine fehlenden Attributdefinitionen an Sentry",
-        "ru": "Улучшены сообщения журнала и отчеты об ошибках.\n",
-        "pt": "Mensagens de log e relatórios de erros aprimorados\n",
-        "nl": "Logberichten en foutrapportage verbeterd\nStuur ontbrekende attribuutdefinities niet naar Sentry",
-        "fr": "Messages du journal et rapports d'erreurs améliorés\n",
-        "it": "Messaggi di registro e segnalazione degli errori migliorati\n",
-        "es": "Mensajes de registro e informes de errores mejorados\n",
-        "pl": "Poprawiono komunikaty dziennika i raportowanie błędów\n",
-        "zh-cn": "改进了日志消息和错误报告\n",
-        "uk": "Покращено журнал повідомлень і звіт про помилки\nНе надсилайте визначення відсутніх атрибутів до Sentry"
       }
     },
     "titleLang": {

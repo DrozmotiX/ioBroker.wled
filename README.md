@@ -49,7 +49,7 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 ### **WORK IN PROGRESS**
-* (DutchmanNL) **FIXED**: Ensure backend processing stops when device is deleted in ioBroker object tree (fixes #614)
+* (DutchmanNL) **FIXED**: Ensure backend processes and objects stop when device is deleted in ioBroker object tree (fixes #614)
 
 ### 0.8.0 (2026-02-15)
 * (ticaki) allow sending of raw json from state

@@ -5,7 +5,7 @@ const { tests } = require('@iobroker/testing');
 tests.integration(path.join(__dirname, '..'), {
     defineAdditionalTests({ suite }) {
         suite('Device deletion cleanup', (getHarness) => {
-            it('Should clean up backend structures when device is deleted from object tree', async function () {
+            it('Should clean up backend processes and objects when device is deleted from object tree', async function () {
                 this.timeout(60000);
 
                 const harness = getHarness();
@@ -52,7 +52,7 @@ tests.integration(path.join(__dirname, '..'), {
                 }
 
                 // The adapter should have logged cleanup messages
-                // We can't directly verify backend structures from here,
+                // We can't directly verify backend processes and objects from here,
                 // but we verified the flow works without errors
 
                 await harness.stopAdapter();

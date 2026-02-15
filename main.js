@@ -93,50 +93,19 @@ class Wled extends utils.Adapter {
      */
     onUnload(callback) {
         try {
-            // Clear running polling timers
+            // Clear adapter-level polling timer
             if (watchDogStartDelay) {
                 clearTimeout(watchDogStartDelay);
                 watchDogStartDelay = null;
             }
-            for (const device in watchdogWsTimer) {
-                if (watchdogWsTimer[device]) {
-                    clearTimeout(watchdogWsTimer[device]);
-                    delete watchdogWsTimer[device];
-                }
-            }
-            for (const device in watchdogTimer) {
-                if (watchdogTimer[device]) {
-                    clearTimeout(watchdogTimer[device]);
-                    delete watchdogTimer[device];
-                }
-            }
-            for (const device in stateExpire) {
-                if (stateExpire[device]) {
-                    clearTimeout(stateExpire[device]);
-                    delete stateExpire[device];
-                }
-            }
 
-            // Clear retry count and delay tracking
-            for (const device in deviceRetryCount) {
-                delete deviceRetryCount[device];
-            }
-            for (const device in deviceRetryDelay) {
-                delete deviceRetryDelay[device];
-            }
-
-            // Close WebSocket connections
-            for (const device in ws) {
-                try {
-                    // Close socket connection
-                    ws[device].close();
-                } catch (error) {
-                    let message = error;
-                    if (error instanceof Error && error.stack != null) {
-                        message = error.stack;
-                    }
-                    this.log.error(`Error closing webSocket connection to ${device} | ${message}`);
+            // Set all online states to false and clean up each device
+            for (const ip in this.devices) {
+                if (this.devices[ip]?.mac) {
+                    this.setState(`${this.devices[ip].mac}._info._online`, { val: false, ack: true });
                 }
+                // Use the centralized cleanup method for each device
+                this.cleanupDeviceBackend(ip, this.devices[ip]?.mac);
             }
 
             // Stop Bonjour browser
@@ -153,22 +122,17 @@ class Wled extends utils.Adapter {
                 }
             }
 
-            // Set all online states to false
-            for (const i in this.devices) {
-                this.setState(`${this.devices[i].mac}._info` + `._online`, { val: false, ack: true });
-            }
-
             try {
                 this.log.info('cleaned everything up...');
                 this.setState('info.connection', false, true);
                 callback();
             } catch (error) {
-                this.errorHandler(`[onStateChange]`, error);
+                this.errorHandler(`[onUnload]`, error);
                 this.setState('info.connection', false, true);
                 callback();
             }
         } catch (error) {
-            this.errorHandler(`[onStateChange]`, error);
+            this.errorHandler(`[onUnload]`, error);
         }
     }
 
@@ -435,7 +399,7 @@ class Wled extends utils.Adapter {
                 // Extract MAC address from the device ID
                 const mac = id.split('.').pop();
 
-                this.log.info(`Device ${mac} was deleted from object tree, cleaning up backend structures`);
+                this.log.info(`Device ${mac} was deleted from object tree, cleaning up backend processes and objects`);
 
                 // Find the device IP from our devices array
                 let deviceIP = null;
@@ -447,10 +411,12 @@ class Wled extends utils.Adapter {
                 }
 
                 if (deviceIP) {
-                    // Clean up backend structures using the helper method
+                    // Clean up backend processes and objects using the helper method
                     this.cleanupDeviceBackend(deviceIP, mac);
                 } else {
-                    this.log.warn(`Device ${mac} not found in devices array, cannot clean up backend structures`);
+                    this.log.warn(
+                        `Device ${mac} not found in devices array, cannot clean up backend processes and objects`,
+                    );
                 }
             }
         } catch (error) {
@@ -1476,14 +1442,14 @@ class Wled extends utils.Adapter {
     }
 
     /**
-     * Clean up backend structures for a device (timers, WebSocket, tracking data)
+     * Clean up backend processes and objects for a device (timers, WebSocket, tracking data)
      *
      * @param {string} ip IP address of the device
      * @param {string} mac MAC address of the device (optional, for cache cleanup)
      */
     cleanupDeviceBackend(ip, mac) {
         try {
-            this.log.info(`Cleaning up backend structures for device ${ip}`);
+            this.log.info(`Cleaning up backend processes and objects for device ${ip}`);
 
             // Clear watchdog timer
             if (watchdogTimer[ip]) {

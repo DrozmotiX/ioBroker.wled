@@ -68,6 +68,64 @@ Common raw command parameters:
 
 For a complete list of parameters, refer to the [WLED HTTP API documentation](https://kno.wled.ge/interfaces/http-api/).
 
+### Segment Management via sendTo
+The adapter provides powerful segment management capabilities through `sendTo` commands, allowing you to dynamically add and delete segments from your JavaScript code:
+
+#### Adding Segments
+```javascript
+// Add a new segment to a WLED device
+sendTo('wled.0', 'addSegment', {
+    deviceId: 'AABBCCDDEEFF',  // Device MAC address
+    segmentId: 1,              // Segment ID (0-based)
+    start: 0,                  // Start LED
+    stop: 10,                  // Stop LED (exclusive)
+    on: true,                  // Optional: Turn segment on/off
+    bri: 255,                  // Optional: Brightness (0-255)
+    fx: 0,                     // Optional: Effect ID
+    sx: 128,                   // Optional: Effect speed
+    ix: 128,                   // Optional: Effect intensity
+    pal: 0,                    // Optional: Color palette
+    col: [[255,0,0],[0,255,0],[0,0,255]]  // Optional: Colors (RGB arrays)
+}, (result) => {
+    if (result.success) {
+        console.log('Segment added successfully: ' + result.message);
+    } else {
+        console.error('Failed to add segment: ' + result.error);
+    }
+});
+```
+
+#### Deleting Segments
+```javascript
+// Delete a segment from a WLED device
+sendTo('wled.0', 'deleteSegment', {
+    deviceId: 'AABBCCDDEEFF',  // Device MAC address
+    segmentId: 1               // Segment ID to delete
+}, (result) => {
+    if (result.success) {
+        console.log('Segment deleted successfully: ' + result.message);
+    } else {
+        console.error('Failed to delete segment: ' + result.error);
+    }
+});
+```
+
+**Parameters:**
+- `deviceId` (required): The MAC address of your WLED device (e.g., 'AABBCCDDEEFF')
+- `segmentId` (required): The segment ID (0-based numbering)
+- For `addSegment`:
+  - `start` (optional): First LED in segment, defaults to 0
+  - `stop` (optional): Last LED in segment (exclusive), defaults to 1
+  - `on` (optional): Turn segment on/off
+  - `bri` (optional): Brightness (0-255)
+  - `fx` (optional): Effect ID
+  - `sx` (optional): Effect speed (0-255)
+  - `ix` (optional): Effect intensity (0-255)
+  - `pal` (optional): Color palette ID
+  - `col` (optional): Array of RGB color arrays
+
+**Note:** The adapter automatically handles communication via WebSocket (if available) or HTTP API, and refreshes the device state after segment operations.
+
 ## Support me
 If you like my work, please feel free to provide a personal donation  
 (this is a personal Donate link for DutchmanNL, no relation to the ioBroker Project !)  
@@ -84,6 +142,7 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 ### **WORK IN PROGRESS**
+* (copilot) **NEW**: Added segment management via sendTo commands - dynamically add and delete WLED segments from JavaScript
 * (DutchmanNL) **NEW**: Added Hue Sync control - synchronize WLED colors with Philips Hue lights (hp state: 0-99, 0=off)
 * (DutchmanNL) **NEW**: Added Reboot control - restart WLED device remotely (rb state: boolean button)
 * (DutchmanNL) **NEW**: Added Realtime UDP control - toggle reception of realtime UDP data (rd state: boolean switch)

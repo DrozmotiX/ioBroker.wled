@@ -48,6 +48,9 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### **WORK IN PROGRESS**
+* (DutchmanNL) **FIXED**: Ensure backend processing stops when device is deleted in ioBroker object tree (fixes #614)
+
 ### 0.8.0 (2026-02-15)
 * (ticaki) allow sending of raw json from state
 * (DutchmanNL) **FIXED**: Implement proper Bonjour browser cleanup in onUnload() to prevent resource leaks

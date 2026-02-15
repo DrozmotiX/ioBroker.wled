@@ -1,0 +1,334 @@
+{
+	"i18n": true,
+	"type": "tabs",
+	"items": {
+		// Main settings tab
+		"_options": {
+			"type": "panel",
+			"label": "Main settings",
+			"items": {
+				// Header with logo
+				"headerLogo": {
+					"type": "staticImage",
+					"src": "wled.png",
+					"xs": 12,
+					"sm": 12,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
+				},
+
+				// Information text
+				"headerInfo": {
+					"newLine": true,
+					"type": "staticText",
+					"text": "lblMainInfo",
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+
+				"emptyLine1": {
+					"newLine": true,
+					"type": "staticText",
+					"text": "",
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+
+				// Main configuration section
+				"configHeader": {
+					"type": "header",
+					"text": "lblConfigHeader",
+					"size": 2
+				},
+
+				// Polling interval
+				"Time_Sync": {
+					"newLine": true,
+					"type": "number",
+					"min": 0,
+					"max": 65565,
+					"label": "lblTimeSync",
+					"help": "hlpTimeSync",
+					"xs": 12,
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
+				},
+
+				// Max retry attempts
+				"maxRetries": {
+					"type": "number",
+					"min": 1,
+					"max": 20,
+					"label": "lblMaxRetries",
+					"help": "hlpMaxRetries",
+					"xs": 12,
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
+				},
+
+				// Enable exponential backoff
+				"retryBackoff": {
+					"newLine": true,
+					"type": "checkbox",
+					"label": "lblRetryBackoff",
+					"help": "hlpRetryBackoff",
+					"xs": 12,
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
+				}
+			}
+		},
+
+		// Devices tab
+		"devices": {
+			"type": "panel",
+			"label": "Devices",
+			"items": {
+				// Header
+				"devicesHeader": {
+					"type": "header",
+					"text": "lblDevicesHeader",
+					"size": 1
+				},
+
+				// Info text
+				"devicesInfo": {
+					"newLine": true,
+					"type": "staticText",
+					"text": "lblDevicesInfo",
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+
+				// Warning when adapter is not running
+				"adapterNotRunning": {
+					"newLine": true,
+					"type": "staticText",
+					"text": "lblAdapterNotRunning",
+					"style": {
+						"color": "orange",
+						"fontWeight": "bold"
+					},
+					"hidden": "_alive",
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+
+				"emptyLine2": {
+					"newLine": true,
+					"type": "staticText",
+					"text": "",
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+
+				// Add device section
+				"addDeviceHeader": {
+					"type": "header",
+					"text": "lblAddDeviceHeader",
+					"size": 2
+				},
+
+				// Device IP input
+				"deviceIP": {
+					"newLine": true,
+					"type": "text",
+					"label": "lblDeviceIP",
+					"placeholder": "192.168.1.100",
+					"help": "hlpDeviceIP",
+					"xs": 12,
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
+				},
+
+				// Add device button
+				"addDeviceButton": {
+					"type": "sendTo",
+					"label": "lblAddDevice",
+					"variant": "contained",
+					"showProcess": true,
+					"command": "addDevice",
+					"jsonData": "{\"ip\": \"${data.deviceIP}\"}",
+					"disabled": "!data.deviceIP || data.deviceIP === ''",
+					"hidden": "!_alive",
+					"xs": 12,
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
+				},
+
+				"emptyLine3": {
+					"newLine": true,
+					"type": "staticText",
+					"text": "",
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+
+				// Device list section
+				"deviceListHeader": {
+					"type": "header",
+					"text": "lblDeviceListHeader",
+					"size": 2
+				},
+
+				// Refresh devices button
+				"refreshDevicesButton": {
+					"newLine": true,
+					"type": "sendTo",
+					"label": "lblRefreshDevices",
+					"variant": "outlined",
+					"showProcess": true,
+					"command": "loadDevices",
+					"jsonData": "{}",
+					"useNative": true,
+					"hidden": "!_alive",
+					"xs": 12,
+					"sm": 12,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
+				},
+
+				// Devices table
+				"devicesTable": {
+					"newLine": true,
+					"type": "table",
+					"noDelete": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12,
+					"items": [
+						{
+							"type": "text",
+							"readOnly": true,
+							"attr": "mac",
+							"width": "30%",
+							"title": "lblTableMAC",
+							"filter": false,
+							"sort": true,
+							"default": ""
+						},
+						{
+							"type": "text",
+							"readOnly": true,
+							"attr": "name",
+							"width": "30%",
+							"title": "lblTableName",
+							"filter": false,
+							"sort": true,
+							"default": ""
+						},
+						{
+							"type": "text",
+							"readOnly": true,
+							"attr": "ip",
+							"width": "20%",
+							"title": "lblTableIP",
+							"filter": false,
+							"sort": true,
+							"default": ""
+						},
+						{
+							"type": "text",
+							"readOnly": true,
+							"attr": "connected",
+							"width": "20%",
+							"title": "lblTableConnected",
+							"filter": false,
+							"sort": true,
+							"default": ""
+						}
+					]
+				},
+
+				"emptyLine4": {
+					"newLine": true,
+					"type": "staticText",
+					"text": "",
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+
+				// Delete device section
+				"deleteDeviceHeader": {
+					"type": "header",
+					"text": "lblDeleteDeviceHeader",
+					"size": 2
+				},
+
+				// Device IP for deletion
+				"deleteDeviceIP": {
+					"newLine": true,
+					"type": "text",
+					"label": "lblDeleteDeviceIP",
+					"placeholder": "192.168.1.100",
+					"help": "hlpDeleteDeviceIP",
+					"xs": 12,
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
+				},
+
+				// Delete device button
+				"deleteDeviceButton": {
+					"type": "sendTo",
+					"label": "lblDeleteDevice",
+					"variant": "outlined",
+					"color": "error",
+					"showProcess": true,
+					"command": "deleteDevice",
+					"jsonData": "{\"ip\": \"${data.deleteDeviceIP}\"}",
+					"disabled": "!data.deleteDeviceIP || data.deleteDeviceIP === ''",
+					"hidden": "!_alive",
+					"xs": 12,
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3,
+					"confirm": {
+						"text": "cnfDeleteDeviceText",
+						"title": "cnfDeleteDeviceTitle",
+						"ok": "cnfDeleteDeviceOk",
+						"cancel": "cnfDeleteDeviceCancel",
+						"type": "warning"
+					}
+				}
+			}
+		}
+	}
+}

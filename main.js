@@ -477,6 +477,21 @@ class Wled extends utils.Adapter {
      *
      * @param {ioBroker.Message} obj
      */
+    /**
+     * Find device IP address by MAC address
+     *
+     * @param {string} mac - MAC address of device
+     * @returns {string|null} - IP address or null if not found
+     */
+    getDeviceIpByMac(mac) {
+        for (const ip in this.devices) {
+            if (this.devices[ip].mac === mac) {
+                return ip;
+            }
+        }
+        return null;
+    }
+
     async onMessage(obj) {
         // If the message starts with dm: it is a device management message so ignore it
         if (obj.command.startsWith('dm:')) {
@@ -536,6 +551,263 @@ class Wled extends utils.Adapter {
                     } catch (deleteError) {
                         this.log.error(`Error deleting device ${deviceIP}: ${deleteError.message}`);
                         respond('failed', this);
+                    }
+                    break;
+                case 'addSegment':
+                    // Add a new segment to a WLED device
+                    // Expected message format: { deviceId: 'MAC', segmentId: 0, start: 0, stop: 10, ...otherProps }
+                    // eslint-disable-next-line no-case-declarations
+                    const addSegmentMsg = obj.message;
+                    this.log.debug(`Add segment request received: ${JSON.stringify(addSegmentMsg)}`);
+
+                    try {
+                        if (!addSegmentMsg || !addSegmentMsg.deviceId || addSegmentMsg.segmentId === undefined) {
+                            this.log.error('addSegment requires deviceId and segmentId');
+                            respond(
+                                { success: false, error: 'Missing required parameters: deviceId and segmentId' },
+                                this,
+                            );
+                            break;
+                        }
+
+                        const deviceMac = addSegmentMsg.deviceId;
+                        const segmentId = addSegmentMsg.segmentId;
+
+                        // Find device IP by MAC address using helper method
+                        const deviceIpAddr = this.getDeviceIpByMac(deviceMac);
+
+                        if (!deviceIpAddr) {
+                            this.log.error(`Device with MAC ${deviceMac} not found`);
+                            respond({ success: false, error: `Device with MAC ${deviceMac} not found` }, this);
+                            break;
+                        }
+
+                        // Safety check: verify device still exists
+                        if (!this.devices[deviceIpAddr]) {
+                            this.log.error(`Device with MAC ${deviceMac} no longer available`);
+                            respond({ success: false, error: `Device with MAC ${deviceMac} not found` }, this);
+                            break;
+                        }
+
+                        // Build segment configuration object
+                        const segmentConfig = {
+                            id: segmentId,
+                            start: addSegmentMsg.start !== undefined ? addSegmentMsg.start : 0,
+                            stop: addSegmentMsg.stop !== undefined ? addSegmentMsg.stop : 1,
+                        };
+
+                        // Add optional properties if provided
+
+                        // Helper to validate byte values (0-255)
+                        const validateByte = (value, name) => {
+                            if (typeof value !== 'number' || !Number.isFinite(value)) {
+                                this.log.warn(
+                                    `Ignoring invalid ${name} value for addSegment: ${value} (expected number 0-255)`,
+                                );
+                                return undefined;
+                            }
+                            const intVal = Math.round(value);
+                            if (intVal < 0 || intVal > 255) {
+                                this.log.warn(
+                                    `Ignoring out-of-range ${name} value for addSegment: ${value} (expected 0-255)`,
+                                );
+                                return undefined;
+                            }
+                            return intVal;
+                        };
+
+                        // Helper to validate color array: [[r,g,b], ...] with 0-255 values
+                        const validateColorArray = colVal => {
+                            if (!Array.isArray(colVal)) {
+                                this.log.warn(
+                                    `Ignoring invalid col value for addSegment: expected array, got ${typeof colVal}`,
+                                );
+                                return null;
+                            }
+
+                            const sanitizedColors = [];
+
+                            for (let i = 0; i < colVal.length; i++) {
+                                const color = colVal[i];
+                                if (!Array.isArray(color) || color.length < 3) {
+                                    this.log.warn(
+                                        `Ignoring invalid color entry at index ${i} in col for addSegment: expected [r,g,b] array`,
+                                    );
+                                    continue;
+                                }
+
+                                const rgb = [];
+                                for (let j = 0; j < 3; j++) {
+                                    const channel = color[j];
+                                    if (typeof channel !== 'number' || !Number.isFinite(channel)) {
+                                        this.log.warn(
+                                            `Ignoring invalid color channel at col[${i}][${j}] for addSegment: ${channel} (expected number 0-255)`,
+                                        );
+                                        rgb.length = 0;
+                                        break;
+                                    }
+                                    const intChannel = Math.round(channel);
+                                    if (intChannel < 0 || intChannel > 255) {
+                                        this.log.warn(
+                                            `Ignoring out-of-range color channel at col[${i}][${j}] for addSegment: ${channel} (expected 0-255)`,
+                                        );
+                                        rgb.length = 0;
+                                        break;
+                                    }
+                                    rgb.push(intChannel);
+                                }
+
+                                // Only add fully valid RGB entries
+                                if (rgb.length === 3) {
+                                    sanitizedColors.push(rgb);
+                                }
+                            }
+
+                            if (!sanitizedColors.length) {
+                                this.log.warn('Ignoring col for addSegment because no valid color entries were found');
+                                return null;
+                            }
+
+                            return sanitizedColors;
+                        };
+
+                        if (addSegmentMsg.on !== undefined) {
+                            // normalize to boolean
+                            segmentConfig.on = !!addSegmentMsg.on;
+                        }
+                        if (addSegmentMsg.bri !== undefined) {
+                            const bri = validateByte(addSegmentMsg.bri, 'bri');
+                            if (bri !== undefined) {
+                                segmentConfig.bri = bri;
+                            }
+                        }
+                        if (addSegmentMsg.fx !== undefined) {
+                            const fx = validateByte(addSegmentMsg.fx, 'fx');
+                            if (fx !== undefined) {
+                                segmentConfig.fx = fx;
+                            }
+                        }
+                        if (addSegmentMsg.sx !== undefined) {
+                            const sx = validateByte(addSegmentMsg.sx, 'sx');
+                            if (sx !== undefined) {
+                                segmentConfig.sx = sx;
+                            }
+                        }
+                        if (addSegmentMsg.ix !== undefined) {
+                            const ix = validateByte(addSegmentMsg.ix, 'ix');
+                            if (ix !== undefined) {
+                                segmentConfig.ix = ix;
+                            }
+                        }
+                        if (addSegmentMsg.pal !== undefined) {
+                            const pal = validateByte(addSegmentMsg.pal, 'pal');
+                            if (pal !== undefined) {
+                                segmentConfig.pal = pal;
+                            }
+                        }
+                        if (addSegmentMsg.col !== undefined) {
+                            const col = validateColorArray(addSegmentMsg.col);
+                            if (col !== null) {
+                                segmentConfig.col = col;
+                            }
+                        }
+
+                        // Send segment configuration to WLED device
+                        const wledPayload = { seg: segmentConfig };
+
+                        // Use WebSocket if connected, otherwise use HTTP API
+                        if (this.devices[deviceIpAddr].wsConnected) {
+                            ws[deviceIpAddr].send(JSON.stringify(wledPayload));
+                            this.log.info(`Segment ${segmentId} added to device ${deviceMac} via WebSocket`);
+                        } else {
+                            await this.postAPI(`http://${deviceIpAddr}/json`, wledPayload);
+                            this.log.info(`Segment ${segmentId} added to device ${deviceMac} via HTTP API`);
+                        }
+
+                        // Wait a bit for the device to process the request, then refresh device data
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await this.getDeviceJSON(deviceIpAddr);
+
+                        respond({ success: true, message: `Segment ${segmentId} added successfully` }, this);
+                    } catch (addSegmentError) {
+                        this.log.error(`Error adding segment: ${addSegmentError.message}`);
+                        respond({ success: false, error: addSegmentError.message }, this);
+                    }
+                    break;
+                case 'deleteSegment':
+                    // Delete a segment from a WLED device
+                    // Expected message format: { deviceId: 'MAC', segmentId: 0 }
+                    // eslint-disable-next-line no-case-declarations
+                    const deleteSegmentMsg = obj.message;
+                    this.log.debug(`Delete segment request received: ${JSON.stringify(deleteSegmentMsg)}`);
+
+                    try {
+                        if (
+                            !deleteSegmentMsg ||
+                            !deleteSegmentMsg.deviceId ||
+                            deleteSegmentMsg.segmentId === undefined
+                        ) {
+                            this.log.error('deleteSegment requires deviceId and segmentId');
+                            respond(
+                                { success: false, error: 'Missing required parameters: deviceId and segmentId' },
+                                this,
+                            );
+                            break;
+                        }
+
+                        const deviceMac = deleteSegmentMsg.deviceId;
+                        const segmentId = deleteSegmentMsg.segmentId;
+
+                        // Find device IP by MAC address using helper method
+                        const deviceIpAddr = this.getDeviceIpByMac(deviceMac);
+
+                        if (!deviceIpAddr) {
+                            this.log.error(`Device with MAC ${deviceMac} not found`);
+                            respond({ success: false, error: `Device with MAC ${deviceMac} not found` }, this);
+                            break;
+                        }
+
+                        // Safety check: verify device still exists
+                        if (!this.devices[deviceIpAddr]) {
+                            this.log.error(`Device with MAC ${deviceMac} no longer available`);
+                            respond({ success: false, error: `Device with MAC ${deviceMac} not found` }, this);
+                            break;
+                        }
+
+                        // To delete a segment in WLED, set stop=0 or use the segment reset command
+                        const segmentConfig = {
+                            id: segmentId,
+                            stop: 0,
+                        };
+
+                        const wledPayload = { seg: segmentConfig };
+
+                        // Use WebSocket if connected, otherwise use HTTP API
+                        if (this.devices[deviceIpAddr].wsConnected) {
+                            ws[deviceIpAddr].send(JSON.stringify(wledPayload));
+                            this.log.info(`Segment ${segmentId} deleted from device ${deviceMac} via WebSocket`);
+                        } else {
+                            await this.postAPI(`http://${deviceIpAddr}/json`, wledPayload);
+                            this.log.info(`Segment ${segmentId} deleted from device ${deviceMac} via HTTP API`);
+                        }
+
+                        // Delete segment states from ioBroker
+                        try {
+                            const segmentStateId = `${this.namespace}.${deviceMac}.seg.${segmentId}`;
+                            await this.delObjectAsync(segmentStateId, { recursive: true });
+                            this.log.debug(`Deleted segment states for ${segmentStateId}`);
+                        } catch (delError) {
+                            this.log.debug(`Could not delete segment states (may not exist): ${delError.message}`);
+                        }
+
+                        // Wait a bit for the device to process the request, then refresh device data
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await this.getDeviceJSON(deviceIpAddr);
+
+                        respond({ success: true, message: `Segment ${segmentId} deleted successfully` }, this);
+                    } catch (deleteSegmentError) {
+                        this.log.error(`Error deleting segment: ${deleteSegmentError.message}`);
+                        respond({ success: false, error: deleteSegmentError.message }, this);
                     }
                     break;
             }

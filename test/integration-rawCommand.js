@@ -96,9 +96,8 @@ tests.integration(path.join(__dirname, '..'), {
 
                 console.log('✅ All command formats accepted successfully');
 
-                // Clean up test device
+                // Clean up test device (child states are automatically removed)
                 await harness.objects.delObjectAsync(testDeviceId);
-                await harness.objects.delObjectAsync(rawCommandStateId);
 
                 await harness.stopAdapter();
             });

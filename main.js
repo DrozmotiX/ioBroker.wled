@@ -581,26 +581,107 @@ class Wled extends utils.Adapter {
                         };
 
                         // Add optional properties if provided
+
+                        // Helper to validate byte values (0-255)
+                        const validateByte = (value, name) => {
+                            if (typeof value !== 'number' || !Number.isFinite(value)) {
+                                this.log.warn(`Ignoring invalid ${name} value for addSegment: ${value} (expected number 0-255)`);
+                                return undefined;
+                            }
+                            const intVal = Math.round(value);
+                            if (intVal < 0 || intVal > 255) {
+                                this.log.warn(`Ignoring out-of-range ${name} value for addSegment: ${value} (expected 0-255)`);
+                                return undefined;
+                            }
+                            return intVal;
+                        };
+
+                        // Helper to validate color array: [[r,g,b], ...] with 0-255 values
+                        const validateColorArray = (colVal) => {
+                            if (!Array.isArray(colVal)) {
+                                this.log.warn(`Ignoring invalid col value for addSegment: expected array, got ${typeof colVal}`);
+                                return null;
+                            }
+
+                            const sanitizedColors = [];
+
+                            for (let i = 0; i < colVal.length; i++) {
+                                const color = colVal[i];
+                                if (!Array.isArray(color) || color.length < 3) {
+                                    this.log.warn(`Ignoring invalid color entry at index ${i} in col for addSegment: expected [r,g,b] array`);
+                                    continue;
+                                }
+
+                                const rgb = [];
+                                for (let j = 0; j < 3; j++) {
+                                    const channel = color[j];
+                                    if (typeof channel !== 'number' || !Number.isFinite(channel)) {
+                                        this.log.warn(`Ignoring invalid color channel at col[${i}][${j}] for addSegment: ${channel} (expected number 0-255)`);
+                                        rgb.length = 0;
+                                        break;
+                                    }
+                                    const intChannel = Math.round(channel);
+                                    if (intChannel < 0 || intChannel > 255) {
+                                        this.log.warn(`Ignoring out-of-range color channel at col[${i}][${j}] for addSegment: ${channel} (expected 0-255)`);
+                                        rgb.length = 0;
+                                        break;
+                                    }
+                                    rgb.push(intChannel);
+                                }
+
+                                // Only add fully valid RGB entries
+                                if (rgb.length === 3) {
+                                    sanitizedColors.push(rgb);
+                                }
+                            }
+
+                            if (!sanitizedColors.length) {
+                                this.log.warn('Ignoring col for addSegment because no valid color entries were found');
+                                return null;
+                            }
+
+                            return sanitizedColors;
+                        };
+
                         if (addSegmentMsg.on !== undefined) {
-                            segmentConfig.on = addSegmentMsg.on;
+                            // normalize to boolean
+                            segmentConfig.on = !!addSegmentMsg.on;
                         }
                         if (addSegmentMsg.bri !== undefined) {
-                            segmentConfig.bri = addSegmentMsg.bri;
+                            const bri = validateByte(addSegmentMsg.bri, 'bri');
+                            if (bri !== undefined) {
+                                segmentConfig.bri = bri;
+                            }
                         }
                         if (addSegmentMsg.fx !== undefined) {
-                            segmentConfig.fx = addSegmentMsg.fx;
+                            const fx = validateByte(addSegmentMsg.fx, 'fx');
+                            if (fx !== undefined) {
+                                segmentConfig.fx = fx;
+                            }
                         }
                         if (addSegmentMsg.sx !== undefined) {
-                            segmentConfig.sx = addSegmentMsg.sx;
+                            const sx = validateByte(addSegmentMsg.sx, 'sx');
+                            if (sx !== undefined) {
+                                segmentConfig.sx = sx;
+                            }
                         }
                         if (addSegmentMsg.ix !== undefined) {
-                            segmentConfig.ix = addSegmentMsg.ix;
+                            const ix = validateByte(addSegmentMsg.ix, 'ix');
+                            if (ix !== undefined) {
+                                segmentConfig.ix = ix;
+                            }
                         }
                         if (addSegmentMsg.pal !== undefined) {
-                            segmentConfig.pal = addSegmentMsg.pal;
+                            const pal = validateByte(addSegmentMsg.pal, 'pal');
+                            if (pal !== undefined) {
+                                segmentConfig.pal = pal;
+                            }
                         }
                         if (addSegmentMsg.col !== undefined) {
-                            segmentConfig.col = addSegmentMsg.col;
+                            const col = validateColorArray(addSegmentMsg.col);
+                            if (col !== null) {
+                                segmentConfig.col = col;
+                            }
                         }
 
                         // Send segment configuration to WLED device

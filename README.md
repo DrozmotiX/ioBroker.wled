@@ -173,6 +173,19 @@ When the adapter crashes or another Code error happens, this error message that 
 * implement white color channel by [HaggardFFM](https://github.com/HaggardFFM), fixes #306, #306
 * (DutchmanNL) Removed error message if definitions are missing, no impact on functionality
 
+## For Developers
+
+### Automated Deployment Setup
+
+This adapter uses GitHub Actions for automated deployment to npm. For maintainers setting up deployment:
+
+See [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md) for detailed instructions on configuring automated deployment.
+
+Quick summary:
+- Create an NPM automation token at https://www.npmjs.com
+- Add it as `NPM_TOKEN` GitHub Secret
+- Deployment will run automatically when version tags are pushed
+
 ## License
 MIT License
 

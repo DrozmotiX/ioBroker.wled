@@ -47,6 +47,7 @@ class Wled extends utils.Adapter {
         this.effects = {};
         this.palettes = {};
         this.createdStatesDetails = {};
+        this.bonjourBrowser = null;
 
         this.deviceManagement = new dmWled(this);
     }
@@ -131,6 +132,20 @@ class Wled extends utils.Adapter {
                         message = error.stack;
                     }
                     this.log.error(`Error closing webSocket connection to ${device} | ${message}`);
+                }
+            }
+
+            // Stop Bonjour browser
+            if (this.bonjourBrowser) {
+                try {
+                    this.bonjourBrowser.stop();
+                    this.bonjourBrowser = null;
+                } catch (error) {
+                    let message = error;
+                    if (error instanceof Error && error.stack != null) {
+                        message = error.stack;
+                    }
+                    this.log.error(`Error stopping Bonjour browser | ${message}`);
                 }
             }
 
@@ -1222,13 +1237,13 @@ class Wled extends utils.Adapter {
     async scanDevices() {
         try {
             // Browse and listen for WLED devices
-            const browser = await bonjour.find({
+            this.bonjourBrowser = await bonjour.find({
                 type: 'wled',
             });
             this.log.info('Bonjour service started, new  devices  will  be detected automatically');
 
             // Event listener if new devices are detected
-            browser.on('up', data => {
+            this.bonjourBrowser.on('up', data => {
                 const id = data.txt.mac;
                 const ip = data.referer.address;
 

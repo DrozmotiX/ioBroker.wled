@@ -51,6 +51,7 @@ When the adapter crashes or another Code error happens, this error message that 
 
 ### __WORK IN PROGRESS__
 * (ticaki) allow sending of raw json from state
+* (DutchmanNL) **FIXED**: Implement proper Bonjour browser cleanup in onUnload() to prevent resource leaks
 
 ### 0.7.3 (2024-10-26)
 * (HaggardFFM) allow write on segments, solves #688 #706

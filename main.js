@@ -168,6 +168,51 @@ class Wled extends utils.Adapter {
                             this.log.error(`State ${id} is not a valid JSON string: ${state.val}`);
                             return;
                         }
+                    } else if (deviceId[3] === 'rawCommand') {
+                        // Handle raw HTTP API command (legacy /win endpoint)
+                        try {
+                            if (typeof state.val !== 'string') {
+                                throw new Error('State value is not a string');
+                            }
+
+                            this.log.debug(`Raw command request: ${state.val}`);
+
+                            // Get device IP
+                            let device_ip = await this.getForeignObjectAsync(`wled.${this.instance}.${deviceId[2]}`);
+                            if (!device_ip) {
+                                this.log.error(`Device IP not found for ${deviceId[2]}`);
+                                return;
+                            }
+                            device_ip = device_ip.native.ip;
+
+                            // Send raw command to /win endpoint with query parameters
+                            const url = `http://${device_ip}/win?${state.val}`;
+                            this.log.debug(`Sending raw command to: ${url}`);
+
+                            try {
+                                const result = await axios.get(url);
+
+                                this.log.debug(`Raw command response: ${JSON.stringify(result.data)}`);
+
+                                // Acknowledge the state change
+                                this.setState(id, {
+                                    val: state.val,
+                                    ack: true,
+                                });
+
+                                // Trigger a device poll to update states after a short delay
+                                setTimeout(() => {
+                                    this.watchDog(device_ip);
+                                }, 500);
+                            } catch (error) {
+                                this.log.error(`Failed to send raw command: ${error.message}`);
+                            }
+
+                            return; // Exit early, rawCommand is handled separately
+                        } catch (error) {
+                            this.log.error(`Error processing raw command: ${error.message}`);
+                            return;
+                        }
                     } else {
                         values = {
                             [deviceId[3]]: state.val,
@@ -639,6 +684,7 @@ class Wled extends utils.Adapter {
             await this.create_state(`${device_id}.udpn.nn`, 'nn', '');
             await this.create_state(`${device_id}.time`, 'time', null);
             await this.create_state(`${device_id}.action`, 'action', '');
+            await this.create_state(`${device_id}.rawCommand`, 'rawCommand', '');
 
             // Create structure for all states
             await this.handleStates(deviceData, deviceIP);

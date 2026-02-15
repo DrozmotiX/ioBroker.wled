@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "wled",
-    "version": "0.7.3",
+    "version": "0.8.0",
     "news": {
+      "0.8.0": {
+        "en": "allow sending of raw json from state\n**FIXED**: Implement proper Bonjour browser cleanup in onUnload() to prevent resource leaks\n**CI/CD**: Migrated deployment workflow to NPM Trusted Publishing (OIDC) for enhanced security",
+        "de": "das senden von rohem json aus dem staat\n**FIXED**: Implementieren Sie die richtige Bonjour-Browserreinigung in onUnload() um Ressourcenlecks zu verhindern\n**CI/CD*: Migrated Deployment Workflow zu NPM Trusted Publishing (OIDC) für verbesserte Sicherheit",
+        "ru": "разрешить отправку сырого джонсона из штата\n**FIXED**: Внедрить правильную очистку браузера Bonjour в onUnload() для предотвращения утечки ресурсов\n**CI/CD**: Миграционный рабочий процесс развертывания для NPM Trusted Publishing (OIDC)",
+        "pt": "permitir o envio do json bruto do estado\n**FIXED**: Implementar limpeza adequada do navegador Bonjour no onUnload() para evitar vazamentos de recursos\n**CI/CD**: fluxo de trabalho de implantação migrado para NPM Trusted Publishing (OIDC) para maior segurança",
+        "nl": "het verzenden van ruwe json vanuit staat mogelijk maken\n** VAST**: Implementeer juiste Bonjour browser opruimen in onUnload() om bronlekken te voorkomen\n**CI/CD**: Migrated deployment workflow to NPM Trusted Publishing (OIDC) for improved security",
+        "fr": "permettre l'envoi de json brut de l'état\n**FIXED**: Mettre en œuvre le nettoyage approprié du navigateur Bonjour dans onUnload() pour prévenir les fuites de ressources\n**CI/CD**: Migration du flux de travail de déploiement à NPM Trusted Publishing (OIDC) pour améliorer la sécurité",
+        "it": "consentire l'invio di json grezzo da stato\n**FIXED**: Implementare la corretta pulizia del browser Bonjour suScarica() per prevenire perdite di risorse\n**CI/CD**: flusso di lavoro di distribuzione migrato a NPM Trusted Publishing (OIDC) per una maggiore sicurezza",
+        "es": "permitir el envío de json crudo de estado\n**FIXED**: Implementar la limpieza adecuada del navegador Bonjour en onUnload() para prevenir las fugas de recursos\n**CI/CD**: Migrated deployment workflow to NPM Trusted Publishing (OIDC) for enhanced security",
+        "pl": "umożliwić wysyłanie surowego jsona ze stanu\n* *FIXED* *: Wdrożenie prawidłowego czyszczenia przeglądarki Bonjour w onUnload (), aby zapobiec wyciekom zasobów \n* *CI / CD* *: Przekierowany do NPM Trusted Publishing (OIDC) w celu zwiększenia bezpieczeństwa ",
+        "uk": "можливість відправки сировини з держави\n**FIXED***: Впровадження належного очищення браузера Bonjour на Unload() для запобігання витоків ресурсів\n**CI/CD**: Ми вітаємо роботу з розгортанням на NPM Trusted Publishing (OIDC) для підвищення безпеки",
+        "zh-cn": "允许从状态发送原始json\n** FIXED**:在 Unload( ) 中执行适当的 Bonjour 浏览器清理以防止资源泄露\n** CI/CD**:为增强安全而向国家预防机制托管出版部门转移部署工作流程"
+      },
       "0.7.3": {
         "en": "allow write on segments, solves #688 #706\nFixed error when a device is not available Solves #698",
         "de": "Segmente schreiben erlaubenn\nFehlermeldungen reduziert, wenn ein Gerät nicht verfügbar",
@@ -80,19 +93,6 @@
         "pl": "Aktualizacje zależności\nBugfix: Poprawne wskazanie stanu połączenia #307\nPopraw komunikaty o błędach i raportowanie wartowników",
         "zh-cn": "依赖更新\n错误修正：正确指示连接状态 #307\n改进错误消息和哨兵报告",
         "uk": "Оновлення залежностей\nВиправлення: правильна індикація стану підключення №307\nПокращення повідомлень про помилки та сторожових звітів"
-      },
-      "0.6.3": {
-        "en": "Missing dropdown for ID of effects added\nHotFix: Missing axios dependency added",
-        "de": "Fehlende Dropdown-Liste für die ID der hinzugefügten Effekte\nHotFix: Fehlende Axios-Abhängigkeit hinzugefügt",
-        "ru": "Отсутствует раскрывающийся список для идентификатора добавленных эффектов.\nHotFix: добавлена отсутствующая зависимость axios",
-        "pt": "Lista suspensa ausente para ID de efeitos adicionados\nHotFix: Dependência de axios ausente adicionada",
-        "nl": "Ontbrekende vervolgkeuzelijst voor ID van toegevoegde effecten\nHotFix: ontbrekende axios-afhankelijkheid toegevoegd",
-        "fr": "Liste déroulante manquante pour l'ID des effets ajoutés\nHotFix : Ajout d'une dépendance axios manquante",
-        "it": "Menu a discesa mancante per l'ID degli effetti aggiunti\nHotFix: aggiunta dipendenza Axios mancante",
-        "es": "Falta el menú desplegable para la identificación de los efectos agregados\nHotFix: Se agregó la dependencia de axios faltante",
-        "pl": "Brakujące menu dla identyfikatora dodanych efektów\nPoprawka: dodano brakującą zależność axios",
-        "zh-cn": "缺少添加效果 ID 的下拉菜单\nHotFix：添加了缺少 axios 依赖项",
-        "uk": "Відсутнє спадне меню для ідентифікатора доданих ефектів\nВиправлення: додано відсутність залежності axios"
       }
     },
     "titleLang": {

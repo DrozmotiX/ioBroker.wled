@@ -48,8 +48,7 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-
-### __WORK IN PROGRESS__
+### 0.8.0 (2026-02-15)
 * (ticaki) allow sending of raw json from state
 * (DutchmanNL) **FIXED**: Implement proper Bonjour browser cleanup in onUnload() to prevent resource leaks
 * (DutchmanNL) **CI/CD**: Migrated deployment workflow to NPM Trusted Publishing (OIDC) for enhanced security
@@ -71,10 +70,6 @@ When the adapter crashes or another Code error happens, this error message that 
 
 ### 0.6.7 (2022-06-08) - Bugfix [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
 * (DutchmanNL) Bugfix: Cannot read property 'initialized' of undefined handleStates solved [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
-
-### 0.6.6 (2022-06-08) - Log messages and error reporting improved
-* (DutchmanNL) Log messages and error reporting improved
-* (DutchmanNL) Don't send missing attribute definitions to Sentry
 
 ## License
 MIT License

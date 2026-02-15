@@ -1,4 +1,12 @@
 # Older changes
+## 0.6.6 (2022-06-08) - Log messages and error reporting improved
+* (DutchmanNL) Log messages and error reporting improved
+* (DutchmanNL) Don't send missing attribute definitions to Sentry
+
+## 0.6.6 (2022-06-08) - Log messages and error reporting improved
+* (DutchmanNL) Log messages and error reporting improved
+* (DutchmanNL) Don't send missing attribute definitions to Sentry
+
 ## 0.6.5 (2022-06-04) - Correct indication of connection state
 * (DutchmanNL) Dependency updates
 * (DutchmanNL) Bugfix: Correct indication of connection state #307

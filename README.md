@@ -141,6 +141,9 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+* (Copilot) solve auto deployment issues
+
 ### 0.9.0 (2026-02-15)
 * (DutchmanNL) **NEW**: Added segment management via sendTo commands - dynamically add and delete WLED segments
 * (DutchmanNL) **NEW**: Added Hue Sync control - synchronize WLED colors with Philips Hue lights (hp state: 0-99, 0=off)
@@ -172,6 +175,18 @@ When the adapter crashes or another Code error happens, this error message that 
 * (DutchmanNL) missing state attribute definitions added
 * implement white color channel by [HaggardFFM](https://github.com/HaggardFFM), fixes #306, #306
 * (DutchmanNL) Removed error message if definitions are missing, no impact on functionality
+
+## For Developers
+
+### Automated Deployment
+
+This adapter uses GitHub Actions with **NPM Trusted Publishing** for automated deployment.
+
+For maintainers troubleshooting deployment issues, see [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md) for:
+- Verifying trusted publishing configuration on npmjs.com
+- Required workflow and job name settings
+- Troubleshooting authentication errors
+- Testing deployment with pre-release versions
 
 ## License
 MIT License

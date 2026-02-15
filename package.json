@@ -25,7 +25,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/DrozmotiX/ioBroker.wled"
+    "url": "git+https://github.com/DrozmotiX/ioBroker.wled.git"
   },
   "engines": {
     "node": ">= 20"

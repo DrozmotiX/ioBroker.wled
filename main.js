@@ -17,6 +17,7 @@ const { default: axios } = require('axios'); // Lib to handle http requests
 const bonjour = require('bonjour')(); // load Bonjour library
 
 const stateAttr = require('./lib/stateAttr.js'); // Load attribute library
+const { validateByteValue, validateSegmentColors } = require('./lib/validation.js'); // Load validation helpers
 
 // Device ID pattern for WLED devices (MAC address format)
 const DEVICE_ID_PATTERN = /^wled\.\d+\.[0-9A-F]{12}$/i;
@@ -492,82 +493,6 @@ class Wled extends utils.Adapter {
         return null;
     }
 
-    /**
-     * Validate a byte value (0-255)
-     *
-     * @param {any} value - Value to validate
-     * @param {string} name - Name of the parameter for logging
-     * @returns {number|undefined} - Validated integer value or undefined if invalid
-     */
-    validateByteValue(value, name) {
-        if (typeof value !== 'number' || !Number.isFinite(value)) {
-            this.log.warn(`Ignoring invalid ${name} value: ${value} (expected number 0-255)`);
-            return undefined;
-        }
-        const intVal = Math.round(value);
-        if (intVal < 0 || intVal > 255) {
-            this.log.warn(`Ignoring out-of-range ${name} value: ${value} (expected 0-255)`);
-            return undefined;
-        }
-        return intVal;
-    }
-
-    /**
-     * Validate color array format: [[r,g,b], ...]
-     *
-     * @param {any} colVal - Value to validate
-     * @returns {Array|null} - Sanitized color array or null if invalid
-     */
-    validateSegmentColors(colVal) {
-        if (!Array.isArray(colVal)) {
-            this.log.warn(`Ignoring invalid col value: expected array, got ${typeof colVal}`);
-            return null;
-        }
-
-        const sanitizedColors = [];
-
-        for (let i = 0; i < colVal.length; i++) {
-            const color = colVal[i];
-            if (!Array.isArray(color) || color.length < 3) {
-                this.log.warn(`Ignoring invalid color entry at index ${i}: expected [r,g,b] array`);
-                continue;
-            }
-
-            const rgb = [];
-            for (let j = 0; j < 3; j++) {
-                const channel = color[j];
-                if (typeof channel !== 'number' || !Number.isFinite(channel)) {
-                    this.log.warn(
-                        `Ignoring invalid color channel at col[${i}][${j}]: ${channel} (expected number 0-255)`,
-                    );
-                    rgb.length = 0;
-                    break;
-                }
-                const intChannel = Math.round(channel);
-                if (intChannel < 0 || intChannel > 255) {
-                    this.log.warn(
-                        `Ignoring out-of-range color channel at col[${i}][${j}]: ${channel} (expected 0-255)`,
-                    );
-                    rgb.length = 0;
-                    break;
-                }
-                rgb.push(intChannel);
-            }
-
-            // Only add fully valid RGB entries
-            if (rgb.length === 3) {
-                sanitizedColors.push(rgb);
-            }
-        }
-
-        if (!sanitizedColors.length) {
-            this.log.warn('Ignoring col because no valid color entries were found');
-            return null;
-        }
-
-        return sanitizedColors;
-    }
-
     async onMessage(obj) {
         // If the message starts with dm: it is a device management message so ignore it
         if (obj.command.startsWith('dm:')) {
@@ -678,37 +603,37 @@ class Wled extends utils.Adapter {
                             segmentConfig.on = !!addSegmentMsg.on;
                         }
                         if (addSegmentMsg.bri !== undefined) {
-                            const bri = this.validateByteValue(addSegmentMsg.bri, 'bri');
+                            const bri = validateByteValue(addSegmentMsg.bri, 'bri', this.log);
                             if (bri !== undefined) {
                                 segmentConfig.bri = bri;
                             }
                         }
                         if (addSegmentMsg.fx !== undefined) {
-                            const fx = this.validateByteValue(addSegmentMsg.fx, 'fx');
+                            const fx = validateByteValue(addSegmentMsg.fx, 'fx', this.log);
                             if (fx !== undefined) {
                                 segmentConfig.fx = fx;
                             }
                         }
                         if (addSegmentMsg.sx !== undefined) {
-                            const sx = this.validateByteValue(addSegmentMsg.sx, 'sx');
+                            const sx = validateByteValue(addSegmentMsg.sx, 'sx', this.log);
                             if (sx !== undefined) {
                                 segmentConfig.sx = sx;
                             }
                         }
                         if (addSegmentMsg.ix !== undefined) {
-                            const ix = this.validateByteValue(addSegmentMsg.ix, 'ix');
+                            const ix = validateByteValue(addSegmentMsg.ix, 'ix', this.log);
                             if (ix !== undefined) {
                                 segmentConfig.ix = ix;
                             }
                         }
                         if (addSegmentMsg.pal !== undefined) {
-                            const pal = this.validateByteValue(addSegmentMsg.pal, 'pal');
+                            const pal = validateByteValue(addSegmentMsg.pal, 'pal', this.log);
                             if (pal !== undefined) {
                                 segmentConfig.pal = pal;
                             }
                         }
                         if (addSegmentMsg.col !== undefined) {
-                            const col = this.validateSegmentColors(addSegmentMsg.col);
+                            const col = validateSegmentColors(addSegmentMsg.col, this.log);
                             if (col !== null) {
                                 segmentConfig.col = col;
                             }

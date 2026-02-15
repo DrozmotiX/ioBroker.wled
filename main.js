@@ -603,37 +603,37 @@ class Wled extends utils.Adapter {
                             segmentConfig.on = !!addSegmentMsg.on;
                         }
                         if (addSegmentMsg.bri !== undefined) {
-                            const bri = validateByteValue(addSegmentMsg.bri, 'bri', this.log);
+                            const bri = validateByteValue(addSegmentMsg.bri, 'bri', this.log, 'addSegment');
                             if (bri !== undefined) {
                                 segmentConfig.bri = bri;
                             }
                         }
                         if (addSegmentMsg.fx !== undefined) {
-                            const fx = validateByteValue(addSegmentMsg.fx, 'fx', this.log);
+                            const fx = validateByteValue(addSegmentMsg.fx, 'fx', this.log, 'addSegment');
                             if (fx !== undefined) {
                                 segmentConfig.fx = fx;
                             }
                         }
                         if (addSegmentMsg.sx !== undefined) {
-                            const sx = validateByteValue(addSegmentMsg.sx, 'sx', this.log);
+                            const sx = validateByteValue(addSegmentMsg.sx, 'sx', this.log, 'addSegment');
                             if (sx !== undefined) {
                                 segmentConfig.sx = sx;
                             }
                         }
                         if (addSegmentMsg.ix !== undefined) {
-                            const ix = validateByteValue(addSegmentMsg.ix, 'ix', this.log);
+                            const ix = validateByteValue(addSegmentMsg.ix, 'ix', this.log, 'addSegment');
                             if (ix !== undefined) {
                                 segmentConfig.ix = ix;
                             }
                         }
                         if (addSegmentMsg.pal !== undefined) {
-                            const pal = validateByteValue(addSegmentMsg.pal, 'pal', this.log);
+                            const pal = validateByteValue(addSegmentMsg.pal, 'pal', this.log, 'addSegment');
                             if (pal !== undefined) {
                                 segmentConfig.pal = pal;
                             }
                         }
                         if (addSegmentMsg.col !== undefined) {
-                            const col = validateSegmentColors(addSegmentMsg.col, this.log);
+                            const col = validateSegmentColors(addSegmentMsg.col, this.log, 'addSegment');
                             if (col !== null) {
                                 segmentConfig.col = col;
                             }

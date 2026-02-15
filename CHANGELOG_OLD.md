@@ -1,4 +1,7 @@
 # Older changes
+## 0.6.7 (2022-06-08) - Bugfix [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
+* (DutchmanNL) Bugfix: Cannot read property 'initialized' of undefined handleStates solved [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)
+
 ## 0.6.6 (2022-06-08) - Log messages and error reporting improved
 * (DutchmanNL) Log messages and error reporting improved
 * (DutchmanNL) Don't send missing attribute definitions to Sentry

@@ -1,110 +1,131 @@
 # Deployment Setup Guide
 
-This document explains how to set up automated deployment for the ioBroker.wled adapter.
+This document explains the automated deployment setup for the ioBroker.wled adapter.
 
 ## Overview
 
-The adapter uses GitHub Actions to automatically publish new releases to npm when a version tag is pushed. This requires proper authentication with npm.
+The adapter uses GitHub Actions for automated deployment with **NPM Trusted Publishing**. When a version tag is pushed, the workflow automatically publishes the package to npm without requiring an npm token.
 
-## Problem
+## Trusted Publishing Configuration
 
-The deployment workflow failed with the error:
+This repository is configured to use [NPM Trusted Publishing](https://docs.npmjs.com/trusted-publishers), which provides secure authentication via OpenID Connect (OIDC).
+
+### Verifying Trusted Publishing Setup
+
+The trusted publishing configuration on npmjs.com must match these exact values:
+
+- **Package**: `iobroker.wled`
+- **GitHub Repository**: `DrozmotiX/ioBroker.wled`
+- **Workflow File**: `.github/workflows/test-and-release.yml`
+- **Job Name**: `deploy`
+- **Environment**: (leave empty/none)
+
+### If Deployment Fails
+
+If you see this error during deployment:
 ```
 npm error code ENEEDAUTH
 npm error need auth This command requires you to be logged in to https://registry.npmjs.org/
-npm error need auth You need to authorize this machine using `npm adduser`
 ```
 
-## Root Cause
+This typically means one of the following:
 
-The workflow attempted to use NPM's "trusted publishing" (provenance) feature, but this was not configured on npmjs.com for the repository.
+1. **Trusted publishing configuration mismatch** on npmjs.com
+   - Verify the configuration at: https://www.npmjs.com/package/iobroker.wled/access
+   - Ensure workflow file name and job name match exactly
+   - Workflow: `.github/workflows/test-and-release.yml`
+   - Job: `deploy`
 
-## Solution
+2. **npm version too old** (unlikely, but check logs)
+   - Trusted publishing requires npm 9.8.0 or higher
+   - The workflow installs the latest npm version automatically
 
-There are two ways to fix this issue:
+3. **Missing permissions** in workflow
+   - The deploy job must have `id-token: write` permission
+   - This is already configured in the workflow
 
-### Option 1: Configure NPM Token (Recommended)
+### Required Workflow Configuration
 
-This is the simpler option and works immediately.
+The workflow is correctly configured with:
 
-1. **Create NPM Access Token**
-   - Go to https://www.npmjs.com
-   - Log in with the account that has publishing rights to `iobroker.wled`
-   - Navigate to Account Settings → Access Tokens
-   - Click "Generate New Token"
-   - Select "Automation" as the token type
-   - Name it something like "GitHub Actions - ioBroker.wled"
-   - Copy the generated token
+```yaml
+deploy:
+  permissions:
+    contents: write      # For creating GitHub releases
+    id-token: write      # For NPM trusted publishing
+  
+  steps:
+    - uses: ioBroker/testing-action-deploy@v1
+      with:
+        # NO npm-token parameter - using trusted publishing
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+```
 
-2. **Add Token to GitHub Secrets**
-   - Go to https://github.com/DrozmotiX/ioBroker.wled/settings/secrets/actions
-   - Click "New repository secret"
-   - Name: `NPM_TOKEN`
-   - Value: Paste the token from step 1
-   - Click "Add secret"
+## Testing the Configuration
 
-3. **Verify Configuration**
-   - The workflow file (`.github/workflows/test-and-release.yml`) has been updated to use `npm-token: ${{ secrets.NPM_TOKEN }}`
-   - Next time a version tag is pushed, deployment should succeed
+To verify trusted publishing works:
 
-### Option 2: Configure Trusted Publishing (Advanced)
-
-This is NPM's recommended approach but requires more setup.
-
-1. **Configure on npmjs.com**
-   - Follow the official guide: https://docs.npmjs.com/trusted-publishers#configuring-trusted-publishing
-   - Configure for GitHub repository: `DrozmotiX/ioBroker.wled`
-   - Workflow file: `.github/workflows/test-and-release.yml`
-   - Job name: `deploy`
-
-2. **Update Workflow**
-   - Remove the `npm-token` line from the workflow:
-     ```yaml
-     - uses: ioBroker/testing-action-deploy@v1
-       with:
-         node-version: '20.x'
-         # DO NOT include npm-token when using trusted publishing
-         github-token: ${{ secrets.GITHUB_TOKEN }}
-     ```
-
-3. **Verify Permissions**
-   - Ensure the deploy job has these permissions:
-     ```yaml
-     permissions:
-       contents: write
-       id-token: write
-     ```
-
-## Testing the Fix
-
-After implementing either solution:
-
-1. Test with a pre-release version first (e.g., `v0.9.1-beta.0`)
-2. Create and push a tag:
+1. **Test with a pre-release version**:
    ```bash
    git tag v0.9.1-beta.0
    git push origin v0.9.1-beta.0
    ```
-3. Monitor the GitHub Actions workflow at: https://github.com/DrozmotiX/ioBroker.wled/actions
-4. If successful, the package should appear on npm: https://www.npmjs.com/package/iobroker.wled
+
+2. **Monitor the workflow**:
+   - Go to: https://github.com/DrozmotiX/ioBroker.wled/actions
+   - Watch the "Test and Release" workflow
+   - The deploy job should complete successfully
+
+3. **Verify publication**:
+   - Check https://www.npmjs.com/package/iobroker.wled
+   - The new version should appear with "Published via GitHub Actions" badge
+
+## Troubleshooting
+
+### Re-configuring Trusted Publishing
+
+If you need to reconfigure trusted publishing on npmjs.com:
+
+1. Go to https://www.npmjs.com/package/iobroker.wled
+2. Navigate to the "Publishing access" tab
+3. Under "Automation tokens and granular access tokens", find the GitHub Actions entry
+4. Verify or update the configuration to match:
+   - Repository: `DrozmotiX/ioBroker.wled`
+   - Workflow: `.github/workflows/test-and-release.yml`
+   - Job: `deploy`
+
+### Fallback to Token-Based Authentication
+
+If trusted publishing continues to fail, you can fall back to traditional token authentication:
+
+1. **Create NPM Access Token**:
+   - Go to https://www.npmjs.com
+   - Navigate to Account Settings → Access Tokens
+   - Create an "Automation" token
+
+2. **Add to GitHub Secrets**:
+   - Go to repository Settings → Secrets and variables → Actions
+   - Add secret: `NPM_TOKEN` with the token value
+
+3. **Update workflow**:
+   ```yaml
+   - uses: ioBroker/testing-action-deploy@v1
+     with:
+       npm-token: ${{ secrets.NPM_TOKEN }}  # Add this line
+       github-token: ${{ secrets.GITHUB_TOKEN }}
+   ```
 
 ## Additional Notes
 
-- **Token Expiry**: NPM Automation tokens do not expire, but can be revoked manually
-- **Security**: Never commit tokens to the repository; always use GitHub Secrets
-- **Sentry**: The workflow also requires `SENTRY_AUTH_TOKEN` to be configured for Sentry integration to work
-- **Permissions**: Only repository administrators can add GitHub Secrets
-
-## Current Workflow Configuration
-
-The workflow has been updated to use the NPM token approach (Option 1). To use this:
-
-1. Follow steps in "Option 1: Configure NPM Token" above
-2. The workflow is ready to use once the `NPM_TOKEN` secret is added
+- **Security**: Trusted publishing is more secure than tokens as it uses short-lived credentials
+- **Maintenance**: No token rotation needed with trusted publishing
+- **Permissions**: Only repository administrators can modify workflow files
+- **Sentry**: The workflow also integrates with Sentry for release tracking
 
 ## References
 
+- [NPM Trusted Publishing Documentation](https://docs.npmjs.com/trusted-publishers)
+- [GitHub Actions OIDC](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect)
 - [ioBroker Testing Action Deploy](https://github.com/ioBroker/testing-action-deploy)
-- [NPM Access Tokens](https://docs.npmjs.com/about-access-tokens)
-- [NPM Trusted Publishing](https://docs.npmjs.com/trusted-publishers)
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
+- [GitHub Actions Permissions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions)
+

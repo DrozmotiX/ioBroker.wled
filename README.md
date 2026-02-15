@@ -175,16 +175,15 @@ When the adapter crashes or another Code error happens, this error message that 
 
 ## For Developers
 
-### Automated Deployment Setup
+### Automated Deployment
 
-This adapter uses GitHub Actions for automated deployment to npm. For maintainers setting up deployment:
+This adapter uses GitHub Actions with **NPM Trusted Publishing** for automated deployment. 
 
-See [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md) for detailed instructions on configuring automated deployment.
-
-Quick summary:
-- Create an NPM automation token at https://www.npmjs.com
-- Add it as `NPM_TOKEN` GitHub Secret
-- Deployment will run automatically when version tags are pushed
+For maintainers troubleshooting deployment issues, see [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md) for:
+- Verifying trusted publishing configuration on npmjs.com
+- Required workflow and job name settings
+- Troubleshooting authentication errors
+- Testing deployment with pre-release versions
 
 ## License
 MIT License

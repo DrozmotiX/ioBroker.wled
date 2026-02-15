@@ -142,7 +142,7 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 ### __WORK IN PROGRESS__
-* (Copilot) **CI/CD**: Added deployment documentation for NPM Trusted Publishing configuration and troubleshooting
+* (Copilot) solve auto deployment issues
 
 ### 0.9.0 (2026-02-15)
 * (DutchmanNL) **NEW**: Added segment management via sendTo commands - dynamically add and delete WLED segments

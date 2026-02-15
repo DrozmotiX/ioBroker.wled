@@ -18,6 +18,9 @@ const bonjour = require('bonjour')(); // load Bonjour library
 
 const stateAttr = require('./lib/stateAttr.js'); // Load attribute library
 
+// Device ID pattern for WLED devices (MAC address format)
+const DEVICE_ID_PATTERN = /^wled\.\d+\.[0-9A-F]{12}$/i;
+
 let watchDogStartDelay = null; // Timer to delay watchdog start
 const watchdogTimer = {}; // Array containing all times for watchdog loops
 const watchdogWsTimer = {}; // Array containing all times for WS-Ping loops
@@ -428,7 +431,7 @@ class Wled extends utils.Adapter {
     async onObjectChange(id, obj) {
         try {
             // Check if this is a deletion (obj is null) and if it's a device in our namespace
-            if (!obj && id.startsWith(`${this.namespace}.`) && id.match(/^wled\.\d+\.[0-9A-F]{12}$/i)) {
+            if (!obj && id.startsWith(`${this.namespace}.`) && id.match(DEVICE_ID_PATTERN)) {
                 // Extract MAC address from the device ID
                 const mac = id.split('.').pop();
 
@@ -1526,7 +1529,8 @@ class Wled extends utils.Adapter {
             // Clean up state cache if MAC is provided
             if (mac) {
                 for (const state in this.createdStatesDetails) {
-                    if (state.startsWith(mac)) {
+                    // Check if state belongs to this device by comparing first part (MAC address)
+                    if (state.split('.')[0] === mac) {
                         delete this.createdStatesDetails[state];
                     }
                 }

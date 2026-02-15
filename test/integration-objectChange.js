@@ -16,8 +16,9 @@ tests.integration(path.join(__dirname, '..'), {
                 // Wait for adapter to initialize
                 await new Promise((resolve) => setTimeout(resolve, 5000));
 
-                // Create a test device object
-                const testDeviceId = 'wled.0.AABBCCDDEEFF';
+                // Create a test device object using the adapter's namespace
+                const testDeviceMac = 'AABBCCDDEEFF';
+                const testDeviceId = `${harness.adapterName}.${testDeviceMac}`;
                 const testDeviceObj = {
                     type: 'device',
                     common: {
@@ -25,7 +26,7 @@ tests.integration(path.join(__dirname, '..'), {
                     },
                     native: {
                         ip: '192.168.1.100',
-                        mac: 'AABBCCDDEEFF',
+                        mac: testDeviceMac,
                         name: 'Test WLED Device',
                     },
                 };

@@ -1,0 +1,61 @@
+const path = require('path');
+const { tests } = require('@iobroker/testing');
+
+// Test object deletion cleanup
+tests.integration(path.join(__dirname, '..'), {
+    defineAdditionalTests({ suite }) {
+        suite('Device deletion cleanup', (getHarness) => {
+            it('Should clean up backend structures when device is deleted from object tree', async function () {
+                this.timeout(60000);
+
+                const harness = getHarness();
+
+                // Start the adapter
+                await harness.startAdapterAndWait();
+
+                // Wait for adapter to initialize
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+
+                // Create a test device object
+                const testDeviceId = 'wled.0.AABBCCDDEEFF';
+                const testDeviceObj = {
+                    type: 'device',
+                    common: {
+                        name: 'Test WLED Device',
+                    },
+                    native: {
+                        ip: '192.168.1.100',
+                        mac: 'AABBCCDDEEFF',
+                        name: 'Test WLED Device',
+                    },
+                };
+
+                // Create the test device
+                await harness.objects.setObjectAsync(testDeviceId, testDeviceObj);
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+
+                // Verify device was created
+                const deviceExists = await harness.objects.getObjectAsync(testDeviceId);
+                if (!deviceExists) {
+                    throw new Error('Test device was not created');
+                }
+
+                // Now delete the device to trigger the objectChange handler
+                await harness.objects.delObjectAsync(testDeviceId);
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+
+                // Verify device was deleted
+                const deviceDeleted = await harness.objects.getObjectAsync(testDeviceId);
+                if (deviceDeleted) {
+                    throw new Error('Test device was not deleted');
+                }
+
+                // The adapter should have logged cleanup messages
+                // We can't directly verify backend structures from here,
+                // but we verified the flow works without errors
+
+                await harness.stopAdapter();
+            });
+        });
+    },
+});

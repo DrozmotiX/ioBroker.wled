@@ -177,7 +177,7 @@ When the adapter crashes or another Code error happens, this error message that 
 
 ### Automated Deployment
 
-This adapter uses GitHub Actions with **NPM Trusted Publishing** for automated deployment. 
+This adapter uses GitHub Actions with **NPM Trusted Publishing** for automated deployment.
 
 For maintainers troubleshooting deployment issues, see [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md) for:
 - Verifying trusted publishing configuration on npmjs.com

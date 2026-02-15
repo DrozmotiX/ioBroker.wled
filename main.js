@@ -477,6 +477,21 @@ class Wled extends utils.Adapter {
      *
      * @param {ioBroker.Message} obj
      */
+    /**
+     * Find device IP address by MAC address
+     *
+     * @param {string} mac - MAC address of device
+     * @returns {string|null} - IP address or null if not found
+     */
+    getDeviceIpByMac(mac) {
+        for (const ip in this.devices) {
+            if (this.devices[ip].mac === mac) {
+                return ip;
+            }
+        }
+        return null;
+    }
+
     async onMessage(obj) {
         // If the message starts with dm: it is a device management message so ignore it
         if (obj.command.startsWith('dm:')) {
@@ -558,17 +573,18 @@ class Wled extends utils.Adapter {
                         const deviceMac = addSegmentMsg.deviceId;
                         const segmentId = addSegmentMsg.segmentId;
 
-                        // Find device IP by MAC address
-                        let deviceIpAddr = null;
-                        for (const ip in this.devices) {
-                            if (this.devices[ip].mac === deviceMac) {
-                                deviceIpAddr = ip;
-                                break;
-                            }
-                        }
+                        // Find device IP by MAC address using helper method
+                        const deviceIpAddr = this.getDeviceIpByMac(deviceMac);
 
                         if (!deviceIpAddr) {
                             this.log.error(`Device with MAC ${deviceMac} not found`);
+                            respond({ success: false, error: `Device with MAC ${deviceMac} not found` }, this);
+                            break;
+                        }
+
+                        // Safety check: verify device still exists
+                        if (!this.devices[deviceIpAddr]) {
+                            this.log.error(`Device with MAC ${deviceMac} no longer available`);
                             respond({ success: false, error: `Device with MAC ${deviceMac} not found` }, this);
                             break;
                         }
@@ -585,21 +601,27 @@ class Wled extends utils.Adapter {
                         // Helper to validate byte values (0-255)
                         const validateByte = (value, name) => {
                             if (typeof value !== 'number' || !Number.isFinite(value)) {
-                                this.log.warn(`Ignoring invalid ${name} value for addSegment: ${value} (expected number 0-255)`);
+                                this.log.warn(
+                                    `Ignoring invalid ${name} value for addSegment: ${value} (expected number 0-255)`,
+                                );
                                 return undefined;
                             }
                             const intVal = Math.round(value);
                             if (intVal < 0 || intVal > 255) {
-                                this.log.warn(`Ignoring out-of-range ${name} value for addSegment: ${value} (expected 0-255)`);
+                                this.log.warn(
+                                    `Ignoring out-of-range ${name} value for addSegment: ${value} (expected 0-255)`,
+                                );
                                 return undefined;
                             }
                             return intVal;
                         };
 
                         // Helper to validate color array: [[r,g,b], ...] with 0-255 values
-                        const validateColorArray = (colVal) => {
+                        const validateColorArray = colVal => {
                             if (!Array.isArray(colVal)) {
-                                this.log.warn(`Ignoring invalid col value for addSegment: expected array, got ${typeof colVal}`);
+                                this.log.warn(
+                                    `Ignoring invalid col value for addSegment: expected array, got ${typeof colVal}`,
+                                );
                                 return null;
                             }
 
@@ -608,7 +630,9 @@ class Wled extends utils.Adapter {
                             for (let i = 0; i < colVal.length; i++) {
                                 const color = colVal[i];
                                 if (!Array.isArray(color) || color.length < 3) {
-                                    this.log.warn(`Ignoring invalid color entry at index ${i} in col for addSegment: expected [r,g,b] array`);
+                                    this.log.warn(
+                                        `Ignoring invalid color entry at index ${i} in col for addSegment: expected [r,g,b] array`,
+                                    );
                                     continue;
                                 }
 
@@ -616,13 +640,17 @@ class Wled extends utils.Adapter {
                                 for (let j = 0; j < 3; j++) {
                                     const channel = color[j];
                                     if (typeof channel !== 'number' || !Number.isFinite(channel)) {
-                                        this.log.warn(`Ignoring invalid color channel at col[${i}][${j}] for addSegment: ${channel} (expected number 0-255)`);
+                                        this.log.warn(
+                                            `Ignoring invalid color channel at col[${i}][${j}] for addSegment: ${channel} (expected number 0-255)`,
+                                        );
                                         rgb.length = 0;
                                         break;
                                     }
                                     const intChannel = Math.round(channel);
                                     if (intChannel < 0 || intChannel > 255) {
-                                        this.log.warn(`Ignoring out-of-range color channel at col[${i}][${j}] for addSegment: ${channel} (expected 0-255)`);
+                                        this.log.warn(
+                                            `Ignoring out-of-range color channel at col[${i}][${j}] for addSegment: ${channel} (expected 0-255)`,
+                                        );
                                         rgb.length = 0;
                                         break;
                                     }
@@ -727,44 +755,45 @@ class Wled extends utils.Adapter {
                             break;
                         }
 
-                        const devMac = deleteSegmentMsg.deviceId;
-                        const segId = deleteSegmentMsg.segmentId;
+                        const deviceMac = deleteSegmentMsg.deviceId;
+                        const segmentId = deleteSegmentMsg.segmentId;
 
-                        // Find device IP by MAC address
-                        let devIpAddr = null;
-                        for (const ip in this.devices) {
-                            if (this.devices[ip].mac === devMac) {
-                                devIpAddr = ip;
-                                break;
-                            }
+                        // Find device IP by MAC address using helper method
+                        const deviceIpAddr = this.getDeviceIpByMac(deviceMac);
+
+                        if (!deviceIpAddr) {
+                            this.log.error(`Device with MAC ${deviceMac} not found`);
+                            respond({ success: false, error: `Device with MAC ${deviceMac} not found` }, this);
+                            break;
                         }
 
-                        if (!devIpAddr) {
-                            this.log.error(`Device with MAC ${devMac} not found`);
-                            respond({ success: false, error: `Device with MAC ${devMac} not found` }, this);
+                        // Safety check: verify device still exists
+                        if (!this.devices[deviceIpAddr]) {
+                            this.log.error(`Device with MAC ${deviceMac} no longer available`);
+                            respond({ success: false, error: `Device with MAC ${deviceMac} not found` }, this);
                             break;
                         }
 
                         // To delete a segment in WLED, set stop=0 or use the segment reset command
                         const segmentConfig = {
-                            id: segId,
+                            id: segmentId,
                             stop: 0,
                         };
 
                         const wledPayload = { seg: segmentConfig };
 
                         // Use WebSocket if connected, otherwise use HTTP API
-                        if (this.devices[devIpAddr].wsConnected) {
-                            ws[devIpAddr].send(JSON.stringify(wledPayload));
-                            this.log.info(`Segment ${segId} deleted from device ${devMac} via WebSocket`);
+                        if (this.devices[deviceIpAddr].wsConnected) {
+                            ws[deviceIpAddr].send(JSON.stringify(wledPayload));
+                            this.log.info(`Segment ${segmentId} deleted from device ${deviceMac} via WebSocket`);
                         } else {
-                            await this.postAPI(`http://${devIpAddr}/json`, wledPayload);
-                            this.log.info(`Segment ${segId} deleted from device ${devMac} via HTTP API`);
+                            await this.postAPI(`http://${deviceIpAddr}/json`, wledPayload);
+                            this.log.info(`Segment ${segmentId} deleted from device ${deviceMac} via HTTP API`);
                         }
 
                         // Delete segment states from ioBroker
                         try {
-                            const segmentStateId = `${this.namespace}.${devMac}.seg.${segId}`;
+                            const segmentStateId = `${this.namespace}.${deviceMac}.seg.${segmentId}`;
                             await this.delObjectAsync(segmentStateId, { recursive: true });
                             this.log.debug(`Deleted segment states for ${segmentStateId}`);
                         } catch (delError) {
@@ -773,9 +802,9 @@ class Wled extends utils.Adapter {
 
                         // Wait a bit for the device to process the request, then refresh device data
                         await new Promise(resolve => setTimeout(resolve, 1000));
-                        await this.getDeviceJSON(devIpAddr);
+                        await this.getDeviceJSON(deviceIpAddr);
 
-                        respond({ success: true, message: `Segment ${segId} deleted successfully` }, this);
+                        respond({ success: true, message: `Segment ${segmentId} deleted successfully` }, this);
                     } catch (deleteSegmentError) {
                         this.log.error(`Error deleting segment: ${deleteSegmentError.message}`);
                         respond({ success: false, error: deleteSegmentError.message }, this);

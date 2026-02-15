@@ -186,7 +186,8 @@ class Wled extends utils.Adapter {
                             device_ip = device_ip.native.ip;
 
                             // Send raw command to /win endpoint with query parameters
-                            const url = `http://${device_ip}/win?${state.val}`;
+                            const params = new URLSearchParams(state.val);
+                            const url = `http://${device_ip}/win?${params.toString()}`;
                             this.log.debug(`Sending raw command to: ${url}`);
 
                             try {

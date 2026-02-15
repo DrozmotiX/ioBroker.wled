@@ -49,6 +49,9 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 ### **WORK IN PROGRESS**
+* (copilot) **NEW**: Added Hue Sync control - synchronize WLED colors with Philips Hue lights (hp state: 0-99, 0=off)
+* (copilot) **NEW**: Added Reboot control - restart WLED device remotely (rb state: boolean button)
+* (copilot) **NEW**: Added Realtime UDP control - toggle reception of realtime UDP data (rd state: 0=off, 1=on)
 * (DutchmanNL) **FIXED**: Corrected online/offline state detection - `_online` state now properly contains boolean values resolves #654
 * (DutchmanNL) **FIXED**: Ensure backend processes and stop when device is deleted in ioBroker object tree (fixes #615)
 * (DutchmanNL) **CI/CD**: Fixed automated deployment failure by removing unused build step for JavaScript-only adapter

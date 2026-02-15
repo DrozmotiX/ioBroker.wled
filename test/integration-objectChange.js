@@ -18,7 +18,7 @@ tests.integration(path.join(__dirname, '..'), {
 
                 // Create a test device object using the adapter's namespace
                 const testDeviceMac = 'AABBCCDDEEFF';
-                const testDeviceId = `${harness.adapterName}.${testDeviceMac}`;
+                const testDeviceId = `${harness.namespace}.${testDeviceMac}`;
                 const testDeviceObj = {
                     type: 'device',
                     common: {

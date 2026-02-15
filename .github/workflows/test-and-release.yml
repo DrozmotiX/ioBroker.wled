@@ -63,7 +63,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    # Write permissions are required to create GitHub releases and use trusted publishing
+    # Permissions:
+    # - contents: write   → required to create GitHub releases
+    # - id-token: write   → required for NPM trusted publishing (OIDC)
     permissions:
       contents: write
       id-token: write

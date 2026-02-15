@@ -141,6 +141,9 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+* (Copilot) **CI/CD**: Added deployment documentation for NPM Trusted Publishing configuration and troubleshooting
+
 ### 0.9.0 (2026-02-15)
 * (DutchmanNL) **NEW**: Added segment management via sendTo commands - dynamically add and delete WLED segments
 * (DutchmanNL) **NEW**: Added Hue Sync control - synchronize WLED colors with Philips Hue lights (hp state: 0-99, 0=off)

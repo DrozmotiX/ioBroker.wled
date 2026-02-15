@@ -102,7 +102,7 @@ class Wled extends utils.Adapter {
             // Set all online states to false and clean up each device
             for (const ip in this.devices) {
                 if (this.devices[ip]?.mac) {
-                    this.setState(`${this.devices[ip].mac}._info._online`, { val: false, ack: true });
+                    this.setState(`${this.devices[ip].mac}._info._online`, false, true);
                 }
                 // Use the centralized cleanup method for each device
                 this.cleanupDeviceBackend(ip, this.devices[ip]?.mac);
@@ -557,8 +557,8 @@ class Wled extends utils.Adapter {
                 this.devices[deviceIP].wsConnected = false;
 
                 // Set Device status to off and brightness to 0 if devices disconnects
-                this.setState(`${this.devices[deviceIP].mac}.on`, { val: false, ack: true });
-                this.setState(`${this.devices[deviceIP].mac}.bri`, { val: 0, ack: true });
+                this.setState(`${this.devices[deviceIP].mac}.on`, false, true);
+                this.setState(`${this.devices[deviceIP].mac}.bri`, 0, true);
             }
         });
 
@@ -1162,8 +1162,8 @@ class Wled extends utils.Adapter {
                             false,
                         );
                         // Set Device status to off and brightness to 0 if devices disconnects
-                        this.setState(`${this.devices[deviceIP].mac}.on`, { val: false, ack: true });
-                        this.setState(`${this.devices[deviceIP].mac}.bri`, { val: 0, ack: true });
+                        this.setState(`${this.devices[deviceIP].mac}.on`, false, true);
+                        this.setState(`${this.devices[deviceIP].mac}.bri`, 0, true);
                     }
                     this.devices[deviceIP].connected = false;
                     this.devices[deviceIP].wsConnected = false;
@@ -1359,10 +1359,7 @@ class Wled extends utils.Adapter {
                 // timer
                 stateExpire[stateName] = setTimeout(async () => {
                     // Set value to state including expiration time
-                    await this.setState(stateName, {
-                        val: false,
-                        ack: true,
-                    });
+                    await this.setStateAsync(stateName, false, true);
                     this.log.debug(`Online state expired for ${stateName}`);
                 }, this.config.Time_Sync * 2000);
                 this.log.debug(
@@ -1571,11 +1568,11 @@ class Wled extends utils.Adapter {
                 });
 
                 // Set online state to false, will be set to true at successfully connected
-                this.setState(`${_devices.rows[currDevice].id}._info._online`, { val: false, ack: true });
+                this.setState(`${_devices.rows[currDevice].id}._info._online`, false, true);
 
                 // Set Device status to off and brightness to 0 at adapter start
-                this.setState(`${_devices.rows[currDevice].id}.on`, { val: false, ack: true });
-                this.setState(`${_devices.rows[currDevice].id}.bri`, { val: 0, ack: true });
+                this.setState(`${_devices.rows[currDevice].id}.on`, false, true);
+                this.setState(`${_devices.rows[currDevice].id}.bri`, 0, true);
             }
         } catch (e) {
             this.log.error(`[resetOnlineState] ${e}`);

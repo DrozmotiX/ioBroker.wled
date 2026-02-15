@@ -560,7 +560,7 @@ class Wled extends utils.Adapter {
                     this.log.debug('Load devices request received');
                     try {
                         const devicesList = [];
-                        
+
                         // Iterate through all devices
                         for (const ip in this.devices) {
                             const device = this.devices[ip];
@@ -578,18 +578,18 @@ class Wled extends utils.Adapter {
                                     mac: device.name,
                                     name: device.clientName || device.name,
                                     ip: ip,
-                                    connected: connectionState
+                                    connected: connectionState,
                                 });
                             }
                         }
 
                         this.log.debug(`Loaded ${devicesList.length} devices`);
-                        
+
                         // Return data in the format expected by JSON-Config
                         const data = {
                             native: {
-                                devicesTable: devicesList
-                            }
+                                devicesTable: devicesList,
+                            },
                         };
                         respond(data, this);
                     } catch (loadError) {

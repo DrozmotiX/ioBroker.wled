@@ -21,17 +21,27 @@ A fast and feature-rich implementation of an ESP8266/ESP32 webserver to control 
 
 ## Instructions
 
-The adapter automatically try's to find WLED devices in your network using Bonjour services.  
-Known issues : Networks with VLAN separation mostly don't route broadcast traffic, meaning autodetect will fail.  
+The adapter automatically tries to find WLED devices in your network using Bonjour services.  
+Known issues: Networks with VLAN separation mostly don't route broadcast traffic, meaning autodetect will fail.  
 
 Don't worry, in that case you can add the device manually by IP-Address.
 
+### Configuration
+The adapter uses the modern Admin 5 interface (React/JSON-Config) for configuration:
+
 1) Ensure your WLED device is running and reachable by network
 2) Install the adapter
-3) Configure interval times for data polling and auto-detect cycles  
-4 - A) Start the adapter, devices should be detected automatically  
-4 - B) If A fails, use the Add-Device button and provide the device IP-Address  
+3) Open the adapter configuration:
+   - **Main Settings Tab**: Configure polling interval, max retry attempts, and exponential backoff
+   - **Devices Tab**: Manage your WLED devices
+4) Device Management:
+   - **Auto-Discovery**: Devices are automatically discovered and shown in the device table
+   - **Manual Add**: If auto-discovery fails, use the "Add Device Manually" section to add devices by IP address
+   - **Refresh**: Click "Refresh Device List" to update the device table
+   - **Delete**: Enter device IP and click delete to remove a device
 5) Adapter will send changes immediately and polls data every x seconds (configurable)
+
+**Note:** The adapter must be running to manage devices and view the device table in the admin interface.
 
 ## Features
 
@@ -142,6 +152,9 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 ### **WORK IN PROGRESS**
+* (DutchmanNL) **ENHANCED**: Migrated admin interface to Admin 5 (React/JSON-Config) for improved user experience
+* (DutchmanNL) **NEW**: Added loadDevices command to dynamically refresh device list in admin interface
+* (DutchmanNL) **ENHANCED**: Updated device management handlers to support both legacy and JSON-Config formats
 * (DutchmanNL) **NEW**: Added segment management via sendTo commands - dynamically add and delete WLED segments
 * (DutchmanNL) **NEW**: Added Hue Sync control - synchronize WLED colors with Philips Hue lights (hp state: 0-99, 0=off)
 * (DutchmanNL) **NEW**: Added Reboot control - restart WLED device remotely (rb state: boolean button)

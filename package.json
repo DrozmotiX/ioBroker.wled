@@ -62,8 +62,7 @@
     "lint": "eslint -c eslint.config.mjs .",
     "release-DryRun": "release-script --all --dry",
     "release": "release-script --all",
-    "translate": "translate-adapter",
-    "build": "build-adapter"
+    "translate": "translate-adapter"
   },
   "bugs": {
     "url": "https://github.com/DrozmotiX/ioBroker.wled/issues"

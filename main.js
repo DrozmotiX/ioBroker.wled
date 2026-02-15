@@ -512,7 +512,9 @@ class Wled extends utils.Adapter {
                 case 'addDevice':
                     // Disable check of const declaration in case function
                     // eslint-disable-next-line no-case-declarations
-                    const result = await this.getDeviceJSON(obj.message);
+                    const deviceIPToAdd = typeof obj.message === 'string' ? obj.message : obj.message.ip;
+                    // eslint-disable-next-line no-case-declarations
+                    const result = await this.getDeviceJSON(deviceIPToAdd);
                     this.log.debug(`Response from Read Data : ${JSON.stringify(result)}`);
                     if (result === 'success') {
                         respond('success', this);
@@ -523,7 +525,7 @@ class Wled extends utils.Adapter {
                 case 'deleteDevice':
                     // Delete device by IP address or device ID
                     // eslint-disable-next-line no-case-declarations
-                    const deviceIP = obj.message;
+                    const deviceIP = typeof obj.message === 'string' ? obj.message : obj.message.ip;
                     this.log.debug(`Delete device request received for IP: ${deviceIP}`);
 
                     try {
@@ -551,6 +553,48 @@ class Wled extends utils.Adapter {
                     } catch (deleteError) {
                         this.log.error(`Error deleting device ${deviceIP}: ${deleteError.message}`);
                         respond('failed', this);
+                    }
+                    break;
+                case 'loadDevices':
+                    // Load and return all devices with their current state
+                    this.log.debug('Load devices request received');
+                    try {
+                        const devicesList = [];
+                        
+                        // Iterate through all devices
+                        for (const ip in this.devices) {
+                            const device = this.devices[ip];
+                            if (device && device.name) {
+                                // Get connection state
+                                let connectionState = 'Unknown';
+                                try {
+                                    const stateObj = await this.getStateAsync(`${device.name}._info._online`);
+                                    connectionState = stateObj && stateObj.val ? 'Connected' : 'Offline';
+                                } catch (stateError) {
+                                    this.log.debug(`Could not get state for ${device.name}: ${stateError.message}`);
+                                }
+
+                                devicesList.push({
+                                    mac: device.name,
+                                    name: device.clientName || device.name,
+                                    ip: ip,
+                                    connected: connectionState
+                                });
+                            }
+                        }
+
+                        this.log.debug(`Loaded ${devicesList.length} devices`);
+                        
+                        // Return data in the format expected by JSON-Config
+                        const data = {
+                            native: {
+                                devicesTable: devicesList
+                            }
+                        };
+                        respond(data, this);
+                    } catch (loadError) {
+                        this.log.error(`Error loading devices: ${loadError.message}`);
+                        respond({ success: false, error: loadError.message }, this);
                     }
                     break;
                 case 'addSegment':

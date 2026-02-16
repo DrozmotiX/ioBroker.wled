@@ -141,8 +141,8 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-### 0.9.1 (2026-02-15)
-* (Copilot) solve auto deployment issues
+### 0.9.2 (2026-02-16)
+* (DutchmanNL) solve auto deployment issues
 
 ### 0.9.0 (2026-02-15)
 * (DutchmanNL) **NEW**: Added segment management via sendTo commands - dynamically add and delete WLED segments

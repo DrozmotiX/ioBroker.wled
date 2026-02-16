@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "wled",
-    "version": "0.9.1",
+    "version": "0.9.2",
     "news": {
+      "0.9.2": {
+        "en": "solve auto deployment issues",
+        "de": "probleme bei der automatischen bereitstellung",
+        "ru": "решение проблем с развертыванием авто",
+        "pt": "resolver problemas de implantação automática",
+        "nl": "problemen met automatische implementatie oplossen",
+        "fr": "résoudre les problèmes de déploiement automatique",
+        "it": "risolvere problemi di implementazione automatica",
+        "es": "resolver problemas de implementación de automóviles",
+        "pl": "rozwiązać problemy z automatycznym wdrażaniem",
+        "uk": "вирішувати питання автоматичного розгортання",
+        "zh-cn": "解决自动部署问题"
+      },
       "0.9.1": {
         "en": "solve auto deployment issues",
         "de": "probleme bei der automatischen bereitstellung",
@@ -80,19 +93,6 @@
         "pl": "Zaimplementowano kanał koloru białego, poprawki błędów",
         "uk": "Реалізовано канал білого кольору, виправлено помилки",
         "zh-cn": "实施白色通道，修复错误"
-      },
-      "0.6.7": {
-        "en": "Bugfix: Cannot read property 'initialized' of undefined handleStates solved [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-        "de": "Bugfix: Kann nicht lesen Eigenschaft initialisiert undefinierten Griff Staaten gelöst [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-        "ru": "Bugfix: Не смогите прочитать свойство инициализировать неопределенную ручку Государства решены [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-        "pt": "Bugfix: Não é possível ler propriedade inicializada de alça indefinida Estados resolvidos [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-        "nl": "Bugfix: Kan geen eigendom lezen van onbepaalde regeling Quality over Quantity (QoQ) Releases Vertaling:",
-        "fr": "Bugfix: Cannot read property initialized of undefined handle États résolus [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-        "it": "Bugfix: Non può leggere la proprietà inizializzata di maniglia non definita Stati risolti [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-        "es": "Bugfix: No se puede leer propiedad inicializada de mango indefinido Estados resueltos [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-        "pl": "Bugfix: Cannot odczytuje własność nieokreśloną Państwa rozwiązane są na #400 (https:/github.com/DrozmotiX/ioBroker.wled/400)",
-        "zh-cn": "Bugfix: 未确定处理的财产 国家解决[第400号](http://github.com/DrozmotiX/ioBroker.wled/issues/400)",
-        "uk": "Виправлення: неможливо прочитати властивість «initialized» невизначеного handleStates [#400](https://github.com/DrozmotiX/ioBroker.wled/issues/400)"
       }
     },
     "titleLang": {

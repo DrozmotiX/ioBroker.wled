@@ -141,6 +141,9 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+* (Copilot) **FIXED**: Documented NPM trusted publishing setup - autodeploy failure was due to missing npmjs.org configuration (see docs/NPM_TRUSTED_PUBLISHING_SETUP.md)
+
 ### 0.9.1 (2026-02-15)
 * (Copilot) solve auto deployment issues
 

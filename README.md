@@ -141,6 +141,9 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
+### __WORK IN PROGRESS__
+* (DutchmanNL) **CI/CD**: Fixed deployment failure by adding missing sentry-version-prefix parameter to GitHub Actions workflow
+
 ### 0.9.2 (2026-02-16)
 * (DutchmanNL) solve auto deployment issues
 

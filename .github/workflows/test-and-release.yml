@@ -85,3 +85,4 @@ jobs:
           sentry-url: https://sentry.iobroker.net
           sentry-org: iobroker
           sentry-project: iobroker-wled
+          sentry-version-prefix: iobroker.wled

@@ -143,6 +143,7 @@ When the adapter crashes or another Code error happens, this error message that 
 -->
 ### __WORK IN PROGRESS__
 * (DutchmanNL) **CI/CD**: Fixed deployment failure by adding missing sentry-version-prefix parameter to GitHub Actions workflow
+* (DutchmanNL) **CI/CD**: Updated GitHub Copilot instructions template from v0.4.2 to v0.5.6 - adds ESLint configuration, translation management, lint-first CI/CD workflow guidance
 
 ### 0.9.2 (2026-02-16)
 * (DutchmanNL) solve auto deployment issues

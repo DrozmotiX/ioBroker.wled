@@ -1383,6 +1383,7 @@ class Wled extends utils.Adapter {
                     if (!deviceData) {
                         this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
                         this.devices[deviceIP].initialized = false;
+                        this.devices[deviceIP].connected   = false;
                         // Update device working state
                         if (this.devices[deviceIP].mac != null) {
                             await this.create_state(

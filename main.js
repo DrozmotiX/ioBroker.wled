@@ -1197,6 +1197,9 @@ class Wled extends utils.Adapter {
                 this.log.debug(`Device ${deviceIP} has failed ${maxRetries} consecutive times, next retry in 1 hour`);
                 return;
             }
+        } else {
+            deviceRetryCount[deviceIP] = 0;
+            deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
         }
 
         try {
@@ -1378,7 +1381,7 @@ class Wled extends utils.Adapter {
                     }
 
                     if (!deviceData) {
-                        this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+                        this.log.info(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
                         this.devices[deviceIP].initialized = false;
                         this.devices[deviceIP].connected   = false;
                         // Update device working state

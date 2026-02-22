@@ -1173,9 +1173,11 @@ class Wled extends utils.Adapter {
             deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
         }
 
+        let maxRetries = 0;
+
         // Check if device has exceeded maximum retry attempts
         if (Number(this.config.maxRetries) !== 0) {      // If the device is switched off for a longer period of time, we will continue to try if interval is set to 0.
-            const maxRetries = Number(this.config.maxRetries) ?? 5;
+            maxRetries = Number(this.config.maxRetries) ?? 5;
             if (deviceRetryCount[deviceIP] >= maxRetries) {
                 // Device has failed too many times, schedule a much longer retry interval
                 if (watchdogTimer[deviceIP]) {
@@ -1282,16 +1284,9 @@ class Wled extends utils.Adapter {
                     deviceRetryDelay[deviceIP] = Math.min(baseDelay * backoffMultiplier, 600 * 1000);
                 }
 
-                // Log retry information based on retry count
-                if (deviceRetryCount[deviceIP] <= 3) {
-                    this.log.info(
-                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
-                    );
-                } else {
-                    this.log.debug(
-                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
-                    );
-                }
+                this.log.debug(
+                    `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
+                );
             }
         } catch (error) {
             this.errorHandler(`[watchDog]`, error);

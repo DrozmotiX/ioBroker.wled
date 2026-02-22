@@ -1589,7 +1589,7 @@ class Wled extends utils.Adapter {
             // Set value to state including expiration time
             if (value != null) {
                 await this.setStateChangedAsync(stateName, {
-                    val: typeof value === 'object' ? JSON.stringify(value) : value, // real objects are not allowed
+                    val: typeof value === 'object' ? JSON.stringify(value.val) : value, // real objects are not allowed
                     ack: true,
                 });
             }

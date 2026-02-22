@@ -1174,25 +1174,27 @@ class Wled extends utils.Adapter {
         }
 
         // Check if device has exceeded maximum retry attempts
-        const maxRetries = this.config.maxRetries ?? 5;
-        if (deviceRetryCount[deviceIP] >= maxRetries) {
-            // Device has failed too many times, schedule a much longer retry interval
-            if (watchdogTimer[deviceIP]) {
-                clearTimeout(watchdogTimer[deviceIP]);
-                watchdogTimer[deviceIP] = null;
+        if (Number(this.config.maxRetries) !== 0) {      // If the device is switched off for a longer period of time, we will continue to try if interval is set to 0.
+            const maxRetries = Number(this.config.maxRetries) ?? 5;
+            if (deviceRetryCount[deviceIP] >= maxRetries) {
+                // Device has failed too many times, schedule a much longer retry interval
+                if (watchdogTimer[deviceIP]) {
+                    clearTimeout(watchdogTimer[deviceIP]);
+                    watchdogTimer[deviceIP] = null;
+                }
+
+                // Retry once every hour (3600 seconds) for permanently failed devices
+                const longRetryDelay = 3600 * 1000;
+                watchdogTimer[deviceIP] = setTimeout(() => {
+                    // Reset retry count after long delay to give device another chance
+                    deviceRetryCount[deviceIP] = 0;
+                    deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
+                    this.watchDog(deviceIP);
+                }, longRetryDelay);
+
+                this.log.debug(`Device ${deviceIP} has failed ${maxRetries} consecutive times, next retry in 1 hour`);
+                return;
             }
-
-            // Retry once every hour (3600 seconds) for permanently failed devices
-            const longRetryDelay = 3600 * 1000;
-            watchdogTimer[deviceIP] = setTimeout(() => {
-                // Reset retry count after long delay to give device another chance
-                deviceRetryCount[deviceIP] = 0;
-                deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
-                this.watchDog(deviceIP);
-            }, longRetryDelay);
-
-            this.log.debug(`Device ${deviceIP} has failed ${maxRetries} consecutive times, next retry in 1 hour`);
-            return;
         }
 
         try {
@@ -1589,12 +1591,22 @@ class Wled extends utils.Adapter {
 
             // Set value to state including expiration time
             if (value != null) {
-                const valueToSet =
-                    typeof value === 'object'
-                        ? typeof value.val === 'boolean'
-                            ? value.val
-                            : JSON.stringify(value.val) // real objects are not allowed
-                        : value;
+                let valueToSet;
+
+                if (typeof value === 'object') {
+                    // ioBroker state values must be primitive -> stringify non-primitive payloads
+                    if (typeof value.val === 'boolean' || typeof value.val === 'number') {
+                        valueToSet = value.val;
+                    } else if (Array.isArray(value)) {
+                        valueToSet = JSON.stringify(value);
+                    } else if (value?.val) {
+                            valueToSet = JSON.stringify(value.val);
+                        } else {
+                            valueToSet = JSON.stringify(value);
+                    }
+                } else {
+                    valueToSet = value;
+                }
 
                 await this.setStateChangedAsync(stateName, valueToSet, true);
             }

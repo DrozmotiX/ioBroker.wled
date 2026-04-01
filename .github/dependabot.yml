@@ -1,15 +1,22 @@
+# Dependabot configuration
+# Cooldown delays updating normal npm dependencies by 7 days but allows security updates to be processed immediately.
+# Note: Cooldown is not supported for the github-actions ecosystem.
+# Reference: https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: "/"
+
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: monthly
-      time: "04:00"
-      timezone: Europe/Berlin
+      interval: 'monthly'
+      time: '04:00'
+      timezone: 'Europe/Berlin'
     allow:
       - dependency-type: 'production'
-    target-branch: "dependencyAutoUpdate"
+    target-branch: 'dependencyAutoUpdate'
     open-pull-requests-limit: 20
     assignees:
-      - DutchmanNL
-    versioning-strategy: increase
+      - 'DutchmanNL'
+    versioning-strategy: 'increase'
+    cooldown:
+      default-days: 7

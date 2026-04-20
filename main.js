@@ -1173,26 +1173,33 @@ class Wled extends utils.Adapter {
             deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
         }
 
+        let maxRetries = 0;
+
         // Check if device has exceeded maximum retry attempts
-        const maxRetries = this.config.maxRetries ?? 5;
-        if (deviceRetryCount[deviceIP] >= maxRetries) {
-            // Device has failed too many times, schedule a much longer retry interval
-            if (watchdogTimer[deviceIP]) {
-                clearTimeout(watchdogTimer[deviceIP]);
-                watchdogTimer[deviceIP] = null;
+        if (Number(this.config.maxRetries) !== 0) {      // If the device is switched off for a longer period of time, we will continue to try if interval is set to 0.
+            maxRetries = Number(this.config.maxRetries) ?? 5;
+            if (deviceRetryCount[deviceIP] >= maxRetries) {
+                // Device has failed too many times, schedule a much longer retry interval
+                if (watchdogTimer[deviceIP]) {
+                    clearTimeout(watchdogTimer[deviceIP]);
+                    watchdogTimer[deviceIP] = null;
+                }
+
+                // Retry once every hour (3600 seconds) for permanently failed devices
+                const longRetryDelay = 3600 * 1000;
+                watchdogTimer[deviceIP] = setTimeout(() => {
+                    // Reset retry count after long delay to give device another chance
+                    deviceRetryCount[deviceIP] = 0;
+                    deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
+                    this.watchDog(deviceIP);
+                }, longRetryDelay);
+
+                this.log.debug(`Device ${deviceIP} has failed ${maxRetries} consecutive times, next retry in 1 hour`);
+                return;
             }
-
-            // Retry once every hour (3600 seconds) for permanently failed devices
-            const longRetryDelay = 3600 * 1000;
-            watchdogTimer[deviceIP] = setTimeout(() => {
-                // Reset retry count after long delay to give device another chance
-                deviceRetryCount[deviceIP] = 0;
-                deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
-                this.watchDog(deviceIP);
-            }, longRetryDelay);
-
-            this.log.debug(`Device ${deviceIP} has failed ${maxRetries} consecutive times, next retry in 1 hour`);
-            return;
+        } else {
+            deviceRetryCount[deviceIP] = 0;
+            deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
         }
 
         try {
@@ -1280,16 +1287,9 @@ class Wled extends utils.Adapter {
                     deviceRetryDelay[deviceIP] = Math.min(baseDelay * backoffMultiplier, 600 * 1000);
                 }
 
-                // Log retry information based on retry count
-                if (deviceRetryCount[deviceIP] <= 3) {
-                    this.log.info(
-                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
-                    );
-                } else {
-                    this.log.debug(
-                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
-                    );
-                }
+                this.log.debug(
+                    `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
+                );
             }
         } catch (error) {
             this.errorHandler(`[watchDog]`, error);
@@ -1381,8 +1381,9 @@ class Wled extends utils.Adapter {
                     }
 
                     if (!deviceData) {
-                        this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+                        this.log.info(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
                         this.devices[deviceIP].initialized = false;
+                        this.devices[deviceIP].connected   = false;
                         // Update device working state
                         if (this.devices[deviceIP].mac != null) {
                             await this.create_state(
@@ -1588,10 +1589,24 @@ class Wled extends utils.Adapter {
 
             // Set value to state including expiration time
             if (value != null) {
-                await this.setStateChangedAsync(stateName, {
-                    val: typeof value === 'object' ? JSON.stringify(value) : value, // real objects are not allowed
-                    ack: true,
-                });
+                let valueToSet;
+
+                if (typeof value === 'object') {
+                    // ioBroker state values must be primitive -> stringify non-primitive payloads
+                    if (typeof value.val === 'boolean' || typeof value.val === 'number') {
+                        valueToSet = value.val;
+                    } else if (Array.isArray(value)) {
+                        valueToSet = JSON.stringify(value);
+                    } else if (value?.val) {
+                            valueToSet = JSON.stringify(value.val);
+                        } else {
+                            valueToSet = JSON.stringify(value);
+                    }
+                } else {
+                    valueToSet = value;
+                }
+
+                await this.setStateChangedAsync(stateName, valueToSet, true);
             }
 
             // Timer  to set online state to  FALSE when not updated during  2 time-sync intervals
@@ -1636,7 +1651,10 @@ class Wled extends utils.Adapter {
             this.createdStatesDetails[stateName] = common;
 
             // Subscribe on state changes if writable
-            common.write && this.subscribeStates(stateName);
+            if (common.write) {
+                this.subscribeStates(stateName);
+            }
+
         } catch (error) {
             this.errorHandler(`[create_state]`, error);
         }

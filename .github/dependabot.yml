@@ -1,15 +1,19 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: "/"
+    directory: '/'
     schedule:
       interval: monthly
-      time: "04:00"
+      time: '04:00'
       timezone: Europe/Berlin
     allow:
       - dependency-type: 'production'
-    target-branch: "dependencyAutoUpdate"
+    target-branch: 'dependencyAutoUpdate'
     open-pull-requests-limit: 20
     assignees:
       - DutchmanNL
     versioning-strategy: increase
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'

@@ -11,7 +11,7 @@
 
 **Tests:** ![Test and Release](https://github.com/DrozmotiX/iobroker.wled/workflows/Test%20and%20Release/badge.svg)
 
-**This adapter uses the service [Sentry.io](https://sentry.io) to automatically report exceptions and code errors and new device schemas to me as the developer.** More details see below!
+**This adapter uses the service `Sentry.io` to automatically report exceptions and code errors and new device schemas to me as the developer.** More details see below!
 
 ## wled adapter for ioBroker
 
@@ -142,6 +142,8 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 ### __WORK IN PROGRESS__
+* (DutchmanNL) Maintenance: use adapter timer API (this.setTimeout/this.clearTimeout) so all timers are cleared on unload
+* (DutchmanNL) Maintenance: translated the delete device confirmation message into all supported languages
 * (DutchmanNL) Maintenance: raise Node.js to 22, modernise CI and release tooling, update dependencies, resolve repository checker findings
 * (DutchmanNL) **CI/CD**: Fixed deployment failure by adding missing sentry-version-prefix parameter to GitHub Actions workflow
 * (DutchmanNL) **CI/CD**: Updated GitHub Copilot instructions template from v0.4.2 to v0.5.6 - adds ESLint configuration, translation management, lint-first CI/CD workflow guidance

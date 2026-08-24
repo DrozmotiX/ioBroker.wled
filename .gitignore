@@ -18,3 +18,4 @@ admin/i18n/*/flat.txt
 
 # commitinfo files
 .commitinfo
+.DS_Store

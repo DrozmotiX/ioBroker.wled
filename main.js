@@ -74,10 +74,10 @@ class Wled extends utils.Adapter {
 
         // Reset timer (if running) and start 10s delay to r un watchdog
         if (watchDogStartDelay) {
-            clearTimeout(watchDogStartDelay);
+            this.clearTimeout(watchDogStartDelay);
             watchDogStartDelay = null;
         }
-        watchDogStartDelay = setTimeout(() => {
+        watchDogStartDelay = this.setTimeout(() => {
             // Start watchdog for each  device
             for (const i in this.devices) {
                 this.watchDog(i);
@@ -96,7 +96,7 @@ class Wled extends utils.Adapter {
         try {
             // Clear adapter-level polling timer
             if (watchDogStartDelay) {
-                clearTimeout(watchDogStartDelay);
+                this.clearTimeout(watchDogStartDelay);
                 watchDogStartDelay = null;
             }
 
@@ -197,7 +197,7 @@ class Wled extends utils.Adapter {
                                 this.log.debug(`Raw command response: ${JSON.stringify(result.data)}`);
 
                                 // Trigger a device poll to update states after a short delay
-                                setTimeout(() => {
+                                this.setTimeout(() => {
                                     this.watchDog(device_ip);
                                 }, 500);
                             } catch (error) {
@@ -652,7 +652,7 @@ class Wled extends utils.Adapter {
                         }
 
                         // Wait a bit for the device to process the request, then refresh device data
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await new Promise(resolve => this.setTimeout(resolve, 1000));
                         await this.getDeviceJSON(deviceIpAddr);
 
                         respond({ success: true, message: `Segment ${segmentId} added successfully` }, this);
@@ -728,7 +728,7 @@ class Wled extends utils.Adapter {
                         }
 
                         // Wait a bit for the device to process the request, then refresh device data
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await new Promise(resolve => this.setTimeout(resolve, 1000));
                         await this.getDeviceJSON(deviceIpAddr);
 
                         respond({ success: true, message: `Segment ${segmentId} deleted successfully` }, this);
@@ -776,7 +776,7 @@ class Wled extends utils.Adapter {
                     this.log.debug(`Pong received by websocket`);
                     // Clear pong reset timer
                     if (watchdogWsTimer[deviceIP]) {
-                        clearTimeout(watchdogWsTimer[deviceIP]);
+                        this.clearTimeout(watchdogWsTimer[deviceIP]);
                         watchdogTimer[deviceIP] = null;
                     }
                     this.devices[deviceIP].wsPingSupported = true;
@@ -1178,13 +1178,13 @@ class Wled extends utils.Adapter {
         if (deviceRetryCount[deviceIP] >= maxRetries) {
             // Device has failed too many times, schedule a much longer retry interval
             if (watchdogTimer[deviceIP]) {
-                clearTimeout(watchdogTimer[deviceIP]);
+                this.clearTimeout(watchdogTimer[deviceIP]);
                 watchdogTimer[deviceIP] = null;
             }
 
             // Retry once every hour (3600 seconds) for permanently failed devices
             const longRetryDelay = 3600 * 1000;
-            watchdogTimer[deviceIP] = setTimeout(() => {
+            watchdogTimer[deviceIP] = this.setTimeout(() => {
                 // Reset retry count after long delay to give device another chance
                 deviceRetryCount[deviceIP] = 0;
                 deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
@@ -1208,10 +1208,10 @@ class Wled extends utils.Adapter {
                         this.devices[deviceIP].wsPong = false;
                         ws[deviceIP].send('ping');
                         if (watchdogWsTimer[deviceIP]) {
-                            clearTimeout(watchdogWsTimer[deviceIP]);
+                            this.clearTimeout(watchdogWsTimer[deviceIP]);
                             watchdogTimer[deviceIP] = null;
                         }
-                        watchdogWsTimer[deviceIP] = setTimeout(() => {
+                        watchdogWsTimer[deviceIP] = this.setTimeout(() => {
                             if (!this.devices[deviceIP].wsPong) {
                                 this.devices[deviceIP].initialized = false;
                                 this.devices[deviceIP].wsConnected = false;
@@ -1299,13 +1299,13 @@ class Wled extends utils.Adapter {
 
         // Reset timer (if running) and start new one for next watchdog interval
         if (watchdogTimer[deviceIP]) {
-            clearTimeout(watchdogTimer[deviceIP]);
+            this.clearTimeout(watchdogTimer[deviceIP]);
             watchdogTimer[deviceIP] = null;
         }
 
         // Use the calculated retry delay
         const nextDelay = deviceRetryDelay[deviceIP] || this.config.Time_Sync * 1000;
-        watchdogTimer[deviceIP] = setTimeout(() => {
+        watchdogTimer[deviceIP] = this.setTimeout(() => {
             this.watchDog(deviceIP);
         }, nextDelay);
     }
@@ -1598,12 +1598,12 @@ class Wled extends utils.Adapter {
             if (name === 'online') {
                 // Clear running timer
                 if (stateExpire[stateName]) {
-                    clearTimeout(stateExpire[stateName]);
+                    this.clearTimeout(stateExpire[stateName]);
                     stateExpire[stateName] = null;
                 }
 
                 // timer
-                stateExpire[stateName] = setTimeout(async () => {
+                stateExpire[stateName] = this.setTimeout(async () => {
                     // Set value to state including expiration time
                     await this.setStateAsync(stateName, false, true);
                     this.log.debug(`Online state expired for ${stateName}`);
@@ -1696,21 +1696,21 @@ class Wled extends utils.Adapter {
 
             // Clear watchdog timer
             if (watchdogTimer[ip]) {
-                clearTimeout(watchdogTimer[ip]);
+                this.clearTimeout(watchdogTimer[ip]);
                 delete watchdogTimer[ip];
                 this.log.debug(`Cleared watchdog timer for ${ip}`);
             }
 
             // Clear WebSocket ping timer
             if (watchdogWsTimer[ip]) {
-                clearTimeout(watchdogWsTimer[ip]);
+                this.clearTimeout(watchdogWsTimer[ip]);
                 delete watchdogWsTimer[ip];
                 this.log.debug(`Cleared WebSocket ping timer for ${ip}`);
             }
 
             // Clear state expire timer
             if (stateExpire[ip]) {
-                clearTimeout(stateExpire[ip]);
+                this.clearTimeout(stateExpire[ip]);
                 delete stateExpire[ip];
                 this.log.debug(`Cleared state expire timer for ${ip}`);
             }

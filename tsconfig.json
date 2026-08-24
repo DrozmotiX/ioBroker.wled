@@ -1,4 +1,5 @@
 {
+	"extends": "@tsconfig/node22/tsconfig.json",
 	"compileOnSave": true,
 	"compilerOptions": {
 		// do not compile anything, this file is just to configure type checking
@@ -23,8 +24,7 @@
 		// "noUnusedLocals": true,
 		// "noUnusedParameters": true,
 
-		// Consider targetting es2017 or higher if you require the new NodeJS 8+ features
-		"target": "es2015",
+		"target": "es2022",
 
 	},
 	"include": [

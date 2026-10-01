@@ -79,11 +79,14 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
+            // Setup issues are labelled copilot-setup and update issues template-update, both carry
+            // automation. Filtering on both labels never matched the update issues, so a new one was
+            // opened every week.
             const { data: issues } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
-              labels: 'copilot-setup,automation'
+              labels: 'automation'
             });
 
             const setupIssues = issues.filter(issue =>

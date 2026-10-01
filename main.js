@@ -528,13 +528,13 @@ class Wled extends utils.Adapter {
                     this.log.debug(`Delete device request received for IP: ${deviceIP}`);
 
                     try {
-                        // Find device ID by IP address
-                        let deviceId = null;
-                        for (const ip in this.devices) {
-                            if (ip === deviceIP) {
-                                deviceId = this.devices[ip].name;
-                                break;
-                            }
+                        // Find device ID (MAC address) by IP address. A device that is offline since
+                        // adapter start may be missing from the devices array, so check the object tree as well
+                        let deviceId = this.devices[deviceIP]?.mac || null;
+                        if (!deviceId) {
+                            const knownDevices = await this.getDevicesAsync();
+                            const knownDevice = knownDevices.find(device => device.native?.ip === deviceIP);
+                            deviceId = knownDevice?.native?.mac || null;
                         }
 
                         if (deviceId) {
@@ -1381,17 +1381,32 @@ class Wled extends utils.Adapter {
                     }
 
                     if (!deviceData) {
-                        this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+                        if (!this.devices[deviceIP]) {
+                            // Manually added IP that does not answer, nothing to update yet
+                            this.log.warn(`Unable to initialise ${deviceIP}, device does not respond`);
+                            return 'failed';
+                        }
+                        // Warn once per outage, further attempts of a device that stays offline are logged as debug
+                        if (!this.devices[deviceIP].offlineWarned) {
+                            this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+                            this.devices[deviceIP].offlineWarned = true;
+                        } else {
+                            this.log.debug(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+                        }
                         this.devices[deviceIP].initialized = false;
+                        this.devices[deviceIP].connected = false;
                         // Update device working state
                         if (this.devices[deviceIP].mac != null) {
                             await this.create_state(
                                 `${this.devices[deviceIP].mac}._info` + `._online`,
                                 'Online status',
-                                { val: false, ack: true },
+                                false,
                             );
                         }
                         return 'failed';
+                    }
+                    if (this.devices[deviceIP]) {
+                        this.devices[deviceIP].offlineWarned = false;
                     }
                     this.log.debug(`Info Data received from WLED device ${JSON.stringify(deviceData)}`);
                     this.log.info(`Initialising : " ${deviceData.info.name}" on IP :  ${deviceIP}`);
@@ -1766,7 +1781,7 @@ class Wled extends utils.Adapter {
             this.cleanupDeviceBackend(ip, mac);
         }
 
-        const name = deviceId.replace(/wled\.\d\./, '');
+        const name = deviceId.replace(/^wled\.\d+\./, '');
         const res = await this.deleteDeviceAsync(name);
         if (res !== null) {
             this.log.info(`${name} deleted`);

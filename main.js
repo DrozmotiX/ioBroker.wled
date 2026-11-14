@@ -53,6 +53,8 @@ class Wled extends utils.Adapter {
         this.palettes = {};
         this.createdStatesDetails = {};
         this.bonjourBrowser = null;
+        this.watchDogStarted = false;
+        this.watchedDevices = new Set();
 
         this.deviceManagement = new dmWled(this);
     }
@@ -79,6 +81,7 @@ class Wled extends utils.Adapter {
         }
         watchDogStartDelay = this.setTimeout(() => {
             // Start watchdog for each  device
+            this.watchDogStarted = true;
             for (const i in this.devices) {
                 this.watchDog(i);
             }
@@ -921,6 +924,11 @@ class Wled extends utils.Adapter {
 
             // Create structure for all states
             await this.handleStates(deviceData, deviceIP);
+
+            // Devices added after start (Discover, manual IP) need their own watchdog
+            if (this.watchDogStarted && !this.watchedDevices.has(deviceIP)) {
+                this.watchDog(deviceIP);
+            }
         } catch (error) {
             this.errorHandler(`[handleBasicStates]`, error);
         }
@@ -1200,6 +1208,7 @@ class Wled extends utils.Adapter {
         if (!this.devices[deviceIP]) {
             return;
         }
+        this.watchedDevices.add(deviceIP);
 
         // Initialize retry count and delay if not exists
         if (deviceRetryCount[deviceIP] === undefined) {
@@ -1770,6 +1779,7 @@ class Wled extends utils.Adapter {
             delete deviceRetryDelay[ip];
             this.log.debug(`Cleared retry tracking for ${ip}`);
 
+            this.watchedDevices.delete(ip);
             // Delete device from devices object
             delete this.devices[ip];
             this.log.debug(`Removed device ${ip} from devices object`);

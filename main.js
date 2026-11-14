@@ -1734,12 +1734,24 @@ class Wled extends utils.Adapter {
      * @returns {string} plain text
      */
     stripHtml(text) {
-        return String(text)
-            .replace(/<[^>]*>/g, ' ')
-            .replace(/&nbsp;/gi, ' ')
-            .replace(/&amp;/gi, '&')
-            .replace(/&deg;/gi, '°')
-            .replace(/&#?[a-z0-9]+;/gi, '')
+        // Remove tags in one pass (no regular expression, so long or broken input can not slow it down)
+        const input = String(text);
+        let plain = '';
+        let inTag = false;
+        for (const char of input) {
+            if (char === '<') {
+                inTag = true;
+                plain += ' ';
+            } else if (char === '>' && inTag) {
+                inTag = false;
+            } else if (!inTag) {
+                plain += char;
+            }
+        }
+        // Decode entities in one step, so a decoded "&" is never decoded a second time
+        const entities = { nbsp: ' ', amp: '&', deg: '°', lt: '<', gt: '>', quot: '"' };
+        return plain
+            .replace(/&(#?[a-z0-9]{1,10});/gi, (_match, name) => entities[name.toLowerCase()] ?? '')
             .replace(/\s+/g, ' ')
             .trim();
     }

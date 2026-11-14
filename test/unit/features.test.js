@@ -454,3 +454,19 @@ describe('last used colour and effect (#930)', () => {
         expect(adapter.logs.info.join()).to.include('Nothing to restore');
     });
 });
+
+describe('stripHtml (#929)', () => {
+    const adapter = createAdapter();
+
+    it('removes tags and decodes entities once', () => {
+        expect(adapter.stripHtml('<b>22&deg;C</b>&nbsp;ok')).to.equal('22°C ok');
+        expect(adapter.stripHtml('Tom &amp;amp; Jerry')).to.equal('Tom &amp; Jerry');
+        expect(adapter.stripHtml('&#xe325; PIR')).to.equal('PIR');
+    });
+
+    it('handles long broken input quickly', () => {
+        const start = Date.now();
+        adapter.stripHtml('<'.repeat(100000));
+        expect(Date.now() - start).to.be.below(500);
+    });
+});

@@ -32,7 +32,7 @@
             for (i in obj) {
                 if (obj[i] !== undefined) {
                     text += '<tr id="' + obj[i].value.native.mac + '"><td><span id="' + obj[i].value.native.mac + '-index">' + obj[i].value.native.mac + '</span></td>'
-                    text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value=' + obj[i].value.common.name + '></td>'
+                    text += '<td> <input id="' + index + '-Name" type="text" disabled="true" class="center-align input-field" value="' + obj[i].value.common.name + '"></td>'
                     text += '<td> <input id="' + index + '-ip" type="text" disabled="true" class="center-align input-field" value="' + obj[i].value.native.ip + '"></td>'
                     text += '<td> <div class="led-all center-led led-gray"></div></td>'
                     text += '<td> <button class="btn-small red delete-device-btn waves-effect waves-light" data-ip="' + obj[i].value.native.ip + '" data-name="' + obj[i].value.common.name + '"><i class="material-icons">delete</i></button></td>'
@@ -179,25 +179,7 @@
         // This will be called by the admin adapter when the user presses the save button
         function save(callback) {
             let obj = {};
-            let i = 0;
-            $('tbody > tr').each(function () {
-                i = i + 1;
-                let ip = $('#' + i + '-ip').val();
-                console.log('IP : ' + JSON.stringify(ip));
-
-                // let encrypted = encrypt(secret, password);
-
-                if (!obj.devices) {
-                    obj.devices = { 1: { ip: ip } };
-                    obj.devices = { [ip]: { ip: ip } };
-                    // obj.devices[ip] = {ip: ip};
-                } else {
-                    obj.devices[ip] = { ip: ip };
-                }
-
-                console.log(JSON.stringify(obj));
-            });
-            console.log('index: ' + i);
+            // The device list is read from the object tree by the adapter, it is not stored in the settings
 
             $('.value').each(function () {
                 var $this = $(this);
@@ -255,7 +237,7 @@
                 </div>
 
                 <div class="input-field col s12 m6 l4 right">
-                    <input type="number" id="Time_Sync" class="value center" min="0" max="65565" />
+                    <input type="number" id="Time_Sync" class="value center" min="1" max="65565" />
                     <label for="Time_Sync" class="translate">Intervall in seconds</label>
                 </div>
 

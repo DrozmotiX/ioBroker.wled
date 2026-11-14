@@ -53,6 +53,8 @@ class Wled extends utils.Adapter {
         this.palettes = {};
         this.createdStatesDetails = {};
         this.bonjourBrowser = null;
+        this.watchDogStarted = false;
+        this.watchedDevices = new Set();
 
         this.deviceManagement = new dmWled(this);
     }
@@ -61,6 +63,22 @@ class Wled extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     async onReady() {
+        // Guard against invalid settings, 0 or empty values would create timers without delay
+        const timeSync = Number(this.config.Time_Sync);
+        if (!Number.isFinite(timeSync) || timeSync < 1) {
+            this.log.warn(`Invalid polling interval "${this.config.Time_Sync}", using 30 seconds`);
+            this.config.Time_Sync = 30;
+        } else {
+            this.config.Time_Sync = timeSync;
+        }
+        const maxRetries = Number(this.config.maxRetries);
+        if (!Number.isInteger(maxRetries) || maxRetries < 1) {
+            this.log.warn(`Invalid number of retry attempts "${this.config.maxRetries}", using 5`);
+            this.config.maxRetries = 5;
+        } else {
+            this.config.maxRetries = maxRetries;
+        }
+
         await this.resetOnlineStates();
 
         // Read already known devices
@@ -79,6 +97,7 @@ class Wled extends utils.Adapter {
         }
         watchDogStartDelay = this.setTimeout(() => {
             // Start watchdog for each  device
+            this.watchDogStarted = true;
             for (const i in this.devices) {
                 this.watchDog(i);
             }
@@ -196,19 +215,19 @@ class Wled extends utils.Adapter {
 
                                 this.log.debug(`Raw command response: ${JSON.stringify(result.data)}`);
 
+                                // Acknowledge the state change only when the device accepted the command
+                                this.setState(id, {
+                                    val: state.val,
+                                    ack: true,
+                                });
+
                                 // Trigger a device poll to update states after a short delay
                                 this.setTimeout(() => {
                                     this.watchDog(device_ip);
                                 }, 500);
                             } catch (error) {
-                                this.log.error(`Failed to send raw command: ${error.message}`);
+                                this.log.warn(`Failed to send raw command to ${device_ip}: ${error.message}`);
                             }
-
-                            // Always acknowledge the state change, regardless of success or failure
-                            this.setState(id, {
-                                val: state.val,
-                                ack: true,
-                            });
 
                             return; // Exit early, rawCommand is handled separately
                         } catch (error) {
@@ -261,48 +280,24 @@ class Wled extends utils.Adapter {
                                     if (!colorSecondaryHex) {
                                         return;
                                     }
-                                    const colorTertiaryHex = await this.getStateAsync(`${color_root}.1_HEX`);
+                                    const colorTertiaryHex = await this.getStateAsync(`${color_root}.2_HEX`);
                                     if (!colorTertiaryHex) {
                                         return;
                                     }
 
-                                    // Use library to translate HEX values into proper RGB
-                                    //hex RGB calculate Alpha channel in 0 to 1 Wled need a value between 0 and 255 so the alpha channel from HEXRGB has to multiple by 255
-                                    const colorPrimaryRGB = hexRgb(colorPrimaryHex.val);
-                                    colorPrimaryRGB.alpha = colorPrimaryRGB.alpha * 255;
-                                    const colorSecondaryRGB = hexRgb(colorSecondaryHex.val);
-                                    colorSecondaryRGB.alpha = colorSecondaryRGB.alpha * 255;
-                                    const colorTertiaryRGB = hexRgb(colorTertiaryHex.val);
-                                    colorTertiaryRGB.alpha = colorTertiaryRGB.alpha * 255;
+                                    // Translate HEX values into the WLED colour format.
+                                    // An 8-digit HEX carries the white channel, a 6-digit HEX keeps the current white value.
+                                    rgb_all = [];
+                                    for (const [index, hexState] of [
+                                        colorPrimaryHex,
+                                        colorSecondaryHex,
+                                        colorTertiaryHex,
+                                    ].entries()) {
+                                        const currentRgb = await this.getStateAsync(`${color_root}.${index}`);
+                                        rgb_all.push(this.hexToWledColor(hexState.val, currentRgb?.val));
+                                    }
 
-                                    // Build RGB JSON string to be send to WLED
-                                    //add aditional Alpha channel when RGBW is used
-                                    rgb_all = [
-                                        [
-                                            colorPrimaryRGB.red,
-                                            colorPrimaryRGB.green,
-                                            colorPrimaryRGB.blue,
-                                            colorPrimaryRGB.alpha,
-                                        ],
-                                        [
-                                            colorSecondaryRGB.red,
-                                            colorSecondaryRGB.green,
-                                            colorSecondaryRGB.blue,
-                                            colorSecondaryRGB.alpha,
-                                        ],
-                                        [
-                                            colorTertiaryRGB.red,
-                                            colorTertiaryRGB.green,
-                                            colorTertiaryRGB.blue,
-                                            colorTertiaryRGB.alpha,
-                                        ],
-                                    ];
-
-                                    this.log.debug(
-                                        `Converted RGB values of HEX input : ${colorPrimaryRGB} : ${
-                                            colorSecondaryRGB
-                                        } : ${colorTertiaryRGB}`,
-                                    );
+                                    this.log.debug(`Converted RGB values of HEX input : ${JSON.stringify(rgb_all)}`);
                                 } catch (error) {
                                     this.log.error(`Hex conversion failed : ${error}`);
                                     return;
@@ -403,11 +398,27 @@ class Wled extends utils.Adapter {
 
                 // Only make API call when values are correct
                 if (values !== null && device_ip !== null) {
+                    // Device unknown or offline: the command can not be delivered
+                    if (!this.devices[device_ip] || !this.devices[device_ip].connected) {
+                        this.log.warn(`Device ${deviceId[2]} (${device_ip}) is offline, command for ${id} discarded`);
+                        return;
+                    }
+
                     // If websocket is connected, send message by websocket otherwise http-API
-                    if (this.devices[device_ip].wsConnected) {
+                    if (this.devices[device_ip].wsConnected && ws[device_ip]) {
                         this.log.debug(`Sending state change by websocket ${JSON.stringify(values)}`);
 
-                        ws[device_ip].send(JSON.stringify(values));
+                        ws[device_ip].send(JSON.stringify(values), error => {
+                            if (error) {
+                                this.log.warn(`Sending command for ${id} to ${device_ip} failed: ${error.message}`);
+                                return;
+                            }
+                            // Set state acknowledgement when the message was sent successfully
+                            this.setState(id, {
+                                val: state.val,
+                                ack: true,
+                            });
+                        });
                     } else {
                         this.log.debug(`Sending state change by http-API ${JSON.stringify(values)}`);
 
@@ -590,11 +601,29 @@ class Wled extends utils.Adapter {
                             break;
                         }
 
+                        // Validate segment id and range, numbers given as text are accepted
+                        const segId = Number(segmentId);
+                        const segStart = addSegmentMsg.start !== undefined ? Number(addSegmentMsg.start) : 0;
+                        const segStop = addSegmentMsg.stop !== undefined ? Number(addSegmentMsg.stop) : 1;
+                        let rangeError = null;
+                        if (!Number.isInteger(segId) || segId < 0 || segId > 31) {
+                            rangeError = `segmentId must be a whole number between 0 and 31, received ${segmentId}`;
+                        } else if (!Number.isInteger(segStart) || segStart < 0) {
+                            rangeError = `start must be a whole number >= 0, received ${addSegmentMsg.start}`;
+                        } else if (!Number.isInteger(segStop) || segStop <= segStart) {
+                            rangeError = `stop must be a whole number greater than start, received ${addSegmentMsg.stop}`;
+                        }
+                        if (rangeError) {
+                            this.log.warn(`addSegment: ${rangeError}`);
+                            respond({ success: false, error: rangeError }, this);
+                            break;
+                        }
+
                         // Build segment configuration object
                         const segmentConfig = {
-                            id: segmentId,
-                            start: addSegmentMsg.start !== undefined ? addSegmentMsg.start : 0,
-                            stop: addSegmentMsg.stop !== undefined ? addSegmentMsg.stop : 1,
+                            id: segId,
+                            start: segStart,
+                            stop: segStop,
                         };
 
                         // Add optional properties if provided
@@ -744,6 +773,36 @@ class Wled extends utils.Adapter {
     }
 
     /**
+     * Translate a HEX colour into the WLED colour array [r, g, b] or [r, g, b, w]
+     *
+     * @param {string} hexValue HEX colour, 6 digits (RGB) or 8 digits (RGB + white)
+     * @param {any} currentRgb current value of the matching RGB state, used to keep the white channel
+     * @returns {number[]} colour array for WLED
+     */
+    hexToWledColor(hexValue, currentRgb) {
+        const hex = String(hexValue).trim().replace(/^#/, '');
+        const rgb = hexRgb(hex);
+        const color = [rgb.red, rgb.green, rgb.blue];
+        if (hex.length === 8 || hex.length === 4) {
+            // HEX contains the white channel as alpha value (0-1), WLED expects 0-255
+            color.push(Math.round(rgb.alpha * 255));
+            return color;
+        }
+        // 6-digit HEX: keep the current white value of the device, if known
+        let current = currentRgb;
+        if (typeof current === 'string') {
+            current = current
+                .replace(/[[\]]/g, '')
+                .split(',')
+                .map(s => parseInt(s));
+        }
+        if (Array.isArray(current) && current.length > 3 && !isNaN(current[3])) {
+            color.push(current[3]);
+        }
+        return color;
+    }
+
+    /**
      * Websocket connection handler
      *
      * @param {string} deviceIP IP-Address of device
@@ -755,6 +814,7 @@ class Wled extends utils.Adapter {
         ws[deviceIP].on('open', () => {
             this.log.info(`${this.devices[deviceIP].name} connected`);
             this.devices[deviceIP].wsConnected = true;
+            this.devices[deviceIP].wsSupported = true;
             this.devices[deviceIP].wsPingSupported = false;
             // Request pong to handle watchdog
             ws[deviceIP].send('ping');
@@ -777,10 +837,14 @@ class Wled extends utils.Adapter {
                     // Clear pong reset timer
                     if (watchdogWsTimer[deviceIP]) {
                         this.clearTimeout(watchdogWsTimer[deviceIP]);
-                        watchdogTimer[deviceIP] = null;
+                        watchdogWsTimer[deviceIP] = null;
                     }
                     this.devices[deviceIP].wsPingSupported = true;
                     this.devices[deviceIP].wsPong = true;
+                    // Device answered, refresh online state and its expiry timer
+                    if (this.devices[deviceIP].mac != null) {
+                        await this.create_state(`${this.devices[deviceIP].mac}._info._online`, 'Online status', true);
+                    }
                 } else {
                     this.log.warn(`Unhandled message received ${data}`);
                 }
@@ -794,16 +858,19 @@ class Wled extends utils.Adapter {
         });
 
         // Handle closure of socket connection
-        ws[deviceIP].on('close', () => {
+        const socket = ws[deviceIP];
+        socket.on('close', () => {
+            // Ignore the closure of an old connection that was already replaced by a new one
+            if (ws[deviceIP] !== socket) {
+                return;
+            }
             if (this.devices[deviceIP]?.wsSupported === true) {
                 this.log.info(`${this.devices[deviceIP].name} disconnected`);
                 this.devices[deviceIP].connected = false;
                 this.devices[deviceIP].initialized = false;
                 this.devices[deviceIP].wsConnected = false;
 
-                // Set Device status to off and brightness to 0 if devices disconnects
-                this.setState(`${this.devices[deviceIP].mac}.on`, false, true);
-                this.setState(`${this.devices[deviceIP].mac}.bri`, 0, true);
+                this.setState(`${this.devices[deviceIP].mac}._info._online`, false, true);
             }
         });
 
@@ -842,17 +909,29 @@ class Wled extends utils.Adapter {
 
             // Create Device, channel id by MAC-Address and ensure relevant information for polling and instance configuration is part of device object
             if (!this.devices[deviceIP].initialized) {
+                // Keep a name that was changed in ioBroker: only take over the WLED name if the object is new
+                // or its name still equals the WLED name that was synchronised last time
+                const existing = await this.getObjectAsync(device_id);
+                const lastWledName = existing?.native?.wledName;
+                const keepName =
+                    existing?.common?.name !== undefined &&
+                    lastWledName !== undefined &&
+                    existing.common.name !== lastWledName;
+                const common = {
+                    statusStates: {
+                        onlineId: `${this.namespace}.${device_id}._info._online`,
+                    },
+                };
+                if (!keepName) {
+                    common.name = deviceData.info.name;
+                }
                 await this.extendObjectAsync(device_id, {
                     type: 'device',
-                    common: {
-                        name: deviceData.info.name,
-                        statusStates: {
-                            onlineId: `${this.namespace}.${device_id}._info._online`,
-                        },
-                    },
+                    common,
                     native: {
                         ip: deviceIP,
                         mac: device_id,
+                        wledName: deviceData.info.name,
                     },
                 });
             }
@@ -878,6 +957,14 @@ class Wled extends utils.Adapter {
                 this.palettes[device_id][i] = palettes[i];
             }
 
+            // Effect and palette lists can change with a new firmware: on every (re)connect the
+            // drop-down lists of fx and pal are written again with the current lists of the device
+            for (const stateName in this.createdStatesDetails) {
+                if (stateName.startsWith(`${device_id}.`) && /\.(fx|pal)$/.test(stateName)) {
+                    delete this.createdStatesDetails[stateName];
+                }
+            }
+
             // Create additional states not included in JSON-API of WLED but available as SET command
             await this.create_state(`${device_id}.tt`, 'tt', '');
             await this.create_state(`${device_id}.psave`, 'psave', '');
@@ -885,9 +972,16 @@ class Wled extends utils.Adapter {
             await this.create_state(`${device_id}.time`, 'time', null);
             await this.create_state(`${device_id}.action`, 'action', '');
             await this.create_state(`${device_id}.rawCommand`, 'rawCommand', '');
+            // Reboot button (WLED JSON-API command "rb"); hp (Hue sync) and rd (realtime UDP) are created from the state data when the device provides them
+            await this.create_state(`${device_id}.rb`, 'rb', null);
 
             // Create structure for all states
             await this.handleStates(deviceData, deviceIP);
+
+            // Devices added after start (Discover, manual IP) need their own watchdog
+            if (this.watchDogStarted && !this.watchedDevices.has(deviceIP)) {
+                this.watchDog(deviceIP);
+            }
         } catch (error) {
             this.errorHandler(`[handleBasicStates]`, error);
         }
@@ -1017,12 +1111,16 @@ class Wled extends utils.Adapter {
                             });
                         }
 
+                        // Segments are stored by their WLED segment id; segments added or removed in WLED are synchronised
+                        await this.syncSegments(infoStates.mac, ipAddress, deviceStates[i]);
+
                         for (const y in deviceStates[i]) {
+                            const segKey = this.segmentKey(deviceStates[i][y], y);
                             if (!this.devices[ipAddress].initialized) {
-                                await this.setObjectNotExistsAsync(`${infoStates.mac}.seg.${y}`, {
+                                await this.setObjectNotExistsAsync(`${infoStates.mac}.seg.${segKey}`, {
                                     type: 'channel',
                                     common: {
-                                        name: `Segment ${y}`,
+                                        name: `Segment ${segKey}`,
                                     },
                                     native: {},
                                 });
@@ -1037,7 +1135,7 @@ class Wled extends utils.Adapter {
 
                                 if (x !== 'col') {
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}`,
                                         x,
                                         deviceStates[i][y][x],
                                     );
@@ -1079,32 +1177,32 @@ class Wled extends utils.Adapter {
 
                                     // Write RGB and HEX information to states
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.0`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.0`,
                                         'Primary Color RGB',
                                         deviceStates[i][y][x][0],
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.0_HEX`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.0_HEX`,
                                         'Primary Color HEX',
                                         `#${primaryHex}`,
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.1`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.1`,
                                         'Secondary Color RGB (background)',
                                         deviceStates[i][y][x][1],
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.1_HEX`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.1_HEX`,
                                         'Secondary Color HEX (background)',
                                         `#${secondaryHex}`,
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.2`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.2`,
                                         'Tertiary Color RGB',
                                         deviceStates[i][y][x][2],
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.2_HEX`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.2_HEX`,
                                         'Tertiary Color HEX',
                                         `#${tertiaryHex}`,
                                     );
@@ -1115,8 +1213,9 @@ class Wled extends utils.Adapter {
                         break;
 
                     case 'u':
-                        await this.localDeleteState(`${infoStates.mac}	.u`);
-                        break;
+                        await this.localDeleteState(`${infoStates.mac}.u`);
+                        // Usermod data is not stored in the state section, skip state creation
+                        continue;
 
                     default:
                 }
@@ -1157,6 +1256,77 @@ class Wled extends utils.Adapter {
     }
 
     /**
+     * Key of a segment in the object tree: the WLED segment id, or the array position for old firmware without id
+     *
+     * @param {object} segment segment data from WLED
+     * @param {string} index position in the segment array
+     * @returns {string} segment key
+     */
+    segmentKey(segment, index) {
+        return segment && segment.id !== undefined && segment.id !== null ? String(segment.id) : String(index);
+    }
+
+    /**
+     * Synchronise segment channels with the segments reported by the device:
+     * new segments get a channel, segments removed in WLED are deleted from the object tree
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {string} ipAddress IP address of the device
+     * @param {Array<object>} segments segment array reported by WLED
+     */
+    async syncSegments(mac, ipAddress, segments) {
+        if (!Array.isArray(segments) || !this.devices[ipAddress]) {
+            return;
+        }
+        const current = new Set(segments.map((segment, index) => this.segmentKey(segment, String(index))));
+
+        // First run after adapter start: take the segments that exist in the object tree
+        let known = this.devices[ipAddress].segments;
+        if (!known) {
+            known = new Set();
+            const channels = await this.getObjectViewAsync('system', 'channel', {
+                startkey: `${this.namespace}.${mac}.seg.`,
+                endkey: `${this.namespace}.${mac}.seg.香`,
+            });
+            for (const row of channels?.rows || []) {
+                const parts = row.id.split('.');
+                if (parts.length === 5 && /^\d+$/.test(parts[4])) {
+                    known.add(parts[4]);
+                }
+            }
+        }
+
+        // Segments added in WLED
+        for (const segKey of current) {
+            if (!known.has(segKey)) {
+                this.log.debug(`Segment ${segKey} added on device ${mac}`);
+                await this.setObjectNotExistsAsync(`${mac}.seg.${segKey}`, {
+                    type: 'channel',
+                    common: {
+                        name: `Segment ${segKey}`,
+                    },
+                    native: {},
+                });
+            }
+        }
+
+        // Segments removed in WLED
+        for (const segKey of known) {
+            if (!current.has(segKey)) {
+                this.log.info(`Segment ${segKey} removed on device ${mac}, deleting its states`);
+                await this.localDeleteState(`${mac}.seg.${segKey}`);
+                for (const stateName in this.createdStatesDetails) {
+                    if (stateName.startsWith(`${mac}.seg.${segKey}.`)) {
+                        delete this.createdStatesDetails[stateName];
+                    }
+                }
+            }
+        }
+
+        this.devices[ipAddress].segments = current;
+    }
+
+    /**
      * Frequent watchdog to validate connection
      *
      * @param {string} deviceIP IP-Address of device
@@ -1166,6 +1336,7 @@ class Wled extends utils.Adapter {
         if (!this.devices[deviceIP]) {
             return;
         }
+        this.watchedDevices.add(deviceIP);
 
         // Initialize retry count and delay if not exists
         if (deviceRetryCount[deviceIP] === undefined) {
@@ -1209,7 +1380,7 @@ class Wled extends utils.Adapter {
                         ws[deviceIP].send('ping');
                         if (watchdogWsTimer[deviceIP]) {
                             this.clearTimeout(watchdogWsTimer[deviceIP]);
-                            watchdogTimer[deviceIP] = null;
+                            watchdogWsTimer[deviceIP] = null;
                         }
                         watchdogWsTimer[deviceIP] = this.setTimeout(() => {
                             if (!this.devices[deviceIP].wsPong) {
@@ -1280,16 +1451,10 @@ class Wled extends utils.Adapter {
                     deviceRetryDelay[deviceIP] = Math.min(baseDelay * backoffMultiplier, 600 * 1000);
                 }
 
-                // Log retry information based on retry count
-                if (deviceRetryCount[deviceIP] <= 3) {
-                    this.log.info(
-                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
-                    );
-                } else {
-                    this.log.debug(
-                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
-                    );
-                }
+                // Log retry information, the warning about the outage itself is logged once in getDeviceJSON
+                this.log.debug(
+                    `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
+                );
             }
         } catch (error) {
             this.errorHandler(`[watchDog]`, error);
@@ -1339,92 +1504,82 @@ class Wled extends utils.Adapter {
                     this.devices[deviceIP].wsPingSupported
                 ) {
                     // Nothing to do, device is connected by websocket and will handle state updates
-                } else {
-                    // No Websocket connection, handle data by http_API
-
-                    const deviceData = await requestDeviceDataByAPI();
-
-                    // If device is initialised, only handle state updates otherwise complete initialisation
-                    if (
-                        this.devices[deviceIP] &&
-                        this.devices[deviceIP].connected &&
-                        this.devices[deviceIP].initialized
-                    ) {
-                        if (!deviceData) {
-                            this.log.warn(`Heartbeat of device ${deviceIP} failed, will try to reconnect`);
-                            this.devices[deviceIP].connected = false;
-                            this.devices[deviceIP].initialized = false;
-                            this.devices[deviceIP].wsConnected = false;
-                            await this.create_state(
-                                `${this.devices[deviceIP].mac}._info` + `._online`,
-                                'Online status',
-                                false,
-                            );
-                            return 'failed';
-                        }
-                        this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
-                        if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
-                            // Only reset heartbeat, device is connected by websocket and will handle state updates
-                            this.setStateChanged(`${this.devices[deviceIP].mac}._info` + `._online`, {
-                                val: true,
-                                ack: true,
-                            });
-                            return 'success';
-                        }
-                        await this.handleStates(deviceData, deviceIP);
-                        this.devices[deviceIP].wsConnected = false;
-                        this.setStateChanged(`${this.devices[deviceIP].mac}._info` + `._online`, {
-                            val: true,
-                            ack: true,
-                        });
-                        return 'success';
-                    }
-
-                    if (!deviceData) {
-                        if (!this.devices[deviceIP]) {
-                            // Manually added IP that does not answer, nothing to update yet
-                            this.log.warn(`Unable to initialise ${deviceIP}, device does not respond`);
-                            return 'failed';
-                        }
-                        // Warn once per outage, further attempts of a device that stays offline are logged as debug
-                        if (!this.devices[deviceIP].offlineWarned) {
-                            this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
-                            this.devices[deviceIP].offlineWarned = true;
-                        } else {
-                            this.log.debug(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
-                        }
-                        this.devices[deviceIP].initialized = false;
-                        this.devices[deviceIP].connected = false;
-                        // Update device working state
-                        if (this.devices[deviceIP].mac != null) {
-                            await this.create_state(
-                                `${this.devices[deviceIP].mac}._info` + `._online`,
-                                'Online status',
-                                false,
-                            );
-                        }
-                        return 'failed';
-                    }
-                    if (this.devices[deviceIP]) {
-                        this.devices[deviceIP].offlineWarned = false;
-                    }
-                    this.log.debug(`Info Data received from WLED device ${JSON.stringify(deviceData)}`);
-                    this.log.info(`Initialising : " ${deviceData.info.name}" on IP :  ${deviceIP}`);
-                    await this.handleBasicStates(deviceIP, deviceData);
                     return 'success';
                 }
-            } catch {
-                if (this.devices[deviceIP] && this.devices[deviceIP].connected) {
-                    this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
+                // No Websocket connection, handle data by http_API
+
+                const deviceData = await requestDeviceDataByAPI();
+
+                // If device is initialised, only handle state updates otherwise complete initialisation
+                if (this.devices[deviceIP] && this.devices[deviceIP].connected && this.devices[deviceIP].initialized) {
+                    if (!deviceData) {
+                        this.log.warn(`Heartbeat of device ${deviceIP} failed, will try to reconnect`);
+                        // One warning per outage, the following reconnect attempts are logged as debug
+                        this.devices[deviceIP].offlineWarned = true;
+                        this.devices[deviceIP].connected = false;
+                        this.devices[deviceIP].initialized = false;
+                        this.devices[deviceIP].wsConnected = false;
+                        await this.create_state(
+                            `${this.devices[deviceIP].mac}._info` + `._online`,
+                            'Online status',
+                            false,
+                        );
+                        return 'failed';
+                    }
+                    this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
+                    if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
+                        // Only reset heartbeat, device is connected by websocket and will handle state updates
+                        await this.create_state(`${this.devices[deviceIP].mac}._info._online`, 'Online status', true);
+                        return 'success';
+                    }
+                    await this.handleStates(deviceData, deviceIP);
+                    this.devices[deviceIP].wsConnected = false;
+                    await this.create_state(`${this.devices[deviceIP].mac}._info._online`, 'Online status', true);
+                    return 'success';
+                }
+
+                if (!deviceData) {
+                    if (!this.devices[deviceIP]) {
+                        // Manually added IP that does not answer, nothing to update yet
+                        this.log.warn(`Unable to initialise ${deviceIP}, device does not respond`);
+                        return 'failed';
+                    }
+                    // Warn once per outage, further attempts of a device that stays offline are logged as debug
+                    if (!this.devices[deviceIP].offlineWarned) {
+                        this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+                        this.devices[deviceIP].offlineWarned = true;
+                    } else {
+                        this.log.debug(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+                    }
+                    this.devices[deviceIP].initialized = false;
+                    this.devices[deviceIP].connected = false;
+                    // Update device working state
                     if (this.devices[deviceIP].mac != null) {
                         await this.create_state(
                             `${this.devices[deviceIP].mac}._info` + `._online`,
                             'Online status',
                             false,
                         );
-                        // Set Device status to off and brightness to 0 if devices disconnects
-                        this.setState(`${this.devices[deviceIP].mac}.on`, false, true);
-                        this.setState(`${this.devices[deviceIP].mac}.bri`, 0, true);
+                    }
+                    return 'failed';
+                }
+                if (this.devices[deviceIP]) {
+                    this.devices[deviceIP].offlineWarned = false;
+                }
+                this.log.debug(`Info Data received from WLED device ${JSON.stringify(deviceData)}`);
+                this.log.info(`Initialising : " ${deviceData.info.name}" on IP :  ${deviceIP}`);
+                await this.handleBasicStates(deviceIP, deviceData);
+                return 'success';
+            } catch {
+                if (this.devices[deviceIP] && this.devices[deviceIP].connected) {
+                    this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
+                    this.devices[deviceIP].offlineWarned = true;
+                    if (this.devices[deviceIP].mac != null) {
+                        await this.create_state(
+                            `${this.devices[deviceIP].mac}._info` + `._online`,
+                            'Online status',
+                            false,
+                        );
                     }
                     this.devices[deviceIP].connected = false;
                     this.devices[deviceIP].wsConnected = false;
@@ -1457,7 +1612,7 @@ class Wled extends utils.Adapter {
                     return response.data;
                 })
                 .catch(error => {
-                    this.log.error(`Sending command to WLED device + ${url} failed with error ${error}`);
+                    this.log.warn(`Sending command to WLED device ${url} failed with error ${error}`);
                     return error;
                 });
             return result;
@@ -1503,6 +1658,16 @@ class Wled extends utils.Adapter {
      */
     async scanDevices() {
         try {
+            // Stop a running browser first, a new search (Discover) must not add a second one
+            if (this.bonjourBrowser) {
+                try {
+                    this.bonjourBrowser.stop();
+                } catch (error) {
+                    this.log.debug(`Stopping previous Bonjour browser failed: ${error}`);
+                }
+                this.bonjourBrowser = null;
+            }
+
             // Browse and listen for WLED devices
             this.bonjourBrowser = await bonjour.find({
                 type: 'wled',
@@ -1560,6 +1725,7 @@ class Wled extends utils.Adapter {
                 const warnMessage = `State attribute definition missing for : ${name}`;
                 if (warnMessages[name] !== warnMessage) {
                     this.log.debug(`State attribute definition missing for : ${name} with value : ${value}`);
+                    warnMessages[name] = warnMessage;
                 }
             }
 
@@ -1609,14 +1775,15 @@ class Wled extends utils.Adapter {
                 });
             }
 
-            // Timer  to set online state to  FALSE when not updated during  2 time-sync intervals
-            if (name === 'online') {
+            // Timer to set online state to FALSE when not updated during 2 time-sync intervals
+            if (stateName.endsWith('._info._online')) {
                 // Clear running timer
                 if (stateExpire[stateName]) {
                     this.clearTimeout(stateExpire[stateName]);
                     stateExpire[stateName] = null;
                 }
-
+            }
+            if (stateName.endsWith('._info._online') && value === true) {
                 // timer
                 stateExpire[stateName] = this.setTimeout(async () => {
                     // Set value to state including expiration time
@@ -1688,14 +1855,14 @@ class Wled extends utils.Adapter {
             if (this.supportsFeature && this.supportsFeature('PLUGINS')) {
                 const sentryInstance = this.getPluginInstance('sentry');
                 if (sentryInstance) {
-                    this.log.info(`[Error caught and sent to Sentry, thank you for collaborating!]  ${sentryMessage}`);
+                    this.log.debug(`Error sent to Sentry: ${sentryMessage}`);
                     sentryInstance.getSentryObject().captureException(sentryMessage);
                 } else {
-                    this.log.error(`Sentry disabled, error caught : ${sentryMessage}`);
+                    this.log.debug(`Sentry disabled, error not sent: ${sentryMessage}`);
                 }
             }
         } else {
-            this.log.error(`Sentry disabled, error caught : ${sentryMessage}`);
+            this.log.debug(`Sentry disabled, error not sent: ${sentryMessage}`);
         }
     }
 
@@ -1723,10 +1890,11 @@ class Wled extends utils.Adapter {
                 this.log.debug(`Cleared WebSocket ping timer for ${ip}`);
             }
 
-            // Clear state expire timer
-            if (stateExpire[ip]) {
-                this.clearTimeout(stateExpire[ip]);
-                delete stateExpire[ip];
+            // Clear state expire timer of the online state
+            const onlineStateId = `${mac}._info._online`;
+            if (mac && stateExpire[onlineStateId]) {
+                this.clearTimeout(stateExpire[onlineStateId]);
+                delete stateExpire[onlineStateId];
                 this.log.debug(`Cleared state expire timer for ${ip}`);
             }
 
@@ -1746,6 +1914,7 @@ class Wled extends utils.Adapter {
             delete deviceRetryDelay[ip];
             this.log.debug(`Cleared retry tracking for ${ip}`);
 
+            this.watchedDevices.delete(ip);
             // Delete device from devices object
             delete this.devices[ip];
             this.log.debug(`Removed device ${ip} from devices object`);
@@ -1782,13 +1951,14 @@ class Wled extends utils.Adapter {
         }
 
         const name = deviceId.replace(/^wled\.\d+\./, '');
-        const res = await this.deleteDeviceAsync(name);
-        if (res !== null) {
+        try {
+            await this.deleteDeviceAsync(name);
             this.log.info(`${name} deleted`);
             return true;
+        } catch (error) {
+            this.log.error(`Can not delete device ${name}: ${error instanceof Error ? error.message : error}`);
+            return false;
         }
-        this.log.error(`Can not delete device ${name}: ${JSON.stringify(res)}`);
-        return false;
     }
 
     /**
@@ -1830,10 +2000,6 @@ class Wled extends utils.Adapter {
 
                 // Set online state to false, will be set to true at successfully connected
                 this.setState(`${_devices.rows[currDevice].id}._info._online`, false, true);
-
-                // Set Device status to off and brightness to 0 at adapter start
-                this.setState(`${_devices.rows[currDevice].id}.on`, false, true);
-                this.setState(`${_devices.rows[currDevice].id}.bri`, 0, true);
             }
         } catch (e) {
             this.log.error(`[resetOnlineState] ${e}`);

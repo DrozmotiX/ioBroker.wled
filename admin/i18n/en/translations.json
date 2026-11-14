@@ -15,5 +15,7 @@
     "Device deleted successfully": "Device deleted successfully",
     "Failed to delete device": "Failed to delete device",
     "WLED devices are discovered automatically, if not you can use the ADD Device button.": "WLED devices are discovered automatically, if not you can use the ADD Device button.",
-    "wled adapter settings": "Adapter settings for wled"
+    "wled adapter settings": "Adapter settings for wled",
+    "Max retry attempts": "Max retry attempts",
+    "Enable exponential backoff": "Enable exponential backoff"
 }

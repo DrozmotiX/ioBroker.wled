@@ -1752,14 +1752,14 @@ class Wled extends utils.Adapter {
             if (this.supportsFeature && this.supportsFeature('PLUGINS')) {
                 const sentryInstance = this.getPluginInstance('sentry');
                 if (sentryInstance) {
-                    this.log.info(`[Error caught and sent to Sentry, thank you for collaborating!]  ${sentryMessage}`);
+                    this.log.debug(`Error sent to Sentry: ${sentryMessage}`);
                     sentryInstance.getSentryObject().captureException(sentryMessage);
                 } else {
-                    this.log.error(`Sentry disabled, error caught : ${sentryMessage}`);
+                    this.log.debug(`Sentry disabled, error not sent: ${sentryMessage}`);
                 }
             }
         } else {
-            this.log.error(`Sentry disabled, error caught : ${sentryMessage}`);
+            this.log.debug(`Sentry disabled, error not sent: ${sentryMessage}`);
         }
     }
 

@@ -1346,80 +1346,76 @@ class Wled extends utils.Adapter {
                     this.devices[deviceIP].wsPingSupported
                 ) {
                     // Nothing to do, device is connected by websocket and will handle state updates
-                } else {
-                    // No Websocket connection, handle data by http_API
+                    return 'success';
+                }
+                // No Websocket connection, handle data by http_API
 
-                    const deviceData = await requestDeviceDataByAPI();
+                const deviceData = await requestDeviceDataByAPI();
 
-                    // If device is initialised, only handle state updates otherwise complete initialisation
-                    if (
-                        this.devices[deviceIP] &&
-                        this.devices[deviceIP].connected &&
-                        this.devices[deviceIP].initialized
-                    ) {
-                        if (!deviceData) {
-                            this.log.warn(`Heartbeat of device ${deviceIP} failed, will try to reconnect`);
-                            this.devices[deviceIP].connected = false;
-                            this.devices[deviceIP].initialized = false;
-                            this.devices[deviceIP].wsConnected = false;
-                            await this.create_state(
-                                `${this.devices[deviceIP].mac}._info` + `._online`,
-                                'Online status',
-                                false,
-                            );
-                            return 'failed';
-                        }
-                        this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
-                        if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
-                            // Only reset heartbeat, device is connected by websocket and will handle state updates
-                            this.setStateChanged(`${this.devices[deviceIP].mac}._info` + `._online`, {
-                                val: true,
-                                ack: true,
-                            });
-                            return 'success';
-                        }
-                        await this.handleStates(deviceData, deviceIP);
+                // If device is initialised, only handle state updates otherwise complete initialisation
+                if (this.devices[deviceIP] && this.devices[deviceIP].connected && this.devices[deviceIP].initialized) {
+                    if (!deviceData) {
+                        this.log.warn(`Heartbeat of device ${deviceIP} failed, will try to reconnect`);
+                        this.devices[deviceIP].connected = false;
+                        this.devices[deviceIP].initialized = false;
                         this.devices[deviceIP].wsConnected = false;
+                        await this.create_state(
+                            `${this.devices[deviceIP].mac}._info` + `._online`,
+                            'Online status',
+                            false,
+                        );
+                        return 'failed';
+                    }
+                    this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
+                    if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
+                        // Only reset heartbeat, device is connected by websocket and will handle state updates
                         this.setStateChanged(`${this.devices[deviceIP].mac}._info` + `._online`, {
                             val: true,
                             ack: true,
                         });
                         return 'success';
                     }
-
-                    if (!deviceData) {
-                        if (!this.devices[deviceIP]) {
-                            // Manually added IP that does not answer, nothing to update yet
-                            this.log.warn(`Unable to initialise ${deviceIP}, device does not respond`);
-                            return 'failed';
-                        }
-                        // Warn once per outage, further attempts of a device that stays offline are logged as debug
-                        if (!this.devices[deviceIP].offlineWarned) {
-                            this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
-                            this.devices[deviceIP].offlineWarned = true;
-                        } else {
-                            this.log.debug(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
-                        }
-                        this.devices[deviceIP].initialized = false;
-                        this.devices[deviceIP].connected = false;
-                        // Update device working state
-                        if (this.devices[deviceIP].mac != null) {
-                            await this.create_state(
-                                `${this.devices[deviceIP].mac}._info` + `._online`,
-                                'Online status',
-                                false,
-                            );
-                        }
-                        return 'failed';
-                    }
-                    if (this.devices[deviceIP]) {
-                        this.devices[deviceIP].offlineWarned = false;
-                    }
-                    this.log.debug(`Info Data received from WLED device ${JSON.stringify(deviceData)}`);
-                    this.log.info(`Initialising : " ${deviceData.info.name}" on IP :  ${deviceIP}`);
-                    await this.handleBasicStates(deviceIP, deviceData);
+                    await this.handleStates(deviceData, deviceIP);
+                    this.devices[deviceIP].wsConnected = false;
+                    this.setStateChanged(`${this.devices[deviceIP].mac}._info` + `._online`, {
+                        val: true,
+                        ack: true,
+                    });
                     return 'success';
                 }
+
+                if (!deviceData) {
+                    if (!this.devices[deviceIP]) {
+                        // Manually added IP that does not answer, nothing to update yet
+                        this.log.warn(`Unable to initialise ${deviceIP}, device does not respond`);
+                        return 'failed';
+                    }
+                    // Warn once per outage, further attempts of a device that stays offline are logged as debug
+                    if (!this.devices[deviceIP].offlineWarned) {
+                        this.log.warn(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+                        this.devices[deviceIP].offlineWarned = true;
+                    } else {
+                        this.log.debug(`Unable to initialise ${deviceIP} will retry in scheduled interval !`);
+                    }
+                    this.devices[deviceIP].initialized = false;
+                    this.devices[deviceIP].connected = false;
+                    // Update device working state
+                    if (this.devices[deviceIP].mac != null) {
+                        await this.create_state(
+                            `${this.devices[deviceIP].mac}._info` + `._online`,
+                            'Online status',
+                            false,
+                        );
+                    }
+                    return 'failed';
+                }
+                if (this.devices[deviceIP]) {
+                    this.devices[deviceIP].offlineWarned = false;
+                }
+                this.log.debug(`Info Data received from WLED device ${JSON.stringify(deviceData)}`);
+                this.log.info(`Initialising : " ${deviceData.info.name}" on IP :  ${deviceIP}`);
+                await this.handleBasicStates(deviceIP, deviceData);
+                return 'success';
             } catch {
                 if (this.devices[deviceIP] && this.devices[deviceIP].connected) {
                     this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);

@@ -585,11 +585,29 @@ class Wled extends utils.Adapter {
                             break;
                         }
 
+                        // Validate segment id and range, numbers given as text are accepted
+                        const segId = Number(segmentId);
+                        const segStart = addSegmentMsg.start !== undefined ? Number(addSegmentMsg.start) : 0;
+                        const segStop = addSegmentMsg.stop !== undefined ? Number(addSegmentMsg.stop) : 1;
+                        let rangeError = null;
+                        if (!Number.isInteger(segId) || segId < 0 || segId > 31) {
+                            rangeError = `segmentId must be a whole number between 0 and 31, received ${segmentId}`;
+                        } else if (!Number.isInteger(segStart) || segStart < 0) {
+                            rangeError = `start must be a whole number >= 0, received ${addSegmentMsg.start}`;
+                        } else if (!Number.isInteger(segStop) || segStop <= segStart) {
+                            rangeError = `stop must be a whole number greater than start, received ${addSegmentMsg.stop}`;
+                        }
+                        if (rangeError) {
+                            this.log.warn(`addSegment: ${rangeError}`);
+                            respond({ success: false, error: rangeError }, this);
+                            break;
+                        }
+
                         // Build segment configuration object
                         const segmentConfig = {
-                            id: segmentId,
-                            start: addSegmentMsg.start !== undefined ? addSegmentMsg.start : 0,
-                            stop: addSegmentMsg.stop !== undefined ? addSegmentMsg.stop : 1,
+                            id: segId,
+                            start: segStart,
+                            stop: segStop,
                         };
 
                         // Add optional properties if provided

@@ -871,9 +871,6 @@ class Wled extends utils.Adapter {
                 this.devices[deviceIP].wsConnected = false;
 
                 this.setState(`${this.devices[deviceIP].mac}._info._online`, false, true);
-                // Set Device status to off and brightness to 0 if devices disconnects
-                this.setState(`${this.devices[deviceIP].mac}.on`, false, true);
-                this.setState(`${this.devices[deviceIP].mac}.bri`, 0, true);
             }
         });
 
@@ -1583,9 +1580,6 @@ class Wled extends utils.Adapter {
                             'Online status',
                             false,
                         );
-                        // Set Device status to off and brightness to 0 if devices disconnects
-                        this.setState(`${this.devices[deviceIP].mac}.on`, false, true);
-                        this.setState(`${this.devices[deviceIP].mac}.bri`, 0, true);
                     }
                     this.devices[deviceIP].connected = false;
                     this.devices[deviceIP].wsConnected = false;
@@ -2006,10 +2000,6 @@ class Wled extends utils.Adapter {
 
                 // Set online state to false, will be set to true at successfully connected
                 this.setState(`${_devices.rows[currDevice].id}._info._online`, false, true);
-
-                // Set Device status to off and brightness to 0 at adapter start
-                this.setState(`${_devices.rows[currDevice].id}.on`, false, true);
-                this.setState(`${_devices.rows[currDevice].id}.bri`, 0, true);
             }
         } catch (e) {
             this.log.error(`[resetOnlineState] ${e}`);

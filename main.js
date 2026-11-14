@@ -777,6 +777,7 @@ class Wled extends utils.Adapter {
         ws[deviceIP].on('open', () => {
             this.log.info(`${this.devices[deviceIP].name} connected`);
             this.devices[deviceIP].wsConnected = true;
+            this.devices[deviceIP].wsSupported = true;
             this.devices[deviceIP].wsPingSupported = false;
             // Request pong to handle watchdog
             ws[deviceIP].send('ping');
@@ -816,13 +817,19 @@ class Wled extends utils.Adapter {
         });
 
         // Handle closure of socket connection
-        ws[deviceIP].on('close', () => {
+        const socket = ws[deviceIP];
+        socket.on('close', () => {
+            // Ignore the closure of an old connection that was already replaced by a new one
+            if (ws[deviceIP] !== socket) {
+                return;
+            }
             if (this.devices[deviceIP]?.wsSupported === true) {
                 this.log.info(`${this.devices[deviceIP].name} disconnected`);
                 this.devices[deviceIP].connected = false;
                 this.devices[deviceIP].initialized = false;
                 this.devices[deviceIP].wsConnected = false;
 
+                this.setState(`${this.devices[deviceIP].mac}._info._online`, false, true);
                 // Set Device status to off and brightness to 0 if devices disconnects
                 this.setState(`${this.devices[deviceIP].mac}.on`, false, true);
                 this.setState(`${this.devices[deviceIP].mac}.bri`, 0, true);

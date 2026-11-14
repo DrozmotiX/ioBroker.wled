@@ -1114,12 +1114,16 @@ class Wled extends utils.Adapter {
                             });
                         }
 
+                        // Segments are stored by their WLED segment id; segments added or removed in WLED are synchronised
+                        await this.syncSegments(infoStates.mac, ipAddress, deviceStates[i]);
+
                         for (const y in deviceStates[i]) {
+                            const segKey = this.segmentKey(deviceStates[i][y], y);
                             if (!this.devices[ipAddress].initialized) {
-                                await this.setObjectNotExistsAsync(`${infoStates.mac}.seg.${y}`, {
+                                await this.setObjectNotExistsAsync(`${infoStates.mac}.seg.${segKey}`, {
                                     type: 'channel',
                                     common: {
-                                        name: `Segment ${y}`,
+                                        name: `Segment ${segKey}`,
                                     },
                                     native: {},
                                 });
@@ -1134,7 +1138,7 @@ class Wled extends utils.Adapter {
 
                                 if (x !== 'col') {
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}`,
                                         x,
                                         deviceStates[i][y][x],
                                     );
@@ -1176,32 +1180,32 @@ class Wled extends utils.Adapter {
 
                                     // Write RGB and HEX information to states
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.0`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.0`,
                                         'Primary Color RGB',
                                         deviceStates[i][y][x][0],
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.0_HEX`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.0_HEX`,
                                         'Primary Color HEX',
                                         `#${primaryHex}`,
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.1`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.1`,
                                         'Secondary Color RGB (background)',
                                         deviceStates[i][y][x][1],
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.1_HEX`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.1_HEX`,
                                         'Secondary Color HEX (background)',
                                         `#${secondaryHex}`,
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.2`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.2`,
                                         'Tertiary Color RGB',
                                         deviceStates[i][y][x][2],
                                     );
                                     await this.create_state(
-                                        `${infoStates.mac}.${i}.${y}.${x}.2_HEX`,
+                                        `${infoStates.mac}.${i}.${segKey}.${x}.2_HEX`,
                                         'Tertiary Color HEX',
                                         `#${tertiaryHex}`,
                                     );
@@ -1252,6 +1256,77 @@ class Wled extends utils.Adapter {
         } catch (error) {
             this.errorHandler(`[handleStates]`, error);
         }
+    }
+
+    /**
+     * Key of a segment in the object tree: the WLED segment id, or the array position for old firmware without id
+     *
+     * @param {object} segment segment data from WLED
+     * @param {string} index position in the segment array
+     * @returns {string} segment key
+     */
+    segmentKey(segment, index) {
+        return segment && segment.id !== undefined && segment.id !== null ? String(segment.id) : String(index);
+    }
+
+    /**
+     * Synchronise segment channels with the segments reported by the device:
+     * new segments get a channel, segments removed in WLED are deleted from the object tree
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {string} ipAddress IP address of the device
+     * @param {Array<object>} segments segment array reported by WLED
+     */
+    async syncSegments(mac, ipAddress, segments) {
+        if (!Array.isArray(segments) || !this.devices[ipAddress]) {
+            return;
+        }
+        const current = new Set(segments.map((segment, index) => this.segmentKey(segment, String(index))));
+
+        // First run after adapter start: take the segments that exist in the object tree
+        let known = this.devices[ipAddress].segments;
+        if (!known) {
+            known = new Set();
+            const channels = await this.getObjectViewAsync('system', 'channel', {
+                startkey: `${this.namespace}.${mac}.seg.`,
+                endkey: `${this.namespace}.${mac}.seg.香`,
+            });
+            for (const row of channels?.rows || []) {
+                const parts = row.id.split('.');
+                if (parts.length === 5 && /^\d+$/.test(parts[4])) {
+                    known.add(parts[4]);
+                }
+            }
+        }
+
+        // Segments added in WLED
+        for (const segKey of current) {
+            if (!known.has(segKey)) {
+                this.log.debug(`Segment ${segKey} added on device ${mac}`);
+                await this.setObjectNotExistsAsync(`${mac}.seg.${segKey}`, {
+                    type: 'channel',
+                    common: {
+                        name: `Segment ${segKey}`,
+                    },
+                    native: {},
+                });
+            }
+        }
+
+        // Segments removed in WLED
+        for (const segKey of known) {
+            if (!current.has(segKey)) {
+                this.log.info(`Segment ${segKey} removed on device ${mac}, deleting its states`);
+                await this.localDeleteState(`${mac}.seg.${segKey}`);
+                for (const stateName in this.createdStatesDetails) {
+                    if (stateName.startsWith(`${mac}.seg.${segKey}.`)) {
+                        delete this.createdStatesDetails[stateName];
+                    }
+                }
+            }
+        }
+
+        this.devices[ipAddress].segments = current;
     }
 
     /**

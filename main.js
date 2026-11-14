@@ -18,6 +18,7 @@ const bonjour = require('bonjour')(); // load Bonjour library
 
 const stateAttr = require('./lib/stateAttr.js'); // Load attribute library
 const { validateByteValue, validateSegmentColors } = require('./lib/validation.js'); // Load validation helpers
+const adminApi = require('./lib/admin-api.js'); // Helpers for the settings page (#266)
 
 // Device ID pattern for WLED devices (MAC address format)
 const DEVICE_ID_PATTERN = /^wled\.\d+\.[0-9A-F]{12}$/i;
@@ -756,8 +757,20 @@ class Wled extends utils.Adapter {
 
             //Response to manual adding of devices & device deletion
             switch (obj.command) {
+                case 'getDevices':
+                    // Device list of the settings page (#266)
+                    respond(await this.adminGetDevices(), this);
+                    break;
+                case 'discover':
+                    // Search new devices from the settings page (#266)
+                    respond(await this.adminDiscover(obj.message), this);
+                    break;
                 case 'addDevice':
-                    // Disable check of const declaration in case function
+                    // Settings page sends { ip }, scripts may still send the IP as text and get 'success' / 'failed'
+                    if (obj.message && typeof obj.message === 'object') {
+                        respond(await this.adminAddDevice(obj.message.ip), this);
+                        break;
+                    }
                     // eslint-disable-next-line no-case-declarations
                     const result = await this.getDeviceJSON(obj.message);
                     this.log.debug(`Response from Read Data : ${JSON.stringify(result)}`);
@@ -768,6 +781,11 @@ class Wled extends utils.Adapter {
                     }
                     break;
                 case 'deleteDevice':
+                    // Settings page sends { id: MAC }, scripts may still send the IP as text
+                    if (obj.message && typeof obj.message === 'object') {
+                        respond(await this.adminDeleteDevice(obj.message.id), this);
+                        break;
+                    }
                     // Delete device by IP address or device ID
                     // eslint-disable-next-line no-case-declarations
                     const deviceIP = obj.message;
@@ -1004,6 +1022,100 @@ class Wled extends utils.Adapter {
             }
         } catch (error) {
             this.errorHandler(`[onMessage]`, error);
+        }
+    }
+
+    /**
+     * Device list for the settings page (#266)
+     *
+     * @returns {Promise<{ok: boolean, devices?: object[], error?: string}>} answer
+     */
+    async adminGetDevices() {
+        try {
+            const objects = await this.getDevicesAsync();
+            const states = {};
+            for (const obj of objects) {
+                for (const id of adminApi.deviceStateIds(obj._id)) {
+                    const state = await this.getForeignStateAsync(id);
+                    if (state) {
+                        states[id] = state;
+                    }
+                }
+            }
+            return {
+                ok: true,
+                devices: adminApi.buildDeviceList(objects, states, this.devices, this.namespace),
+            };
+        } catch (error) {
+            this.log.error(`[adminGetDevices] ${error instanceof Error ? error.message : error}`);
+            return { ok: false, error: 'internal' };
+        }
+    }
+
+    /**
+     * Add a device by IP or host name from the settings page (#266)
+     *
+     * @param {any} input address as entered
+     * @returns {Promise<{ok: boolean, id?: string, error?: string, host?: string}>} answer
+     */
+    async adminAddDevice(input) {
+        const checked = adminApi.normalizeHost(input);
+        if (!checked.ok) {
+            return { ok: false, error: checked.error };
+        }
+        const host = checked.host;
+        try {
+            const known = (await this.getDevicesAsync()).find(device => device.native?.ip === host);
+            if (known) {
+                return { ok: false, error: 'exists', id: known.native?.mac, host };
+            }
+            const result = await this.getDeviceJSON(host);
+            if (result !== 'success') {
+                return { ok: false, error: 'unreachable', host };
+            }
+            return { ok: true, id: this.devices[host]?.mac, host };
+        } catch (error) {
+            this.log.error(`[adminAddDevice] ${error instanceof Error ? error.message : error}`);
+            return { ok: false, error: 'internal', host };
+        }
+    }
+
+    /**
+     * Delete a device by its id (MAC) from the settings page (#266)
+     *
+     * @param {any} id device id
+     * @returns {Promise<{ok: boolean, error?: string}>} answer
+     */
+    async adminDeleteDevice(id) {
+        if (typeof id !== 'string' || !id || id.includes('.')) {
+            return { ok: false, error: 'invalid' };
+        }
+        const obj = await this.getObjectAsync(id);
+        if (!obj || obj.type !== 'device') {
+            return { ok: false, error: 'notFound' };
+        }
+        const deleted = await this.delDevice(`${this.namespace}.${id}`);
+        return deleted ? { ok: true } : { ok: false, error: 'internal' };
+    }
+
+    /**
+     * Search devices with Bonjour on request of the settings page (#266).
+     * Found devices are added by the Bonjour handler, the answer reports how many are new.
+     *
+     * @param {any} message optional { seconds }
+     * @returns {Promise<{ok: boolean, found?: number, error?: string}>} answer
+     */
+    async adminDiscover(message) {
+        const seconds = Math.min(Math.max(Number(message?.seconds) || 8, 2), 30);
+        try {
+            const before = new Set((await this.getDevicesAsync()).map(device => device._id));
+            await this.scanDevices();
+            await new Promise(resolve => this.setTimeout(resolve, seconds * 1000));
+            const after = await this.getDevicesAsync();
+            return { ok: true, found: after.filter(device => !before.has(device._id)).length };
+        } catch (error) {
+            this.log.error(`[adminDiscover] ${error instanceof Error ? error.message : error}`);
+            return { ok: false, error: 'internal' };
         }
     }
 

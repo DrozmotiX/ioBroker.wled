@@ -878,17 +878,29 @@ class Wled extends utils.Adapter {
 
             // Create Device, channel id by MAC-Address and ensure relevant information for polling and instance configuration is part of device object
             if (!this.devices[deviceIP].initialized) {
+                // Keep a name that was changed in ioBroker: only take over the WLED name if the object is new
+                // or its name still equals the WLED name that was synchronised last time
+                const existing = await this.getObjectAsync(device_id);
+                const lastWledName = existing?.native?.wledName;
+                const keepName =
+                    existing?.common?.name !== undefined &&
+                    lastWledName !== undefined &&
+                    existing.common.name !== lastWledName;
+                const common = {
+                    statusStates: {
+                        onlineId: `${this.namespace}.${device_id}._info._online`,
+                    },
+                };
+                if (!keepName) {
+                    common.name = deviceData.info.name;
+                }
                 await this.extendObjectAsync(device_id, {
                     type: 'device',
-                    common: {
-                        name: deviceData.info.name,
-                        statusStates: {
-                            onlineId: `${this.namespace}.${device_id}._info._online`,
-                        },
-                    },
+                    common,
                     native: {
                         ip: deviceIP,
                         mac: device_id,
+                        wledName: deviceData.info.name,
                     },
                 });
             }

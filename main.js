@@ -1790,13 +1790,14 @@ class Wled extends utils.Adapter {
         }
 
         const name = deviceId.replace(/^wled\.\d+\./, '');
-        const res = await this.deleteDeviceAsync(name);
-        if (res !== null) {
+        try {
+            await this.deleteDeviceAsync(name);
             this.log.info(`${name} deleted`);
             return true;
+        } catch (error) {
+            this.log.error(`Can not delete device ${name}: ${error instanceof Error ? error.message : error}`);
+            return false;
         }
-        this.log.error(`Can not delete device ${name}: ${JSON.stringify(res)}`);
-        return false;
     }
 
     /**

@@ -804,6 +804,10 @@ class Wled extends utils.Adapter {
                     }
                     this.devices[deviceIP].wsPingSupported = true;
                     this.devices[deviceIP].wsPong = true;
+                    // Device answered, refresh online state and its expiry timer
+                    if (this.devices[deviceIP].mac != null) {
+                        await this.create_state(`${this.devices[deviceIP].mac}._info._online`, 'Online status', true);
+                    }
                 } else {
                     this.log.warn(`Unhandled message received ${data}`);
                 }
@@ -1388,18 +1392,12 @@ class Wled extends utils.Adapter {
                     this.log.debug(`Heartbeat of device ${deviceIP} successfully`);
                     if (this.devices[deviceIP].connected && this.devices[deviceIP].wsConnected) {
                         // Only reset heartbeat, device is connected by websocket and will handle state updates
-                        this.setStateChanged(`${this.devices[deviceIP].mac}._info` + `._online`, {
-                            val: true,
-                            ack: true,
-                        });
+                        await this.create_state(`${this.devices[deviceIP].mac}._info._online`, 'Online status', true);
                         return 'success';
                     }
                     await this.handleStates(deviceData, deviceIP);
                     this.devices[deviceIP].wsConnected = false;
-                    this.setStateChanged(`${this.devices[deviceIP].mac}._info` + `._online`, {
-                        val: true,
-                        ack: true,
-                    });
+                    await this.create_state(`${this.devices[deviceIP].mac}._info._online`, 'Online status', true);
                     return 'success';
                 }
 
@@ -1633,14 +1631,15 @@ class Wled extends utils.Adapter {
                 });
             }
 
-            // Timer  to set online state to  FALSE when not updated during  2 time-sync intervals
-            if (name === 'online') {
+            // Timer to set online state to FALSE when not updated during 2 time-sync intervals
+            if (stateName.endsWith('._info._online')) {
                 // Clear running timer
                 if (stateExpire[stateName]) {
                     this.clearTimeout(stateExpire[stateName]);
                     stateExpire[stateName] = null;
                 }
-
+            }
+            if (stateName.endsWith('._info._online') && value === true) {
                 // timer
                 stateExpire[stateName] = this.setTimeout(async () => {
                     // Set value to state including expiration time
@@ -1747,10 +1746,11 @@ class Wled extends utils.Adapter {
                 this.log.debug(`Cleared WebSocket ping timer for ${ip}`);
             }
 
-            // Clear state expire timer
-            if (stateExpire[ip]) {
-                this.clearTimeout(stateExpire[ip]);
-                delete stateExpire[ip];
+            // Clear state expire timer of the online state
+            const onlineStateId = `${mac}._info._online`;
+            if (mac && stateExpire[onlineStateId]) {
+                this.clearTimeout(stateExpire[onlineStateId]);
+                delete stateExpire[onlineStateId];
                 this.log.debug(`Cleared state expire timer for ${ip}`);
             }
 

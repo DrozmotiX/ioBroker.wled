@@ -85,8 +85,15 @@ class Wled extends utils.Adapter {
         // Read already known devices
         await this.tryKnownDevices();
 
-        // Run Autodetect (Bonjour - Service, mDNS to be handled)
-        await this.scanDevices();
+        // Run Autodetect (Bonjour - Service, mDNS to be handled) unless switched off in the instance settings.
+        // A search started by hand in the Device Manager (Discover) still works when it is switched off.
+        if (this.config.autoDiscovery !== false) {
+            await this.scanDevices();
+        } else {
+            this.log.info(
+                'Automatic discovery (Bonjour/mDNS) is switched off, only known and manually added devices are used',
+            );
+        }
 
         // Set connection state to online when adapter is ready
         this.setState('info.connection', true, true);
@@ -172,6 +179,20 @@ class Wled extends utils.Adapter {
                 // Split state name in segments to be used later
                 const deviceId = id.split('.');
 
+                // States handled by the adapter itself, they are not sent to WLED as they are
+                if (deviceId[3] === 'bundleCommands' && deviceId[4] === undefined) {
+                    await this.setBundleCommands(deviceId[2], state.val !== false && state.val !== 0);
+                    return;
+                }
+                if (deviceId[3] === 'seg' && deviceId[5] === 'last' && deviceId[6] === 'restore') {
+                    await this.restoreLastValues(id, deviceId[2], deviceId[4]);
+                    return;
+                }
+                if (deviceId[3] === 'light' && deviceId[5] === undefined) {
+                    await this.handleLightCommand(id, deviceId[2], deviceId[4], state.val);
+                    return;
+                }
+
                 // Prepare array's needed to send new states
                 let values = null,
                     rgb_all = null;
@@ -205,6 +226,9 @@ class Wled extends utils.Adapter {
                                 return;
                             }
                             device_ip = device_ip.native.ip;
+
+                            // Commands still waiting to be bundled are sent first, so the order is kept
+                            await this.flushCommands(device_ip);
 
                             // Send raw command to /win endpoint with query parameters
                             const params = new URLSearchParams(state.val);
@@ -418,44 +442,241 @@ class Wled extends utils.Adapter {
                         );
                     }
 
-                    // If websocket is connected, send message by websocket otherwise http-API
-                    if (this.devices[device_ip].wsConnected && ws[device_ip]) {
-                        this.log.debug(`Sending state change by websocket ${JSON.stringify(values)}`);
-
-                        ws[device_ip].send(JSON.stringify(values), error => {
-                            if (error) {
-                                this.log.warn(`Sending command for ${id} to ${device_ip} failed: ${error.message}`);
-                                return;
-                            }
-                            // Set state acknowledgement when the message was sent successfully
-                            this.setState(id, {
-                                val: state.val,
-                                ack: true,
-                            });
-                        });
-                    } else {
-                        this.log.debug(`Sending state change by http-API ${JSON.stringify(values)}`);
-
-                        // Send API Post command
-                        const result = await this.postAPI(`http://${device_ip}/json`, values);
-                        if (!result) {
-                            return;
-                        }
-                        this.log.debug(`API feedback${JSON.stringify(result)}`);
-
-                        if (result.success === true) {
-                            // Set state acknowledgement if  API call was successfully
-                            this.setState(id, {
-                                val: state.val,
-                                ack: true,
-                            });
-                        }
-                    }
+                    await this.sendCommand(device_ip, values, [{ id, val: state.val }]);
                 }
             }
         } catch (error) {
             this.errorHandler(`[onStateChange]`, error);
         }
+    }
+
+    /**
+     * Send a command to a device. Commands for the same device that follow each other within
+     * the bundle delay are merged into one command (#926), unless bundling is switched off for
+     * the device (state bundleCommands) or for the instance (bundleDelay = 0).
+     *
+     * @param {string} deviceIP IP-Address of device
+     * @param {object} values JSON command for the WLED JSON-API
+     * @param {Array<{id: string, val: ioBroker.StateValue}>} acks states to acknowledge when the device accepted the command
+     */
+    async sendCommand(deviceIP, values, acks) {
+        const device = this.devices[deviceIP];
+        if (!device) {
+            return;
+        }
+        const delay = this.bundleDelay();
+        if (delay <= 0 || device.bundleCommands === false) {
+            await this.flushCommands(deviceIP);
+            await this.deliverCommand(deviceIP, values, acks);
+            return;
+        }
+
+        // A command that can not be merged with the waiting one (e.g. a second toggle) sends the waiting one first
+        if (device.pendingCommand && !this.canMergeCommands(device.pendingCommand.values, values)) {
+            await this.flushCommands(deviceIP);
+        }
+        if (!device.pendingCommand) {
+            device.pendingCommand = { values: {}, acks: [] };
+            device.pendingTimer = this.setTimeout(() => {
+                device.pendingTimer = null;
+                this.flushCommands(deviceIP);
+            }, delay);
+        }
+        device.pendingCommand.values = this.mergeCommands(device.pendingCommand.values, values);
+        device.pendingCommand.acks.push(...acks);
+        this.log.debug(`Command for ${deviceIP} waits ${delay} ms to be bundled: ${JSON.stringify(values)}`);
+    }
+
+    /**
+     * Send the command waiting to be bundled for a device at once
+     *
+     * @param {string} deviceIP IP-Address of device
+     */
+    async flushCommands(deviceIP) {
+        const device = this.devices[deviceIP];
+        if (!device || !device.pendingCommand) {
+            return;
+        }
+        if (device.pendingTimer) {
+            this.clearTimeout(device.pendingTimer);
+            device.pendingTimer = null;
+        }
+        const pending = device.pendingCommand;
+        device.pendingCommand = null;
+        try {
+            await this.deliverCommand(deviceIP, pending.values, pending.acks);
+        } catch (error) {
+            this.errorHandler(`[flushCommands]`, error);
+        }
+    }
+
+    /**
+     * Bundle delay in ms from the instance settings, 0 switches bundling off
+     *
+     * @returns {number} delay in ms
+     */
+    bundleDelay() {
+        const delay = Number(this.config?.bundleDelay ?? 50);
+        if (!Number.isFinite(delay) || delay <= 0) {
+            return 0;
+        }
+        return Math.min(delay, 1000);
+    }
+
+    /**
+     * Two commands can be merged unless the same value is set twice with a relative or toggle value
+     * (e.g. "t" or "~10"), or a segment is addressed without id
+     *
+     * @param {object} first command waiting to be sent
+     * @param {object} second new command
+     * @returns {boolean} true when both can be sent as one command
+     */
+    canMergeCommands(first, second) {
+        const segmentsWithId = command => {
+            if (command.seg === undefined) {
+                return true;
+            }
+            const segments = Array.isArray(command.seg) ? command.seg : [command.seg];
+            return segments.every(segment => segment && typeof segment === 'object' && segment.id !== undefined);
+        };
+        if (!segmentsWithId(first) || !segmentsWithId(second)) {
+            return false;
+        }
+        const conflict = (a, b) => {
+            for (const key of Object.keys(b)) {
+                if (!(key in a)) {
+                    continue;
+                }
+                if (key === 'seg') {
+                    const segA = Array.isArray(a.seg) ? a.seg : [a.seg];
+                    const segB = Array.isArray(b.seg) ? b.seg : [b.seg];
+                    for (const segment of segB) {
+                        const match = segA.find(other => String(other.id) === String(segment.id));
+                        if (match && conflict(match, segment)) {
+                            return true;
+                        }
+                    }
+                } else if (this.isPlainObject(a[key]) && this.isPlainObject(b[key])) {
+                    if (conflict(a[key], b[key])) {
+                        return true;
+                    }
+                } else if (typeof a[key] === 'string' || typeof b[key] === 'string') {
+                    return true;
+                }
+            }
+            return false;
+        };
+        return !conflict(first, second);
+    }
+
+    /**
+     * Merge two commands for the WLED JSON-API, later values win.
+     * Segments are merged by their id and always sent as array.
+     *
+     * @param {object} first command waiting to be sent
+     * @param {object} second new command
+     * @returns {object} merged command
+     */
+    mergeCommands(first, second) {
+        const result = { ...first };
+        for (const [key, value] of Object.entries(second)) {
+            if (key === 'seg') {
+                const segments = Array.isArray(result.seg) ? result.seg.map(segment => ({ ...segment })) : [];
+                if (this.isPlainObject(result.seg)) {
+                    segments.push({ ...result.seg });
+                }
+                for (const segment of Array.isArray(value) ? value : [value]) {
+                    const match = segments.find(other => String(other.id) === String(segment.id));
+                    if (match) {
+                        Object.assign(match, segment);
+                    } else {
+                        segments.push({ ...segment });
+                    }
+                }
+                result.seg = segments;
+            } else if (this.isPlainObject(result[key]) && this.isPlainObject(value)) {
+                result[key] = this.mergeCommands(result[key], value);
+            } else {
+                result[key] = value;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @param {unknown} value value to check
+     * @returns {boolean} true for an object that is not an array
+     */
+    isPlainObject(value) {
+        return value !== null && typeof value === 'object' && !Array.isArray(value);
+    }
+
+    /**
+     * Deliver a command to the device by websocket or http-API and acknowledge the states
+     *
+     * @param {string} deviceIP IP-Address of device
+     * @param {object} values JSON command for the WLED JSON-API
+     * @param {Array<{id: string, val: ioBroker.StateValue}>} acks states to acknowledge when the device accepted the command
+     */
+    async deliverCommand(deviceIP, values, acks) {
+        const device = this.devices[deviceIP];
+        if (!device) {
+            return;
+        }
+        const names = acks.map(ack => ack.id).join(', ');
+        const acknowledge = () => {
+            // Only the last value written to a state is acknowledged
+            const latest = new Map();
+            for (const ack of acks) {
+                latest.set(ack.id, ack.val);
+            }
+            for (const [stateId, val] of latest) {
+                this.setState(stateId, { val, ack: true });
+            }
+        };
+
+        // If websocket is connected, send message by websocket otherwise http-API
+        if (device.wsConnected && ws[deviceIP]) {
+            this.log.debug(`Sending state change by websocket ${JSON.stringify(values)}`);
+            ws[deviceIP].send(JSON.stringify(values), error => {
+                if (error) {
+                    this.log.warn(`Sending command for ${names} to ${deviceIP} failed: ${error.message}`);
+                    return;
+                }
+                // Set state acknowledgement when the message was sent successfully
+                acknowledge();
+            });
+            return;
+        }
+
+        this.log.debug(`Sending state change by http-API ${JSON.stringify(values)}`);
+        const result = await this.postAPI(`http://${deviceIP}/json`, values);
+        if (!result) {
+            return;
+        }
+        this.log.debug(`API feedback${JSON.stringify(result)}`);
+        if (result.success === true) {
+            // Set state acknowledgement if  API call was successfully
+            acknowledge();
+        }
+    }
+
+    /**
+     * Switch bundling of commands on or off for one device (state bundleCommands)
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {boolean} enabled true to bundle commands
+     */
+    async setBundleCommands(mac, enabled) {
+        const deviceIP = this.getDeviceIpByMac(mac);
+        if (deviceIP) {
+            this.devices[deviceIP].bundleCommands = enabled;
+            if (!enabled) {
+                await this.flushCommands(deviceIP);
+            }
+        }
+        this.log.info(`Bundling of commands for ${mac} switched ${enabled ? 'on' : 'off'}`);
+        await this.setStateAsync(`${mac}.bundleCommands`, enabled, true);
     }
 
     /**
@@ -986,6 +1207,15 @@ class Wled extends utils.Adapter {
             await this.create_state(`${device_id}.time`, 'time', null);
             await this.create_state(`${device_id}.action`, 'action', '');
             await this.create_state(`${device_id}.rawCommand`, 'rawCommand', '');
+            // Bundling of commands (#926): on for new devices, the value set by the user is kept
+            await this.create_state(`${device_id}.bundleCommands`, 'bundleCommands', null);
+            const bundleState = await this.getStateAsync(`${device_id}.bundleCommands`);
+            if (bundleState === null || bundleState === undefined || bundleState.val === null) {
+                await this.setStateAsync(`${device_id}.bundleCommands`, true, true);
+                this.devices[deviceIP].bundleCommands = true;
+            } else {
+                this.devices[deviceIP].bundleCommands = bundleState.val !== false;
+            }
             // Reboot button (WLED JSON-API command "rb"); hp (Hue sync) and rd (realtime UDP) are created from the state data when the device provides them
             await this.create_state(`${device_id}.rb`, 'rb', null);
 
@@ -1050,11 +1280,17 @@ class Wled extends utils.Adapter {
                             break;
 
                         case 'u':
-                            await this.localDeleteState(`${infoStates.mac}._info.u`);
+                            // Usermod values are handled by updateUsermodStates below
                             break;
 
                         default:
                     }
+                }
+
+                // Usermod values get their own states with cleaned ids (#929)
+                if (i === 'u') {
+                    await this.updateUsermodStates(infoStates.mac, ipAddress, infoStates.u);
+                    continue;
                 }
 
                 // Create states, ensure object structures are reflected in tree
@@ -1139,6 +1375,9 @@ class Wled extends utils.Adapter {
                                     native: {},
                                 });
                             }
+
+                            // Remember the colour, effect and palette used before the last change (#930)
+                            await this.trackLastValues(infoStates.mac, ipAddress, segKey, deviceStates[i][y]);
 
                             for (const x in deviceStates[i][y]) {
                                 this.log.debug(
@@ -1253,6 +1492,9 @@ class Wled extends utils.Adapter {
                 }
             }
 
+            // Light structure for the type detector (iot, Alexa, Google Home)
+            await this.updateLightStates(infoStates.mac, ipAddress, deviceStates);
+
             if (!this.devices[ipAddress].initialized) {
                 this.devices[ipAddress].initialized = true;
                 // Start websocket connection and and listen to state changes
@@ -1267,6 +1509,359 @@ class Wled extends utils.Adapter {
         } catch (error) {
             this.errorHandler(`[handleStates]`, error);
         }
+    }
+
+    /**
+     * Remember colour, effect and palette of a segment before they were changed last (#930).
+     * The states in seg.<id>.last hold the values used before the latest change, e.g. the colour before
+     * a notification made the strip blink; the button seg.<id>.last.restore sets them again.
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {string} ipAddress IP address of the device
+     * @param {string} segKey segment id
+     * @param {object} segment segment data reported by WLED
+     */
+    async trackLastValues(mac, ipAddress, segKey, segment) {
+        const device = this.devices[ipAddress];
+        if (!device || !segment || typeof segment !== 'object') {
+            return;
+        }
+        if (!device.segmentValues) {
+            device.segmentValues = {};
+        }
+        const current = {
+            col: Array.isArray(segment.col) ? JSON.stringify(segment.col) : undefined,
+            fx: segment.fx,
+            pal: segment.pal,
+        };
+        const root = `${mac}.seg.${segKey}.last`;
+        const known = device.segmentValues[segKey];
+        if (!device.initialized || !known) {
+            await this.setObjectNotExistsAsync(root, {
+                type: 'channel',
+                common: { name: 'Values before the last change' },
+                native: {},
+            });
+            await this.create_state(`${root}.restore`, 'lastRestore', null);
+            await this.create_state(`${root}.col`, 'lastCol', null);
+            await this.create_state(`${root}.fx`, 'lastFx', null);
+            await this.create_state(`${root}.pal`, 'lastPal', null);
+        }
+        if (known) {
+            if (current.col !== undefined && known.col !== undefined && current.col !== known.col) {
+                await this.create_state(`${root}.col`, 'lastCol', known.col);
+            }
+            if (current.fx !== undefined && known.fx !== undefined && current.fx !== known.fx) {
+                await this.create_state(`${root}.fx`, 'lastFx', known.fx);
+            }
+            if (current.pal !== undefined && known.pal !== undefined && current.pal !== known.pal) {
+                await this.create_state(`${root}.pal`, 'lastPal', known.pal);
+            }
+        }
+        device.segmentValues[segKey] = current;
+    }
+
+    /**
+     * Send colour, effect and palette used before the last change back to the segment (#930)
+     *
+     * @param {string} id full state id of the restore button
+     * @param {string} mac MAC address (device id)
+     * @param {string} segKey segment id
+     */
+    async restoreLastValues(id, mac, segKey) {
+        const deviceIP = this.getDeviceIpByMac(mac);
+        if (!deviceIP || !this.devices[deviceIP].connected) {
+            if (!deviceIP || !(await this.reconnectOnDemand(deviceIP))) {
+                this.log.warn(`Device ${mac} is offline, command for ${id} discarded`);
+                return;
+            }
+        }
+        const root = `${mac}.seg.${segKey}.last`;
+        const segment = { id: Number(segKey) };
+        const col = await this.getStateAsync(`${root}.col`);
+        if (typeof col?.val === 'string' && col.val !== '') {
+            try {
+                const colors = JSON.parse(col.val);
+                if (Array.isArray(colors)) {
+                    segment.col = colors;
+                }
+            } catch {
+                this.log.debug(`Stored colour of ${root} is not valid JSON: ${col.val}`);
+            }
+        }
+        for (const key of ['fx', 'pal']) {
+            const state = await this.getStateAsync(`${root}.${key}`);
+            if (typeof state?.val === 'number') {
+                segment[key] = state.val;
+            }
+        }
+        if (Object.keys(segment).length === 1) {
+            this.log.info(`Nothing to restore for segment ${segKey} of ${mac}, no change recorded yet`);
+            return;
+        }
+        await this.sendCommand(deviceIP, { seg: segment }, [{ id, val: true }]);
+    }
+
+    /**
+     * Turn usermod data of WLED (info.u) into states (#929). WLED shows these values on its info page;
+     * keys and values may contain HTML, which is removed. A value is [value] or [value, unit].
+     * Values of usermods that read buttons, contacts or GPIO pins appear here as well (#928, #931).
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {string} ipAddress IP address of the device
+     * @param {object} usermods info.u as reported by WLED
+     */
+    async updateUsermodStates(mac, ipAddress, usermods) {
+        const device = this.devices[ipAddress];
+        const entries = this.usermodEntries(usermods);
+        if (device) {
+            device.hasUsermods = entries.length > 0;
+        }
+        const channel = `${mac}._info.u`;
+
+        // At (re)initialisation remove states that do not belong to the current usermod data,
+        // e.g. states with HTML in their id created by older versions
+        if (device && !device.initialized) {
+            const valid = new Set(entries.map(entry => `${this.namespace}.${channel}.${entry.id}`));
+            const existing = await this.getObjectViewAsync('system', 'state', {
+                startkey: `${this.namespace}.${channel}.`,
+                endkey: `${this.namespace}.${channel}.\u9999`,
+            });
+            for (const row of existing?.rows || []) {
+                if (!valid.has(row.id)) {
+                    this.log.debug(`Removing outdated usermod state ${row.id}`);
+                    await this.localDeleteState(row.id.slice(this.namespace.length + 1));
+                    delete this.createdStatesDetails[row.id.slice(this.namespace.length + 1)];
+                }
+            }
+        }
+        if (entries.length === 0) {
+            return;
+        }
+
+        if (device && !device.initialized) {
+            await this.extendObjectAsync(channel, {
+                type: 'channel',
+                common: { name: 'Usermods' },
+                native: {},
+            });
+        }
+        for (const entry of entries) {
+            const stateName = `${channel}.${entry.id}`;
+            const common = {
+                name: entry.name,
+                type: entry.type,
+                role: entry.type === 'number' ? 'value' : entry.type === 'boolean' ? 'indicator' : 'text',
+                unit: entry.unit,
+                read: true,
+                write: false,
+            };
+            if (JSON.stringify(this.createdStatesDetails[stateName]) !== JSON.stringify(common)) {
+                await this.extendObjectAsync(stateName, { type: 'state', common, native: {} });
+                this.createdStatesDetails[stateName] = common;
+            }
+            await this.setStateChangedAsync(stateName, { val: entry.value, ack: true });
+        }
+    }
+
+    /**
+     * Read info of a device by http-API to refresh its usermod values while it is connected by websocket
+     *
+     * @param {string} deviceIP IP-Address of device
+     */
+    async refreshUsermods(deviceIP) {
+        try {
+            const response = await axios.get(`http://${deviceIP}/json/info`, { timeout: 3000 });
+            const mac = this.devices[deviceIP]?.mac;
+            if (mac && response?.data) {
+                await this.updateUsermodStates(mac, deviceIP, response.data.u);
+            }
+        } catch (error) {
+            this.log.debug(`Reading usermod values of ${deviceIP} failed: ${error}`);
+        }
+    }
+
+    /**
+     * Clean usermod data into a list of states
+     *
+     * @param {object} usermods info.u as reported by WLED
+     * @returns {Array<{id: string, name: string, value: ioBroker.StateValue, type: ioBroker.CommonType, unit: string}>} states
+     */
+    usermodEntries(usermods) {
+        if (!this.isPlainObject(usermods)) {
+            return [];
+        }
+        const entries = [];
+        const usedIds = new Set();
+        let index = 0;
+        for (const [key, raw] of Object.entries(usermods)) {
+            index++;
+            const name = this.stripHtml(key) || `Usermod ${index}`;
+            let id = name
+                .replace(/[^A-Za-z0-9_-]+/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_|_$/g, '');
+            if (!id) {
+                id = `usermod_${index}`;
+            }
+            while (usedIds.has(id)) {
+                id = `${id}_${index}`;
+            }
+            usedIds.add(id);
+
+            let value = Array.isArray(raw) ? raw[0] : raw;
+            const unit = Array.isArray(raw) && typeof raw[1] === 'string' ? this.stripHtml(raw[1]) : '';
+            if (typeof value === 'string') {
+                value = this.stripHtml(value);
+                if (value !== '' && !isNaN(Number(value))) {
+                    value = Number(value);
+                }
+            } else if (value !== null && typeof value === 'object') {
+                value = JSON.stringify(value);
+            } else if (value === undefined) {
+                value = null;
+            }
+            const type = typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string';
+            entries.push({ id, name, value, type, unit });
+        }
+        return entries;
+    }
+
+    /**
+     * Remove HTML tags and entities from a text of WLED's info page
+     *
+     * @param {string} text text that may contain HTML
+     * @returns {string} plain text
+     */
+    stripHtml(text) {
+        // Remove tags in one pass (no regular expression, so long or broken input can not slow it down)
+        const input = String(text);
+        let plain = '';
+        let inTag = false;
+        for (const char of input) {
+            if (char === '<') {
+                inTag = true;
+                plain += ' ';
+            } else if (char === '>' && inTag) {
+                inTag = false;
+            } else if (!inTag) {
+                plain += char;
+            }
+        }
+        // Decode entities in one step, so a decoded "&" is never decoded a second time
+        const entities = { nbsp: ' ', amp: '&', deg: '°', lt: '<', gt: '>', quot: '"' };
+        return plain
+            .replace(/&(#?[a-z0-9]{1,10});/gi, (_match, name) => entities[name.toLowerCase()] ?? '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    /**
+     * Keep the light channel up to date: on, brightness in percent and the primary colour of the main segment.
+     * The type detector recognises this channel as a colour light, so iot (Alexa, Google Home) can use it (#328).
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {string} ipAddress IP address of the device
+     * @param {object} deviceStates state data reported by WLED
+     */
+    async updateLightStates(mac, ipAddress, deviceStates) {
+        if (!deviceStates || !this.devices[ipAddress]) {
+            return;
+        }
+        if (!this.devices[ipAddress].initialized) {
+            await this.setObjectNotExistsAsync(`${mac}.light`, {
+                type: 'channel',
+                common: {
+                    name: 'Light (iot, Alexa, Google Home)',
+                },
+                native: {},
+            });
+        }
+        const mainSegment = this.mainSegment(deviceStates);
+        this.devices[ipAddress].mainseg = mainSegment ? mainSegment.id : 0;
+
+        if (deviceStates.on !== undefined) {
+            await this.create_state(`${mac}.light.on`, 'lightOn', !!deviceStates.on);
+        }
+        if (typeof deviceStates.bri === 'number') {
+            await this.create_state(`${mac}.light.dimmer`, 'lightDimmer', Math.round((deviceStates.bri / 255) * 100));
+        }
+        const primary = Array.isArray(mainSegment?.col) ? mainSegment.col[0] : null;
+        if (Array.isArray(primary) && primary.length >= 3) {
+            await this.create_state(
+                `${mac}.light.rgb`,
+                'lightRgb',
+                `#${rgbHex(Number(primary[0]), Number(primary[1]), Number(primary[2]))}`,
+            );
+        }
+    }
+
+    /**
+     * Main segment of the device: the segment with the id of mainseg, otherwise the first one
+     *
+     * @param {object} deviceStates state data reported by WLED
+     * @returns {object|null} segment data
+     */
+    mainSegment(deviceStates) {
+        const segments = Array.isArray(deviceStates?.seg) ? deviceStates.seg.filter(Boolean) : [];
+        if (segments.length === 0) {
+            return null;
+        }
+        const main = segments.find(segment => segment.id === deviceStates.mainseg);
+        return main || segments[0];
+    }
+
+    /**
+     * Translate a command written to the light channel into a WLED command (#328)
+     *
+     * @param {string} id full state id
+     * @param {string} mac MAC address (device id)
+     * @param {string} name state name in the light channel (on, dimmer, rgb)
+     * @param {ioBroker.StateValue} val value written
+     */
+    async handleLightCommand(id, mac, name, val) {
+        const deviceIP = this.getDeviceIpByMac(mac);
+        if (!deviceIP || !this.devices[deviceIP].connected) {
+            if (!deviceIP || !(await this.reconnectOnDemand(deviceIP))) {
+                this.log.warn(`Device ${mac} is offline, command for ${id} discarded`);
+                return;
+            }
+        }
+        let values;
+        switch (name) {
+            case 'on':
+                values = { on: val === true || val === 'true' || val === 1 };
+                break;
+            case 'dimmer': {
+                const percent = Math.min(100, Math.max(0, Number(val)));
+                if (!Number.isFinite(percent)) {
+                    this.log.warn(`Invalid brightness ${val} for ${id}, expected 0-100`);
+                    return;
+                }
+                values = { bri: Math.round((percent / 100) * 255) };
+                if (percent > 0) {
+                    values.on = true;
+                }
+                break;
+            }
+            case 'rgb': {
+                const segmentId = this.devices[deviceIP].mainseg ?? 0;
+                let color;
+                try {
+                    const current = await this.getStateAsync(`${mac}.seg.${segmentId}.col.0`);
+                    color = this.hexToWledColor(val, current?.val);
+                } catch {
+                    this.log.warn(`Invalid colour ${val} for ${id}, expected HEX like #ff8800`);
+                    return;
+                }
+                values = { seg: { id: segmentId, col: [color] } };
+                break;
+            }
+            default:
+                this.log.debug(`Unknown state in light channel: ${id}`);
+                return;
+        }
+        await this.sendCommand(deviceIP, values, [{ id, val }]);
     }
 
     /**
@@ -1456,6 +2051,10 @@ class Wled extends utils.Adapter {
                             }
                         }, this.config.Time_Sync * 1000);
                         deviceAvailable = true;
+                        // Usermod values (e.g. sensors) change without a state change, the websocket does not report them
+                        if (this.devices[deviceIP].hasUsermods) {
+                            await this.refreshUsermods(deviceIP);
+                        }
                     } catch (e) {
                         // Try http-API in case of error
                         this.log.error(`WS Ping error : ${e}`);
@@ -1728,12 +2327,16 @@ class Wled extends utils.Adapter {
 
             // Event listener if new devices are detected
             this.bonjourBrowser.on('up', data => {
-                const id = data.txt.mac;
-                const ip = data.referer.address;
+                const id = data.txt?.mac;
+                const ip = this.bonjourAddress(data);
+                if (!ip) {
+                    this.log.debug(`Bonjour answer without usable IPv4 address ignored: ${data.name}`);
+                    return;
+                }
 
                 // Check if device is already know
                 if (this.devices[ip] == null) {
-                    this.log.info(`New WLED  device found ${data.name} on IP ${data.referer.address}`);
+                    this.log.info(`New WLED  device found ${data.name} on IP ${ip}`);
 
                     //  Add device to array
                     this.devices[ip] = {};
@@ -1753,6 +2356,23 @@ class Wled extends utils.Adapter {
             this.errorHandler(`[scanDevices]`, error);
             return 'failed';
         }
+    }
+
+    /**
+     * IP address of a device found by Bonjour. The address announced by the service is used,
+     * not the sender of the packet: with an mDNS relay (e.g. between VLANs) the sender is the relay.
+     *
+     * @param {object} data Bonjour service data
+     * @returns {string|null} IPv4 address or null
+     */
+    bonjourAddress(data) {
+        const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+        const announced = Array.isArray(data?.addresses) ? data.addresses.find(address => ipv4.test(address)) : null;
+        if (announced) {
+            return announced;
+        }
+        const sender = data?.referer?.address;
+        return typeof sender === 'string' && ipv4.test(sender) ? sender : null;
     }
 
     /**
@@ -1959,6 +2579,12 @@ class Wled extends utils.Adapter {
                 } catch (error) {
                     this.log.warn(`Error closing WebSocket for ${ip}: ${error.message}`);
                 }
+            }
+
+            // Drop commands waiting to be bundled
+            if (this.devices[ip]?.pendingTimer) {
+                this.clearTimeout(this.devices[ip].pendingTimer);
+                this.devices[ip].pendingTimer = null;
             }
 
             // Clean up retry tracking

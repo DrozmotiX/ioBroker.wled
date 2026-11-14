@@ -142,6 +142,13 @@ When the adapter crashes or another Code error happens, this error message that 
     ### __WORK IN PROGRESS__
 -->
 ### __WORK IN PROGRESS__
+* (DutchmanNL) **NEW**: Rebuilt instance settings (JSON config): device overview with online status, firmware and link to WLED, add devices by IP or host name with checks, search devices, delete with confirmation, light and dark theme ([#266](https://github.com/DrozmotiX/ioBroker.wled/issues/266))
+* (DutchmanNL) **NEW**: Option to switch off automatic Bonjour/mDNS discovery; found devices use the announced IPv4 address instead of the sender (mDNS relay) ([#897](https://github.com/DrozmotiX/ioBroker.wled/issues/897))
+* (DutchmanNL) **NEW**: Commands to the same device are bundled for a short time (`bundleDelay`, default 50 ms, 0 = off), switchable per device with `<MAC>.bundleCommands` ([#926](https://github.com/DrozmotiX/ioBroker.wled/issues/926))
+* (DutchmanNL) **NEW**: Device Manager: "Edit device" with name, "Take name from WLED" and "Bundle commands" ([#927](https://github.com/DrozmotiX/ioBroker.wled/issues/927))
+* (DutchmanNL) **NEW**: Channel `<MAC>.light` with `on`, `dimmer` and `rgb` so the type detector and the iot adapter (Alexa/Google) recognise a light ([#328](https://github.com/DrozmotiX/ioBroker.wled/issues/328))
+* (DutchmanNL) **NEW**: Usermod values from `info.u` as states with unit, e.g. buttons, sensors or pins a usermod reports ([#929](https://github.com/DrozmotiX/ioBroker.wled/issues/929), [#928](https://github.com/DrozmotiX/ioBroker.wled/issues/928), [#931](https://github.com/DrozmotiX/ioBroker.wled/issues/931))
+* (DutchmanNL) **NEW**: `seg.<id>.last.col/fx/pal` keep the values before the last change, `seg.<id>.last.restore` restores them ([#930](https://github.com/DrozmotiX/ioBroker.wled/issues/930))
 * (DutchmanNL) **FIXED**: A command for a device that is offline triggers an immediate reconnect attempt, so a device that was switched on again is used at once instead of after the next watchdog run (up to one hour after several failed attempts) ([#939](https://github.com/DrozmotiX/ioBroker.wled/issues/939))
 
 ### 0.9.3-beta.0 (2026-11-14)

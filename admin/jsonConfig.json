@@ -10,6 +10,7 @@
           "type": "custom",
           "url": "custom/customComponents.js",
           "name": "ConfigCustomWledSet/Components/DevicesOverview",
+          "guiApi": 2,
           "i18n": true,
           "xs": 12,
           "sm": 12,

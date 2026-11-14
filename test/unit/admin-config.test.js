@@ -41,6 +41,21 @@ describe('Settings page (#266)', () => {
         expect(vite).to.contain("name: 'ConfigCustomWledSet'");
     });
 
+    it('declares GUI API generation 2, otherwise Admin 8 does not start the component', () => {
+        const customs = all.filter(([, item]) => item.type === 'custom');
+        expect(customs).to.have.length.above(0);
+        for (const [key, item] of customs) {
+            expect(item.guiApi, key).to.equal(2);
+        }
+    });
+
+    it('ships the module federation manifest built with @iobroker/gui-components', () => {
+        const manifest = require('../../admin/custom/mf-manifest.json');
+        const shared = manifest.shared.map(item => item.name);
+        expect(shared).to.include('@iobroker/gui-components');
+        expect(shared).to.not.include('@iobroker/adapter-react-v5');
+    });
+
     it('offers every setting the adapter reads, with the same defaults', () => {
         const settings = Object.fromEntries(all.filter(([key]) => !key.startsWith('_')));
         for (const [key, value] of Object.entries(ioPackage.native)) {

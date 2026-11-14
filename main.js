@@ -926,6 +926,14 @@ class Wled extends utils.Adapter {
                 this.palettes[device_id][i] = palettes[i];
             }
 
+            // Effect and palette lists can change with a new firmware: on every (re)connect the
+            // drop-down lists of fx and pal are written again with the current lists of the device
+            for (const stateName in this.createdStatesDetails) {
+                if (stateName.startsWith(`${device_id}.`) && /\.(fx|pal)$/.test(stateName)) {
+                    delete this.createdStatesDetails[stateName];
+                }
+            }
+
             // Create additional states not included in JSON-API of WLED but available as SET command
             await this.create_state(`${device_id}.tt`, 'tt', '');
             await this.create_state(`${device_id}.psave`, 'psave', '');

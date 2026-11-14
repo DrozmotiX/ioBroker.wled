@@ -85,8 +85,15 @@ class Wled extends utils.Adapter {
         // Read already known devices
         await this.tryKnownDevices();
 
-        // Run Autodetect (Bonjour - Service, mDNS to be handled)
-        await this.scanDevices();
+        // Run Autodetect (Bonjour - Service, mDNS to be handled) unless switched off in the instance settings.
+        // A search started by hand in the Device Manager (Discover) still works when it is switched off.
+        if (this.config.autoDiscovery !== false) {
+            await this.scanDevices();
+        } else {
+            this.log.info(
+                'Automatic discovery (Bonjour/mDNS) is switched off, only known and manually added devices are used',
+            );
+        }
 
         // Set connection state to online when adapter is ready
         this.setState('info.connection', true, true);
@@ -1728,12 +1735,16 @@ class Wled extends utils.Adapter {
 
             // Event listener if new devices are detected
             this.bonjourBrowser.on('up', data => {
-                const id = data.txt.mac;
-                const ip = data.referer.address;
+                const id = data.txt?.mac;
+                const ip = this.bonjourAddress(data);
+                if (!ip) {
+                    this.log.debug(`Bonjour answer without usable IPv4 address ignored: ${data.name}`);
+                    return;
+                }
 
                 // Check if device is already know
                 if (this.devices[ip] == null) {
-                    this.log.info(`New WLED  device found ${data.name} on IP ${data.referer.address}`);
+                    this.log.info(`New WLED  device found ${data.name} on IP ${ip}`);
 
                     //  Add device to array
                     this.devices[ip] = {};
@@ -1753,6 +1764,23 @@ class Wled extends utils.Adapter {
             this.errorHandler(`[scanDevices]`, error);
             return 'failed';
         }
+    }
+
+    /**
+     * IP address of a device found by Bonjour. The address announced by the service is used,
+     * not the sender of the packet: with an mDNS relay (e.g. between VLANs) the sender is the relay.
+     *
+     * @param {object} data Bonjour service data
+     * @returns {string|null} IPv4 address or null
+     */
+    bonjourAddress(data) {
+        const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+        const announced = Array.isArray(data?.addresses) ? data.addresses.find(address => ipv4.test(address)) : null;
+        if (announced) {
+            return announced;
+        }
+        const sender = data?.referer?.address;
+        return typeof sender === 'string' && ipv4.test(sender) ? sender : null;
     }
 
     /**

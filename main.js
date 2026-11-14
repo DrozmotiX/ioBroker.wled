@@ -63,6 +63,22 @@ class Wled extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     async onReady() {
+        // Guard against invalid settings, 0 or empty values would create timers without delay
+        const timeSync = Number(this.config.Time_Sync);
+        if (!Number.isFinite(timeSync) || timeSync < 1) {
+            this.log.warn(`Invalid polling interval "${this.config.Time_Sync}", using 30 seconds`);
+            this.config.Time_Sync = 30;
+        } else {
+            this.config.Time_Sync = timeSync;
+        }
+        const maxRetries = Number(this.config.maxRetries);
+        if (!Number.isInteger(maxRetries) || maxRetries < 1) {
+            this.log.warn(`Invalid number of retry attempts "${this.config.maxRetries}", using 5`);
+            this.config.maxRetries = 5;
+        } else {
+            this.config.maxRetries = maxRetries;
+        }
+
         await this.resetOnlineStates();
 
         // Read already known devices

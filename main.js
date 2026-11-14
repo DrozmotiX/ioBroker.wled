@@ -261,7 +261,7 @@ class Wled extends utils.Adapter {
                                     if (!colorSecondaryHex) {
                                         return;
                                     }
-                                    const colorTertiaryHex = await this.getStateAsync(`${color_root}.1_HEX`);
+                                    const colorTertiaryHex = await this.getStateAsync(`${color_root}.2_HEX`);
                                     if (!colorTertiaryHex) {
                                         return;
                                     }

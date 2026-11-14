@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="340" viewBox="0 0 760 340" role="img" aria-labelledby="titel beschreibung">
+<title id="titel">Helligkeit beim WLED-Nightlight</title>
+<desc id="beschreibung">Diagramm: Nach nl.on = true sinkt die Helligkeit in Modus 1 gleichmäßig von bri auf nl.tbri, bis nl.dur Minuten vorbei sind. In Modus 0 bleibt sie bis zum Ende gleich und springt dann auf nl.tbri. Mit nl.tbri = 0 ist das Licht danach aus, nl.on geht auf false.</desc>
+<defs><marker id="pfeil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7b8794"/></marker></defs>
+<rect x="0" y="0" width="760" height="340" rx="12" fill="#ffffff"/>
+<line x1="120" y1="240" x2="710" y2="240" stroke="#1f2933" stroke-width="1.2" marker-end="url(#pfeil)"/>
+<line x1="120" y1="240" x2="120" y2="30" stroke="#1f2933" stroke-width="1.2" marker-end="url(#pfeil)"/>
+<text x="112" y="22.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="end" dominant-baseline="middle">Helligkeit</text>
+<text x="112" y="60.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="normal" fill="#1f2933" text-anchor="end" dominant-baseline="middle">bri</text>
+<text x="112" y="232.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="normal" fill="#1f2933" text-anchor="end" dominant-baseline="middle">nl.tbri</text>
+<text x="112" y="248.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#52606d" text-anchor="end" dominant-baseline="middle">(hier 0)</text>
+<line x1="600" y1="50" x2="600" y2="240" stroke="#7b8794" stroke-width="1" stroke-dasharray="3 3"/>
+<polyline points="120,60 600,60 600,240 700,240" fill="none" stroke="#e07b00" stroke-width="2.5" stroke-dasharray="8 5"/>
+<polyline points="120,60 600,240 700,240" fill="none" stroke="#4a90d9" stroke-width="3"/>
+<text x="120" y="266.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="normal" fill="#1f2933" text-anchor="start" dominant-baseline="middle">nl.on = true</text>
+<text x="600" y="266.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">nach nl.dur Minuten</text>
+<text x="600" y="284.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">nl.on wird false</text>
+<text x="380" y="266.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">nl.rem zählt die Restzeit herunter</text>
+<line x1="140" y1="314" x2="180" y2="314" stroke="#4a90d9" stroke-width="3"/>
+<text x="188" y="314.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#1f2933" text-anchor="start" dominant-baseline="middle">Modus 1: langsam auf nl.tbri dimmen</text>
+<line x1="440" y1="314" x2="480" y2="314" stroke="#e07b00" stroke-width="2.5" stroke-dasharray="8 5"/>
+<text x="488" y="314.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#1f2933" text-anchor="start" dominant-baseline="middle">Modus 0: am Ende sofort auf nl.tbri</text>
+</svg>

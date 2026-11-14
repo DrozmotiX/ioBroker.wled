@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="790" height="340" viewBox="0 0 790 340" role="img" aria-labelledby="titel beschreibung">
+<title id="titel">Presets per Bewegungsmelder: zeitlicher Ablauf</title>
+<desc id="beschreibung">Zeitstrahl: Meldet der Sensor Bewegung, schreibt das Skript sofort ps = 2. Endet die Bewegung, startet ein Nachlauf. Kommt währenddessen neue Bewegung, wird der Nachlauf abgebrochen. Erst wenn nach der letzten Bewegung der Nachlauf abgelaufen ist, schreibt das Skript ps = 1 oder on = false.</desc>
+<defs><marker id="pfeil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7b8794"/></marker></defs>
+<rect x="0" y="0" width="790" height="340" rx="12" fill="#ffffff"/>
+<text x="20" y="70.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2933" text-anchor="start" dominant-baseline="middle">Sensor</text>
+<text x="20" y="135.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2933" text-anchor="start" dominant-baseline="middle">Nachlauf</text>
+<text x="20" y="195.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2933" text-anchor="start" dominant-baseline="middle">Preset (ps)</text>
+<polyline points="140,90 200,90 200,50 300,50 300,90 360,90 360,50 420,50 420,90 740,90" fill="none" stroke="#4a90d9" stroke-width="2.5"/>
+<text x="250" y="38.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">Bewegung</text>
+<text x="390" y="38.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">Bewegung</text>
+<text x="160" y="104.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">false</text>
+<text x="250" y="64.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">true</text>
+<rect x="300" y="118" width="60" height="34" rx="6" fill="#fdecea" stroke="#d9534f" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="330" y="166.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#d9534f" text-anchor="middle" dominant-baseline="middle">abgebrochen</text>
+<rect x="420" y="118" width="230" height="34" rx="6" fill="#e3f2fd" stroke="#4a90d9" stroke-width="1.5"/>
+<text x="535" y="135.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">Nachlauf, z. B. 2 Minuten</text>
+<rect x="140" y="180" width="60" height="34" rx="8" fill="#eef2f7" stroke="#9aa5b1" stroke-width="1.5"/>
+<text x="170" y="197.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">1</text>
+<rect x="200" y="180" width="450" height="34" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="1.5"/>
+<text x="425" y="197.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">2</text>
+<rect x="650" y="180" width="90" height="34" rx="8" fill="#eef2f7" stroke="#9aa5b1" stroke-width="1.5"/>
+<text x="695" y="197.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">1</text>
+<line x1="200" y1="44" x2="200" y2="232" stroke="#7b8794" stroke-width="1" stroke-dasharray="3 3"/>
+<line x1="650" y1="118" x2="650" y2="232" stroke="#7b8794" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="200" y="246.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">ps = 2 schreiben</text>
+<text x="650" y="246.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">ps = 1 oder on = false</text>
+<line x1="140" y1="270" x2="740" y2="270" stroke="#7b8794" stroke-width="1.6" marker-end="url(#pfeil)"/>
+<text x="746" y="270.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#52606d" text-anchor="start" dominant-baseline="middle">Zeit</text>
+<text x="390" y="300.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">Preset 1 = Grundlicht, Preset 2 = Bewegung. Jede neue Bewegung bricht den Nachlauf ab,</text>
+<text x="390" y="320.0" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">zurückgeschaltet wird erst, wenn nach der letzten Bewegung der Nachlauf abgelaufen ist.</text>
+</svg>

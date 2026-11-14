@@ -179,25 +179,7 @@
         // This will be called by the admin adapter when the user presses the save button
         function save(callback) {
             let obj = {};
-            let i = 0;
-            $('tbody > tr').each(function () {
-                i = i + 1;
-                let ip = $('#' + i + '-ip').val();
-                console.log('IP : ' + JSON.stringify(ip));
-
-                // let encrypted = encrypt(secret, password);
-
-                if (!obj.devices) {
-                    obj.devices = { 1: { ip: ip } };
-                    obj.devices = { [ip]: { ip: ip } };
-                    // obj.devices[ip] = {ip: ip};
-                } else {
-                    obj.devices[ip] = { ip: ip };
-                }
-
-                console.log(JSON.stringify(obj));
-            });
-            console.log('index: ' + i);
+            // The device list is read from the object tree by the adapter, it is not stored in the settings
 
             $('.value').each(function () {
                 var $this = $(this);

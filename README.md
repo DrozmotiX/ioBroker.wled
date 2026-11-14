@@ -155,6 +155,7 @@ When the adapter crashes or another Code error happens, this error message that 
 * (DutchmanNL) **ENHANCED**: Updated @iobroker/testing to 6.3.0
 * (DutchmanNL) Removed a broken README link ([#876](https://github.com/DrozmotiX/ioBroker.wled/issues/876))
 * (DutchmanNL) **FIXED**: Writing a HEX colour sends the tertiary colour from `2_HEX` instead of `1_HEX` ([#906](https://github.com/DrozmotiX/ioBroker.wled/issues/906))
+* (DutchmanNL) **FIXED**: Writing a 6-digit HEX colour keeps the current white channel instead of setting it to 255, an 8-digit HEX sets the white channel ([#907](https://github.com/DrozmotiX/ioBroker.wled/issues/907))
 
 ### 0.9.2 (2026-02-16)
 * (DutchmanNL) solve auto deployment issues

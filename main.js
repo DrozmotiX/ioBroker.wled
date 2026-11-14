@@ -266,43 +266,19 @@ class Wled extends utils.Adapter {
                                         return;
                                     }
 
-                                    // Use library to translate HEX values into proper RGB
-                                    //hex RGB calculate Alpha channel in 0 to 1 Wled need a value between 0 and 255 so the alpha channel from HEXRGB has to multiple by 255
-                                    const colorPrimaryRGB = hexRgb(colorPrimaryHex.val);
-                                    colorPrimaryRGB.alpha = colorPrimaryRGB.alpha * 255;
-                                    const colorSecondaryRGB = hexRgb(colorSecondaryHex.val);
-                                    colorSecondaryRGB.alpha = colorSecondaryRGB.alpha * 255;
-                                    const colorTertiaryRGB = hexRgb(colorTertiaryHex.val);
-                                    colorTertiaryRGB.alpha = colorTertiaryRGB.alpha * 255;
+                                    // Translate HEX values into the WLED colour format.
+                                    // An 8-digit HEX carries the white channel, a 6-digit HEX keeps the current white value.
+                                    rgb_all = [];
+                                    for (const [index, hexState] of [
+                                        colorPrimaryHex,
+                                        colorSecondaryHex,
+                                        colorTertiaryHex,
+                                    ].entries()) {
+                                        const currentRgb = await this.getStateAsync(`${color_root}.${index}`);
+                                        rgb_all.push(this.hexToWledColor(hexState.val, currentRgb?.val));
+                                    }
 
-                                    // Build RGB JSON string to be send to WLED
-                                    //add aditional Alpha channel when RGBW is used
-                                    rgb_all = [
-                                        [
-                                            colorPrimaryRGB.red,
-                                            colorPrimaryRGB.green,
-                                            colorPrimaryRGB.blue,
-                                            colorPrimaryRGB.alpha,
-                                        ],
-                                        [
-                                            colorSecondaryRGB.red,
-                                            colorSecondaryRGB.green,
-                                            colorSecondaryRGB.blue,
-                                            colorSecondaryRGB.alpha,
-                                        ],
-                                        [
-                                            colorTertiaryRGB.red,
-                                            colorTertiaryRGB.green,
-                                            colorTertiaryRGB.blue,
-                                            colorTertiaryRGB.alpha,
-                                        ],
-                                    ];
-
-                                    this.log.debug(
-                                        `Converted RGB values of HEX input : ${colorPrimaryRGB} : ${
-                                            colorSecondaryRGB
-                                        } : ${colorTertiaryRGB}`,
-                                    );
+                                    this.log.debug(`Converted RGB values of HEX input : ${JSON.stringify(rgb_all)}`);
                                 } catch (error) {
                                     this.log.error(`Hex conversion failed : ${error}`);
                                     return;
@@ -741,6 +717,36 @@ class Wled extends utils.Adapter {
         } catch (error) {
             this.errorHandler(`[onMessage]`, error);
         }
+    }
+
+    /**
+     * Translate a HEX colour into the WLED colour array [r, g, b] or [r, g, b, w]
+     *
+     * @param {string} hexValue HEX colour, 6 digits (RGB) or 8 digits (RGB + white)
+     * @param {any} currentRgb current value of the matching RGB state, used to keep the white channel
+     * @returns {number[]} colour array for WLED
+     */
+    hexToWledColor(hexValue, currentRgb) {
+        const hex = String(hexValue).trim().replace(/^#/, '');
+        const rgb = hexRgb(hex);
+        const color = [rgb.red, rgb.green, rgb.blue];
+        if (hex.length === 8 || hex.length === 4) {
+            // HEX contains the white channel as alpha value (0-1), WLED expects 0-255
+            color.push(Math.round(rgb.alpha * 255));
+            return color;
+        }
+        // 6-digit HEX: keep the current white value of the device, if known
+        let current = currentRgb;
+        if (typeof current === 'string') {
+            current = current
+                .replace(/[[\]]/g, '')
+                .split(',')
+                .map(s => parseInt(s));
+        }
+        if (Array.isArray(current) && current.length > 3 && !isNaN(current[3])) {
+            color.push(current[3]);
+        }
+        return color;
     }
 
     /**

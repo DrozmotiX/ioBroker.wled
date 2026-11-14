@@ -1287,16 +1287,10 @@ class Wled extends utils.Adapter {
                     deviceRetryDelay[deviceIP] = Math.min(baseDelay * backoffMultiplier, 600 * 1000);
                 }
 
-                // Log retry information based on retry count
-                if (deviceRetryCount[deviceIP] <= 3) {
-                    this.log.info(
-                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
-                    );
-                } else {
-                    this.log.debug(
-                        `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
-                    );
-                }
+                // Log retry information, the warning about the outage itself is logged once in getDeviceJSON
+                this.log.debug(
+                    `Device ${deviceIP} unavailable (attempt ${deviceRetryCount[deviceIP]}/${maxRetries}), will retry in ${Math.round(deviceRetryDelay[deviceIP] / 1000)} seconds`,
+                );
             }
         } catch (error) {
             this.errorHandler(`[watchDog]`, error);
@@ -1356,6 +1350,8 @@ class Wled extends utils.Adapter {
                 if (this.devices[deviceIP] && this.devices[deviceIP].connected && this.devices[deviceIP].initialized) {
                     if (!deviceData) {
                         this.log.warn(`Heartbeat of device ${deviceIP} failed, will try to reconnect`);
+                        // One warning per outage, the following reconnect attempts are logged as debug
+                        this.devices[deviceIP].offlineWarned = true;
                         this.devices[deviceIP].connected = false;
                         this.devices[deviceIP].initialized = false;
                         this.devices[deviceIP].wsConnected = false;
@@ -1419,6 +1415,7 @@ class Wled extends utils.Adapter {
             } catch {
                 if (this.devices[deviceIP] && this.devices[deviceIP].connected) {
                     this.log.warn(`Device ${deviceIP} offline, will try to reconnect`);
+                    this.devices[deviceIP].offlineWarned = true;
                     if (this.devices[deviceIP].mac != null) {
                         await this.create_state(
                             `${this.devices[deviceIP].mac}._info` + `._online`,

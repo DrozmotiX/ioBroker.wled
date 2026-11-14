@@ -1121,8 +1121,9 @@ class Wled extends utils.Adapter {
                         break;
 
                     case 'u':
-                        await this.localDeleteState(`${infoStates.mac}	.u`);
-                        break;
+                        await this.localDeleteState(`${infoStates.mac}.u`);
+                        // Usermod data is not stored in the state section, skip state creation
+                        continue;
 
                     default:
                 }

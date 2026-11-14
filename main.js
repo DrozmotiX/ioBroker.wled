@@ -941,6 +941,8 @@ class Wled extends utils.Adapter {
             await this.create_state(`${device_id}.time`, 'time', null);
             await this.create_state(`${device_id}.action`, 'action', '');
             await this.create_state(`${device_id}.rawCommand`, 'rawCommand', '');
+            // Reboot button (WLED JSON-API command "rb"); hp (Hue sync) and rd (realtime UDP) are created from the state data when the device provides them
+            await this.create_state(`${device_id}.rb`, 'rb', null);
 
             // Create structure for all states
             await this.handleStates(deviceData, deviceIP);

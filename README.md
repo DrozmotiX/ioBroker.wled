@@ -173,6 +173,7 @@ When the adapter crashes or another Code error happens, this error message that 
 * (DutchmanNL) **FIXED**: Discover in the Device Manager stops the previous Bonjour search before starting a new one; README no longer mentions auto-detect cycles ([#905](https://github.com/DrozmotiX/ioBroker.wled/issues/905))
 * (DutchmanNL) **FIXED**: A device name changed in ioBroker is kept; the WLED name is only taken over for new devices or when the name was not changed ([#910](https://github.com/DrozmotiX/ioBroker.wled/issues/910))
 * (DutchmanNL) **FIXED**: The effect and palette lists of `fx` and `pal` are refreshed on every reconnect, new effects after a firmware update appear without restart ([#912](https://github.com/DrozmotiX/ioBroker.wled/issues/912))
+* (DutchmanNL) **FIXED**: The reboot button `rb` is created for every device; `hp` and `rd` appear when the device provides them ([#911](https://github.com/DrozmotiX/ioBroker.wled/issues/911))
 
 ### 0.9.2 (2026-02-16)
 * (DutchmanNL) solve auto deployment issues

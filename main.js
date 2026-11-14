@@ -379,11 +379,27 @@ class Wled extends utils.Adapter {
 
                 // Only make API call when values are correct
                 if (values !== null && device_ip !== null) {
+                    // Device unknown or offline: the command can not be delivered
+                    if (!this.devices[device_ip] || !this.devices[device_ip].connected) {
+                        this.log.warn(`Device ${deviceId[2]} (${device_ip}) is offline, command for ${id} discarded`);
+                        return;
+                    }
+
                     // If websocket is connected, send message by websocket otherwise http-API
-                    if (this.devices[device_ip].wsConnected) {
+                    if (this.devices[device_ip].wsConnected && ws[device_ip]) {
                         this.log.debug(`Sending state change by websocket ${JSON.stringify(values)}`);
 
-                        ws[device_ip].send(JSON.stringify(values));
+                        ws[device_ip].send(JSON.stringify(values), error => {
+                            if (error) {
+                                this.log.warn(`Sending command for ${id} to ${device_ip} failed: ${error.message}`);
+                                return;
+                            }
+                            // Set state acknowledgement when the message was sent successfully
+                            this.setState(id, {
+                                val: state.val,
+                                ack: true,
+                            });
+                        });
                     } else {
                         this.log.debug(`Sending state change by http-API ${JSON.stringify(values)}`);
 
@@ -1457,7 +1473,7 @@ class Wled extends utils.Adapter {
                     return response.data;
                 })
                 .catch(error => {
-                    this.log.error(`Sending command to WLED device + ${url} failed with error ${error}`);
+                    this.log.warn(`Sending command to WLED device ${url} failed with error ${error}`);
                     return error;
                 });
             return result;

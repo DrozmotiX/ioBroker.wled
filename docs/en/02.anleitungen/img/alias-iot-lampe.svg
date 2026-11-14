@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="470" viewBox="0 0 780 470" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14">
+  <title>WLED as a lamp and a scene in the iot adapter</title>
+  <rect width="780" height="470" fill="#ffffff"/>
+  <defs>
+    <marker id="pfeil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+  </defs>
+  <text x="390" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">WLED for Alexa and Google Home via the iot adapter</text>
+
+  <!-- Spaltenköpfe -->
+  <text x="110" y="62" text-anchor="middle" font-weight="bold" fill="#424242">Voice assistant</text>
+  <text x="300" y="62" text-anchor="middle" font-weight="bold" fill="#424242">iot adapter</text>
+  <text x="490" y="62" text-anchor="middle" font-weight="bold" fill="#424242">Alias / helper state</text>
+  <text x="680" y="62" text-anchor="middle" font-weight="bold" fill="#424242">WLED adapter</text>
+
+  <!-- Teil 1: Lampe -->
+  <text x="20" y="92" font-weight="bold" fill="#1565c0">1. Lamp: on/off, brightness, color</text>
+  <rect x="40" y="110" width="140" height="120" rx="6" fill="#ede7f6" stroke="#5e35b1"/>
+  <text x="110" y="160" text-anchor="middle" fill="#212121">Alexa or</text>
+  <text x="110" y="180" text-anchor="middle" fill="#212121">Google Home</text>
+  <rect x="230" y="110" width="140" height="120" rx="6" fill="#e8f5e9" stroke="#2e7d32"/>
+  <text x="300" y="150" text-anchor="middle" fill="#212121">Smart name</text>
+  <text x="300" y="172" text-anchor="middle" fill="#212121">“Living room</text>
+  <text x="300" y="192" text-anchor="middle" fill="#212121">strip”</text>
+  <rect x="410" y="110" width="160" height="120" rx="6" fill="#e3f2fd" stroke="#1565c0"/>
+  <text x="420" y="132" fill="#0d47a1" font-size="11" font-family="Consolas, Menlo, monospace">alias.0.WLED.LivingRoom</text>
+  <text x="430" y="160" fill="#212121" font-family="Consolas, Menlo, monospace">on</text>
+  <text x="430" y="188" fill="#212121" font-family="Consolas, Menlo, monospace">brightness (%)</text>
+  <text x="430" y="216" fill="#212121" font-family="Consolas, Menlo, monospace">color</text>
+  <rect x="610" y="110" width="150" height="120" rx="6" fill="#fff8e1" stroke="#f9a825"/>
+  <text x="620" y="132" fill="#e65100" font-size="12" font-family="Consolas, Menlo, monospace">wled.0.&lt;device&gt;</text>
+  <text x="620" y="160" fill="#212121" font-family="Consolas, Menlo, monospace">on</text>
+  <text x="620" y="188" fill="#212121" font-family="Consolas, Menlo, monospace">bri</text>
+  <text x="620" y="216" fill="#212121" font-family="Consolas, Menlo, monospace">seg.0.col.0_HEX</text>
+  <line x1="180" y1="170" x2="226" y2="170" stroke="#37474f" stroke-width="2" marker-end="url(#pfeil)"/>
+  <line x1="370" y1="170" x2="406" y2="170" stroke="#37474f" stroke-width="2" marker-end="url(#pfeil)"/>
+  <line x1="572" y1="155" x2="606" y2="155" stroke="#37474f" stroke-width="1.5" marker-end="url(#pfeil)"/>
+  <line x1="572" y1="183" x2="606" y2="183" stroke="#37474f" stroke-width="1.5" marker-end="url(#pfeil)"/>
+  <line x1="572" y1="211" x2="606" y2="211" stroke="#37474f" stroke-width="1.5" marker-end="url(#pfeil)"/>
+
+  <!-- Teil 2: Szene -->
+  <text x="20" y="282" font-weight="bold" fill="#1565c0">2. Preset as a scene</text>
+  <rect x="40" y="300" width="140" height="90" rx="6" fill="#ede7f6" stroke="#5e35b1"/>
+  <text x="110" y="340" text-anchor="middle" fill="#212121">“Turn on</text>
+  <text x="110" y="360" text-anchor="middle" fill="#212121">Fireplace”</text>
+  <rect x="230" y="300" width="140" height="90" rx="6" fill="#e8f5e9" stroke="#2e7d32"/>
+  <text x="300" y="340" text-anchor="middle" fill="#212121">Smart name</text>
+  <text x="300" y="360" text-anchor="middle" fill="#212121">“Fireplace”</text>
+  <rect x="410" y="300" width="160" height="90" rx="6" fill="#e3f2fd" stroke="#1565c0"/>
+  <text x="420" y="326" fill="#0d47a1" font-size="12" font-family="Consolas, Menlo, monospace">0_userdata.0.WLED.</text>
+  <text x="420" y="342" fill="#0d47a1" font-size="12" font-family="Consolas, Menlo, monospace">Fireplace = true</text>
+  <text x="420" y="372" fill="#212121" font-size="13">Script writes ps</text>
+  <rect x="610" y="300" width="150" height="90" rx="6" fill="#fff8e1" stroke="#f9a825"/>
+  <text x="620" y="326" fill="#e65100" font-size="12" font-family="Consolas, Menlo, monospace">wled.0.&lt;device&gt;</text>
+  <text x="620" y="356" fill="#212121" font-family="Consolas, Menlo, monospace">ps = 5</text>
+  <line x1="180" y1="345" x2="226" y2="345" stroke="#37474f" stroke-width="2" marker-end="url(#pfeil)"/>
+  <line x1="370" y1="345" x2="406" y2="345" stroke="#37474f" stroke-width="2" marker-end="url(#pfeil)"/>
+  <line x1="570" y1="345" x2="606" y2="345" stroke="#37474f" stroke-width="2" marker-end="url(#pfeil)"/>
+
+  <text x="390" y="430" text-anchor="middle" fill="#424242">Limits: a color doesn't stop a running effect · one alias per segment · effects only via helper states</text>
+</svg>

@@ -387,3 +387,70 @@ describe('usermod values as states (#929, #928, #931)', () => {
         expect(called).to.deep.equal({ mac: MAC, ip: IP, data: usermods });
     });
 });
+
+describe('last used colour and effect (#930)', () => {
+    let adapter;
+    let values;
+    let sent;
+    beforeEach(() => {
+        adapter = createAdapter();
+        adapter.instance = 0;
+        adapter.config = { Time_Sync: 30, maxRetries: 5, bundleDelay: 0 };
+        adapter.devices[IP] = { mac: MAC, connected: true, wsConnected: false, initialized: false };
+        values = {};
+        sent = [];
+        adapter.create_state = async (id, _name, value) => {
+            if (value !== null && value !== undefined) {
+                values[id] = value;
+            }
+        };
+        adapter.getStateAsync = async id => (values[id] !== undefined ? { val: values[id] } : null);
+        adapter.postAPI = async (_url, command) => {
+            sent.push(command);
+            return { success: true };
+        };
+        adapter.setState = () => {};
+    });
+
+    const red = [
+        [255, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+    ];
+    const blue = [
+        [0, 0, 255],
+        [0, 0, 0],
+        [0, 0, 0],
+    ];
+    const root = `${MAC}.seg.0.last`;
+
+    it('records nothing on the first update, only the channel', async () => {
+        await adapter.trackLastValues(MAC, IP, '0', { id: 0, col: red, fx: 0, pal: 0 });
+        expect(adapter.objects[root].type).to.equal('channel');
+        expect(values).to.deep.equal({});
+    });
+
+    it('keeps colour and effect used before a change', async () => {
+        await adapter.trackLastValues(MAC, IP, '0', { id: 0, col: red, fx: 0, pal: 0 });
+        adapter.devices[IP].initialized = true;
+        await adapter.trackLastValues(MAC, IP, '0', { id: 0, col: blue, fx: 1, pal: 0 });
+        expect(values).to.deep.equal({ [`${root}.col`]: JSON.stringify(red), [`${root}.fx`]: 0 });
+        // a further update without change keeps the recorded values
+        await adapter.trackLastValues(MAC, IP, '0', { id: 0, col: blue, fx: 1, pal: 0 });
+        expect(values[`${root}.col`]).to.equal(JSON.stringify(red));
+    });
+
+    it('sends the recorded values back with the restore button', async () => {
+        values[`${root}.col`] = JSON.stringify(red);
+        values[`${root}.fx`] = 0;
+        values[`${root}.pal`] = 5;
+        await adapter.onStateChange(`wled.0.${root}.restore`, { val: true, ack: false });
+        expect(sent).to.deep.equal([{ seg: { id: 0, col: red, fx: 0, pal: 5 } }]);
+    });
+
+    it('sends nothing when no change was recorded yet', async () => {
+        await adapter.onStateChange(`wled.0.${root}.restore`, { val: true, ack: false });
+        expect(sent).to.be.empty;
+        expect(adapter.logs.info.join()).to.include('Nothing to restore');
+    });
+});

@@ -184,6 +184,10 @@ class Wled extends utils.Adapter {
                     await this.setBundleCommands(deviceId[2], state.val !== false && state.val !== 0);
                     return;
                 }
+                if (deviceId[3] === 'seg' && deviceId[5] === 'last' && deviceId[6] === 'restore') {
+                    await this.restoreLastValues(id, deviceId[2], deviceId[4]);
+                    return;
+                }
                 if (deviceId[3] === 'light' && deviceId[5] === undefined) {
                     await this.handleLightCommand(id, deviceId[2], deviceId[4], state.val);
                     return;
@@ -1372,6 +1376,9 @@ class Wled extends utils.Adapter {
                                 });
                             }
 
+                            // Remember the colour, effect and palette used before the last change (#930)
+                            await this.trackLastValues(infoStates.mac, ipAddress, segKey, deviceStates[i][y]);
+
                             for (const x in deviceStates[i][y]) {
                                 this.log.debug(
                                     `Object states created for channel ${i} with parameter : ${y} : ${JSON.stringify(
@@ -1502,6 +1509,97 @@ class Wled extends utils.Adapter {
         } catch (error) {
             this.errorHandler(`[handleStates]`, error);
         }
+    }
+
+    /**
+     * Remember colour, effect and palette of a segment before they were changed last (#930).
+     * The states in seg.<id>.last hold the values used before the latest change, e.g. the colour before
+     * a notification made the strip blink; the button seg.<id>.last.restore sets them again.
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {string} ipAddress IP address of the device
+     * @param {string} segKey segment id
+     * @param {object} segment segment data reported by WLED
+     */
+    async trackLastValues(mac, ipAddress, segKey, segment) {
+        const device = this.devices[ipAddress];
+        if (!device || !segment || typeof segment !== 'object') {
+            return;
+        }
+        if (!device.segmentValues) {
+            device.segmentValues = {};
+        }
+        const current = {
+            col: Array.isArray(segment.col) ? JSON.stringify(segment.col) : undefined,
+            fx: segment.fx,
+            pal: segment.pal,
+        };
+        const root = `${mac}.seg.${segKey}.last`;
+        const known = device.segmentValues[segKey];
+        if (!device.initialized || !known) {
+            await this.setObjectNotExistsAsync(root, {
+                type: 'channel',
+                common: { name: 'Values before the last change' },
+                native: {},
+            });
+            await this.create_state(`${root}.restore`, 'lastRestore', null);
+            await this.create_state(`${root}.col`, 'lastCol', null);
+            await this.create_state(`${root}.fx`, 'lastFx', null);
+            await this.create_state(`${root}.pal`, 'lastPal', null);
+        }
+        if (known) {
+            if (current.col !== undefined && known.col !== undefined && current.col !== known.col) {
+                await this.create_state(`${root}.col`, 'lastCol', known.col);
+            }
+            if (current.fx !== undefined && known.fx !== undefined && current.fx !== known.fx) {
+                await this.create_state(`${root}.fx`, 'lastFx', known.fx);
+            }
+            if (current.pal !== undefined && known.pal !== undefined && current.pal !== known.pal) {
+                await this.create_state(`${root}.pal`, 'lastPal', known.pal);
+            }
+        }
+        device.segmentValues[segKey] = current;
+    }
+
+    /**
+     * Send colour, effect and palette used before the last change back to the segment (#930)
+     *
+     * @param {string} id full state id of the restore button
+     * @param {string} mac MAC address (device id)
+     * @param {string} segKey segment id
+     */
+    async restoreLastValues(id, mac, segKey) {
+        const deviceIP = this.getDeviceIpByMac(mac);
+        if (!deviceIP || !this.devices[deviceIP].connected) {
+            if (!deviceIP || !(await this.reconnectOnDemand(deviceIP))) {
+                this.log.warn(`Device ${mac} is offline, command for ${id} discarded`);
+                return;
+            }
+        }
+        const root = `${mac}.seg.${segKey}.last`;
+        const segment = { id: Number(segKey) };
+        const col = await this.getStateAsync(`${root}.col`);
+        if (typeof col?.val === 'string' && col.val !== '') {
+            try {
+                const colors = JSON.parse(col.val);
+                if (Array.isArray(colors)) {
+                    segment.col = colors;
+                }
+            } catch {
+                this.log.debug(`Stored colour of ${root} is not valid JSON: ${col.val}`);
+            }
+        }
+        for (const key of ['fx', 'pal']) {
+            const state = await this.getStateAsync(`${root}.${key}`);
+            if (typeof state?.val === 'number') {
+                segment[key] = state.val;
+            }
+        }
+        if (Object.keys(segment).length === 1) {
+            this.log.info(`Nothing to restore for segment ${segKey} of ${mac}, no change recorded yet`);
+            return;
+        }
+        await this.sendCommand(deviceIP, { seg: segment }, [{ id, val: true }]);
     }
 
     /**

@@ -176,7 +176,7 @@
       "type": "state",
       "common": {
         "role": "indicator.connected",
-        "name": "WLED service ready to connecto to devices",
+        "name": "WLED service ready to connect to devices",
         "type": "boolean",
         "read": true,
         "write": false,

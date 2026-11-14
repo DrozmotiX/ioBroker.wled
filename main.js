@@ -1567,6 +1567,7 @@ class Wled extends utils.Adapter {
                 const warnMessage = `State attribute definition missing for : ${name}`;
                 if (warnMessages[name] !== warnMessage) {
                     this.log.debug(`State attribute definition missing for : ${name} with value : ${value}`);
+                    warnMessages[name] = warnMessage;
                 }
             }
 

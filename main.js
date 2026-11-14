@@ -1533,6 +1533,16 @@ class Wled extends utils.Adapter {
      */
     async scanDevices() {
         try {
+            // Stop a running browser first, a new search (Discover) must not add a second one
+            if (this.bonjourBrowser) {
+                try {
+                    this.bonjourBrowser.stop();
+                } catch (error) {
+                    this.log.debug(`Stopping previous Bonjour browser failed: ${error}`);
+                }
+                this.bonjourBrowser = null;
+            }
+
             // Browse and listen for WLED devices
             this.bonjourBrowser = await bonjour.find({
                 type: 'wled',

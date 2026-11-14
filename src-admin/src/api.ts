@@ -69,8 +69,14 @@ export function t(key: string, ...args: (string | number)[]): string {
  * @param input
  */
 export function checkHost(input: string): 'ok' | 'empty' | 'invalid' {
+    if (input.length > 300) {
+        return 'invalid';
+    }
     let host = input.trim().replace(/^https?:\/\//i, '');
-    host = host.replace(/\/.*$/, '');
+    const slash = host.indexOf('/');
+    if (slash !== -1) {
+        host = host.slice(0, slash);
+    }
     if (!host) {
         return 'empty';
     }

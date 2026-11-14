@@ -11,6 +11,13 @@ describe('Settings page helpers (#266)', () => {
             expect(normalizeHost('  http://192.168.0.10/json ')).to.deep.equal({ ok: true, host: '192.168.0.10' });
         });
 
+        it('answers fast on long input and rejects it', () => {
+            const start = Date.now();
+            expect(normalizeHost('/'.repeat(100000))).to.deep.equal({ ok: false, error: 'invalid' });
+            expect(normalizeHost('http://192.168.0.10' + '/'.repeat(250))).to.deep.equal({ ok: true, host: '192.168.0.10' });
+            expect(Date.now() - start).to.be.below(100);
+        });
+
         it('accepts a host name', () => {
             expect(normalizeHost('wled-kitchen.local')).to.deep.equal({ ok: true, host: 'wled-kitchen.local' });
         });

@@ -783,7 +783,7 @@ class Wled extends utils.Adapter {
                     // Clear pong reset timer
                     if (watchdogWsTimer[deviceIP]) {
                         this.clearTimeout(watchdogWsTimer[deviceIP]);
-                        watchdogTimer[deviceIP] = null;
+                        watchdogWsTimer[deviceIP] = null;
                     }
                     this.devices[deviceIP].wsPingSupported = true;
                     this.devices[deviceIP].wsPong = true;
@@ -1216,7 +1216,7 @@ class Wled extends utils.Adapter {
                         ws[deviceIP].send('ping');
                         if (watchdogWsTimer[deviceIP]) {
                             this.clearTimeout(watchdogWsTimer[deviceIP]);
-                            watchdogTimer[deviceIP] = null;
+                            watchdogWsTimer[deviceIP] = null;
                         }
                         watchdogWsTimer[deviceIP] = this.setTimeout(() => {
                             if (!this.devices[deviceIP].wsPong) {

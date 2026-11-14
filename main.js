@@ -1276,11 +1276,17 @@ class Wled extends utils.Adapter {
                             break;
 
                         case 'u':
-                            await this.localDeleteState(`${infoStates.mac}._info.u`);
+                            // Usermod values are handled by updateUsermodStates below
                             break;
 
                         default:
                     }
+                }
+
+                // Usermod values get their own states with cleaned ids (#929)
+                if (i === 'u') {
+                    await this.updateUsermodStates(infoStates.mac, ipAddress, infoStates.u);
+                    continue;
                 }
 
                 // Create states, ensure object structures are reflected in tree
@@ -1496,6 +1502,148 @@ class Wled extends utils.Adapter {
         } catch (error) {
             this.errorHandler(`[handleStates]`, error);
         }
+    }
+
+    /**
+     * Turn usermod data of WLED (info.u) into states (#929). WLED shows these values on its info page;
+     * keys and values may contain HTML, which is removed. A value is [value] or [value, unit].
+     * Values of usermods that read buttons, contacts or GPIO pins appear here as well (#928, #931).
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {string} ipAddress IP address of the device
+     * @param {object} usermods info.u as reported by WLED
+     */
+    async updateUsermodStates(mac, ipAddress, usermods) {
+        const device = this.devices[ipAddress];
+        const entries = this.usermodEntries(usermods);
+        if (device) {
+            device.hasUsermods = entries.length > 0;
+        }
+        const channel = `${mac}._info.u`;
+
+        // At (re)initialisation remove states that do not belong to the current usermod data,
+        // e.g. states with HTML in their id created by older versions
+        if (device && !device.initialized) {
+            const valid = new Set(entries.map(entry => `${this.namespace}.${channel}.${entry.id}`));
+            const existing = await this.getObjectViewAsync('system', 'state', {
+                startkey: `${this.namespace}.${channel}.`,
+                endkey: `${this.namespace}.${channel}.\u9999`,
+            });
+            for (const row of existing?.rows || []) {
+                if (!valid.has(row.id)) {
+                    this.log.debug(`Removing outdated usermod state ${row.id}`);
+                    await this.localDeleteState(row.id.slice(this.namespace.length + 1));
+                    delete this.createdStatesDetails[row.id.slice(this.namespace.length + 1)];
+                }
+            }
+        }
+        if (entries.length === 0) {
+            return;
+        }
+
+        if (device && !device.initialized) {
+            await this.extendObjectAsync(channel, {
+                type: 'channel',
+                common: { name: 'Usermods' },
+                native: {},
+            });
+        }
+        for (const entry of entries) {
+            const stateName = `${channel}.${entry.id}`;
+            const common = {
+                name: entry.name,
+                type: entry.type,
+                role: entry.type === 'number' ? 'value' : entry.type === 'boolean' ? 'indicator' : 'text',
+                unit: entry.unit,
+                read: true,
+                write: false,
+            };
+            if (JSON.stringify(this.createdStatesDetails[stateName]) !== JSON.stringify(common)) {
+                await this.extendObjectAsync(stateName, { type: 'state', common, native: {} });
+                this.createdStatesDetails[stateName] = common;
+            }
+            await this.setStateChangedAsync(stateName, { val: entry.value, ack: true });
+        }
+    }
+
+    /**
+     * Read info of a device by http-API to refresh its usermod values while it is connected by websocket
+     *
+     * @param {string} deviceIP IP-Address of device
+     */
+    async refreshUsermods(deviceIP) {
+        try {
+            const response = await axios.get(`http://${deviceIP}/json/info`, { timeout: 3000 });
+            const mac = this.devices[deviceIP]?.mac;
+            if (mac && response?.data) {
+                await this.updateUsermodStates(mac, deviceIP, response.data.u);
+            }
+        } catch (error) {
+            this.log.debug(`Reading usermod values of ${deviceIP} failed: ${error}`);
+        }
+    }
+
+    /**
+     * Clean usermod data into a list of states
+     *
+     * @param {object} usermods info.u as reported by WLED
+     * @returns {Array<{id: string, name: string, value: ioBroker.StateValue, type: ioBroker.CommonType, unit: string}>} states
+     */
+    usermodEntries(usermods) {
+        if (!this.isPlainObject(usermods)) {
+            return [];
+        }
+        const entries = [];
+        const usedIds = new Set();
+        let index = 0;
+        for (const [key, raw] of Object.entries(usermods)) {
+            index++;
+            const name = this.stripHtml(key) || `Usermod ${index}`;
+            let id = name
+                .replace(/[^A-Za-z0-9_-]+/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_|_$/g, '');
+            if (!id) {
+                id = `usermod_${index}`;
+            }
+            while (usedIds.has(id)) {
+                id = `${id}_${index}`;
+            }
+            usedIds.add(id);
+
+            let value = Array.isArray(raw) ? raw[0] : raw;
+            const unit = Array.isArray(raw) && typeof raw[1] === 'string' ? this.stripHtml(raw[1]) : '';
+            if (typeof value === 'string') {
+                value = this.stripHtml(value);
+                if (value !== '' && !isNaN(Number(value))) {
+                    value = Number(value);
+                }
+            } else if (value !== null && typeof value === 'object') {
+                value = JSON.stringify(value);
+            } else if (value === undefined) {
+                value = null;
+            }
+            const type = typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string';
+            entries.push({ id, name, value, type, unit });
+        }
+        return entries;
+    }
+
+    /**
+     * Remove HTML tags and entities from a text of WLED's info page
+     *
+     * @param {string} text text that may contain HTML
+     * @returns {string} plain text
+     */
+    stripHtml(text) {
+        return String(text)
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/&amp;/gi, '&')
+            .replace(/&deg;/gi, '°')
+            .replace(/&#?[a-z0-9]+;/gi, '')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     /**
@@ -1793,6 +1941,10 @@ class Wled extends utils.Adapter {
                             }
                         }, this.config.Time_Sync * 1000);
                         deviceAvailable = true;
+                        // Usermod values (e.g. sensors) change without a state change, the websocket does not report them
+                        if (this.devices[deviceIP].hasUsermods) {
+                            await this.refreshUsermods(deviceIP);
+                        }
                     } catch (e) {
                         // Try http-API in case of error
                         this.log.error(`WS Ping error : ${e}`);

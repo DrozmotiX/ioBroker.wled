@@ -312,3 +312,78 @@ describe('light channel for iot, Alexa and Google Home (#328)', () => {
         expect(adapter.logs.warn[0]).to.include('Invalid colour');
     });
 });
+
+describe('usermod values as states (#929, #928, #931)', () => {
+    let adapter;
+    let states;
+    beforeEach(() => {
+        adapter = createAdapter();
+        adapter.devices[IP] = { mac: MAC, connected: true, initialized: false };
+        states = {};
+        adapter.extendObjectAsync = async (id, obj) => {
+            adapter.objects[id] = { ...(adapter.objects[id] || {}), ...obj };
+        };
+        adapter.setStateChangedAsync = async (id, state) => {
+            states[id] = state;
+        };
+    });
+
+    const usermods = {
+        Temperature: [22.5, '°C'],
+        '<i class="icons">&#xe325;</i> PIR sensor': ['<span>on</span>'],
+        'GPIO 4': [1],
+        Uptime: ['12', ' h'],
+        'Button &amp; Reed': [false],
+    };
+
+    it('cleans keys, values and units', () => {
+        expect(adapter.usermodEntries(usermods)).to.deep.equal([
+            { id: 'Temperature', name: 'Temperature', value: 22.5, type: 'number', unit: '°C' },
+            { id: 'PIR_sensor', name: 'PIR sensor', value: 'on', type: 'string', unit: '' },
+            { id: 'GPIO_4', name: 'GPIO 4', value: 1, type: 'number', unit: '' },
+            { id: 'Uptime', name: 'Uptime', value: 12, type: 'number', unit: 'h' },
+            { id: 'Button_Reed', name: 'Button & Reed', value: false, type: 'boolean', unit: '' },
+        ]);
+    });
+
+    it('gives unique ids and handles empty or missing data', () => {
+        expect(adapter.usermodEntries({ 'a b': [1], 'a.b': [2], '<b></b>': [3] }).map(e => e.id)).to.deep.equal([
+            'a_b',
+            'a_b_2',
+            'Usermod_3',
+        ]);
+        expect(adapter.usermodEntries(undefined)).to.deep.equal([]);
+        expect(adapter.usermodEntries([])).to.deep.equal([]);
+    });
+
+    it('creates read-only states below _info.u and remembers that the device has usermods', async () => {
+        await adapter.updateUsermodStates(MAC, IP, usermods);
+        expect(adapter.objects[`${MAC}._info.u`].type).to.equal('channel');
+        const temperature = adapter.objects[`${MAC}._info.u.Temperature`];
+        expect(temperature.common).to.include({ type: 'number', role: 'value', unit: '°C', write: false });
+        expect(states[`${MAC}._info.u.GPIO_4`]).to.deep.equal({ val: 1, ack: true });
+        expect(states[`${MAC}._info.u.Button_Reed`]).to.deep.equal({ val: false, ack: true });
+        expect(adapter.objects[`${MAC}._info.u.Button_Reed`].common.role).to.equal('indicator');
+        expect(adapter.devices[IP].hasUsermods).to.equal(true);
+    });
+
+    it('removes states with HTML in their id from older versions at initialisation', async () => {
+        adapter.objects[`${MAC}._info.u.<i>PIR</i>`] = { type: 'state', common: {} };
+        adapter.objects[`${MAC}._info.u.Temperature`] = { type: 'state', common: {} };
+        await adapter.updateUsermodStates(MAC, IP, { Temperature: [20, '°C'] });
+        expect(adapter.deleted).to.deep.equal([`${MAC}._info.u.<i>PIR</i>`]);
+    });
+
+    it('reads usermod values in the info handler instead of creating raw states', async () => {
+        let called = null;
+        adapter.updateUsermodStates = async (mac, ip, data) => {
+            called = { mac, ip, data };
+        };
+        adapter.create_state = async () => {};
+        adapter.handleWebSocket = async () => {};
+        adapter.syncSegments = async () => {};
+        adapter.updateLightStates = async () => {};
+        await adapter.handleStates({ info: { mac: MAC, u: usermods }, state: {} }, IP);
+        expect(called).to.deep.equal({ mac: MAC, ip: IP, data: usermods });
+    });
+});

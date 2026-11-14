@@ -49,6 +49,7 @@ Wird ein Gerät nicht automatisch gefunden, fügst du es über seine IP-Adresse 
 | Issue / PR | `issue=#640`, `pr=#1238` | Issue oder Pull Request in `DrozmotiX/ioBroker.wled` |
 | Forum | `forum=603844` | Beitrag `https://forum.iobroker.net/post/603844` |
 | Entscheidung | `interview=13b` | Antwort im Entwickler-Interview |
+| Fremdquelle | `extern=WLED:wled00/json.cpp:470@v0.15.0` | Datei (und Zeile) in einem anderen Repository, Form `extern=<Repo>:<Pfad>[:<Zeile>]@<Version>`. Für die WLED-Firmware (`WLED`), die WLED-Doku (`WLED-Docs`, ohne Version) und den JavaScript-Adapter (`ioBroker.javascript`, z. B. Blockly-Begriffe) |
 
 Mehrere Quellen werden mit `;` getrennt. Für Verhalten ab einer späteren Version ist das Issue oder der Pull Request die Quelle.
 

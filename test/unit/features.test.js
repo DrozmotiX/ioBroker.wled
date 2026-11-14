@@ -223,3 +223,92 @@ describe('WLED adapter 0.10.0 features', () => {
         });
     });
 });
+
+describe('light channel for iot, Alexa and Google Home (#328)', () => {
+    let adapter;
+    let sent;
+    let created;
+    beforeEach(() => {
+        adapter = createAdapter();
+        adapter.instance = 0;
+        adapter.config = { Time_Sync: 30, maxRetries: 5, bundleDelay: 0 };
+        adapter.devices[IP] = { mac: MAC, connected: true, wsConnected: false, initialized: false };
+        sent = [];
+        created = {};
+        adapter.postAPI = async (_url, values) => {
+            sent.push(values);
+            return { success: true };
+        };
+        adapter.setState = () => {};
+        adapter.create_state = async (id, name, value) => {
+            created[id] = { name, value };
+        };
+    });
+
+    const deviceStates = {
+        on: true,
+        bri: 128,
+        mainseg: 1,
+        seg: [
+            {
+                id: 0,
+                col: [
+                    [1, 2, 3],
+                    [0, 0, 0],
+                    [0, 0, 0],
+                ],
+            },
+            {
+                id: 1,
+                col: [
+                    [255, 136, 0, 40],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                ],
+            },
+        ],
+    };
+
+    it('creates the light channel with on, dimmer in percent and the colour of the main segment', async () => {
+        await adapter.updateLightStates(MAC, IP, deviceStates);
+        expect(adapter.objects[`${MAC}.light`].type).to.equal('channel');
+        expect(created[`${MAC}.light.on`]).to.deep.equal({ name: 'lightOn', value: true });
+        expect(created[`${MAC}.light.dimmer`]).to.deep.equal({ name: 'lightDimmer', value: 50 });
+        expect(created[`${MAC}.light.rgb`]).to.deep.equal({ name: 'lightRgb', value: '#ff8800' });
+        expect(adapter.devices[IP].mainseg).to.equal(1);
+    });
+
+    it('uses the first segment when mainseg is unknown', () => {
+        expect(adapter.mainSegment({ mainseg: 7, seg: [{ id: 3 }, { id: 4 }] })).to.deep.equal({ id: 3 });
+        expect(adapter.mainSegment({})).to.equal(null);
+    });
+
+    it('roles match what the type detector expects for a colour light', () => {
+        const stateAttr = require('../../lib/stateAttr.js');
+        expect(stateAttr.lightOn.role).to.equal('switch.light');
+        expect(stateAttr.lightDimmer.role).to.equal('level.dimmer');
+        expect(stateAttr.lightRgb.role).to.equal('level.color.rgb');
+    });
+
+    it('translates on, dimmer and colour into WLED commands', async () => {
+        adapter.devices[IP].mainseg = 1;
+        adapter.getStateAsync = async () => ({ val: '[255,136,0,40]' });
+        await adapter.onStateChange(`wled.0.${MAC}.light.on`, { val: false, ack: false });
+        await adapter.onStateChange(`wled.0.${MAC}.light.dimmer`, { val: 50, ack: false });
+        await adapter.onStateChange(`wled.0.${MAC}.light.dimmer`, { val: 0, ack: false });
+        await adapter.onStateChange(`wled.0.${MAC}.light.rgb`, { val: '#0000ff', ack: false });
+        expect(sent).to.deep.equal([
+            { on: false },
+            { bri: 128, on: true },
+            { bri: 0 },
+            { seg: { id: 1, col: [[0, 0, 255, 40]] } },
+        ]);
+    });
+
+    it('rejects an invalid colour without sending', async () => {
+        adapter.getStateAsync = async () => null;
+        await adapter.onStateChange(`wled.0.${MAC}.light.rgb`, { val: 'blue-ish', ack: false });
+        expect(sent).to.be.empty;
+        expect(adapter.logs.warn[0]).to.include('Invalid colour');
+    });
+});

@@ -184,6 +184,10 @@ class Wled extends utils.Adapter {
                     await this.setBundleCommands(deviceId[2], state.val !== false && state.val !== 0);
                     return;
                 }
+                if (deviceId[3] === 'light' && deviceId[5] === undefined) {
+                    await this.handleLightCommand(id, deviceId[2], deviceId[4], state.val);
+                    return;
+                }
 
                 // Prepare array's needed to send new states
                 let values = null,
@@ -1475,6 +1479,9 @@ class Wled extends utils.Adapter {
                 }
             }
 
+            // Light structure for the type detector (iot, Alexa, Google Home)
+            await this.updateLightStates(infoStates.mac, ipAddress, deviceStates);
+
             if (!this.devices[ipAddress].initialized) {
                 this.devices[ipAddress].initialized = true;
                 // Start websocket connection and and listen to state changes
@@ -1489,6 +1496,114 @@ class Wled extends utils.Adapter {
         } catch (error) {
             this.errorHandler(`[handleStates]`, error);
         }
+    }
+
+    /**
+     * Keep the light channel up to date: on, brightness in percent and the primary colour of the main segment.
+     * The type detector recognises this channel as a colour light, so iot (Alexa, Google Home) can use it (#328).
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {string} ipAddress IP address of the device
+     * @param {object} deviceStates state data reported by WLED
+     */
+    async updateLightStates(mac, ipAddress, deviceStates) {
+        if (!deviceStates || !this.devices[ipAddress]) {
+            return;
+        }
+        if (!this.devices[ipAddress].initialized) {
+            await this.setObjectNotExistsAsync(`${mac}.light`, {
+                type: 'channel',
+                common: {
+                    name: 'Light (iot, Alexa, Google Home)',
+                },
+                native: {},
+            });
+        }
+        const mainSegment = this.mainSegment(deviceStates);
+        this.devices[ipAddress].mainseg = mainSegment ? mainSegment.id : 0;
+
+        if (deviceStates.on !== undefined) {
+            await this.create_state(`${mac}.light.on`, 'lightOn', !!deviceStates.on);
+        }
+        if (typeof deviceStates.bri === 'number') {
+            await this.create_state(`${mac}.light.dimmer`, 'lightDimmer', Math.round((deviceStates.bri / 255) * 100));
+        }
+        const primary = Array.isArray(mainSegment?.col) ? mainSegment.col[0] : null;
+        if (Array.isArray(primary) && primary.length >= 3) {
+            await this.create_state(
+                `${mac}.light.rgb`,
+                'lightRgb',
+                `#${rgbHex(Number(primary[0]), Number(primary[1]), Number(primary[2]))}`,
+            );
+        }
+    }
+
+    /**
+     * Main segment of the device: the segment with the id of mainseg, otherwise the first one
+     *
+     * @param {object} deviceStates state data reported by WLED
+     * @returns {object|null} segment data
+     */
+    mainSegment(deviceStates) {
+        const segments = Array.isArray(deviceStates?.seg) ? deviceStates.seg.filter(Boolean) : [];
+        if (segments.length === 0) {
+            return null;
+        }
+        const main = segments.find(segment => segment.id === deviceStates.mainseg);
+        return main || segments[0];
+    }
+
+    /**
+     * Translate a command written to the light channel into a WLED command (#328)
+     *
+     * @param {string} id full state id
+     * @param {string} mac MAC address (device id)
+     * @param {string} name state name in the light channel (on, dimmer, rgb)
+     * @param {ioBroker.StateValue} val value written
+     */
+    async handleLightCommand(id, mac, name, val) {
+        const deviceIP = this.getDeviceIpByMac(mac);
+        if (!deviceIP || !this.devices[deviceIP].connected) {
+            if (!deviceIP || !(await this.reconnectOnDemand(deviceIP))) {
+                this.log.warn(`Device ${mac} is offline, command for ${id} discarded`);
+                return;
+            }
+        }
+        let values;
+        switch (name) {
+            case 'on':
+                values = { on: val === true || val === 'true' || val === 1 };
+                break;
+            case 'dimmer': {
+                const percent = Math.min(100, Math.max(0, Number(val)));
+                if (!Number.isFinite(percent)) {
+                    this.log.warn(`Invalid brightness ${val} for ${id}, expected 0-100`);
+                    return;
+                }
+                values = { bri: Math.round((percent / 100) * 255) };
+                if (percent > 0) {
+                    values.on = true;
+                }
+                break;
+            }
+            case 'rgb': {
+                const segmentId = this.devices[deviceIP].mainseg ?? 0;
+                let color;
+                try {
+                    const current = await this.getStateAsync(`${mac}.seg.${segmentId}.col.0`);
+                    color = this.hexToWledColor(val, current?.val);
+                } catch {
+                    this.log.warn(`Invalid colour ${val} for ${id}, expected HEX like #ff8800`);
+                    return;
+                }
+                values = { seg: { id: segmentId, col: [color] } };
+                break;
+            }
+            default:
+                this.log.debug(`Unknown state in light channel: ${id}`);
+                return;
+        }
+        await this.sendCommand(deviceIP, values, [{ id, val }]);
     }
 
     /**

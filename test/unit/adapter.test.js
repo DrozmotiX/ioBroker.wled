@@ -57,6 +57,7 @@ describe('WLED adapter', () => {
         beforeEach(() => {
             adapter = createAdapter();
             adapter.instance = 0;
+            adapter.config = { bundleDelay: 0 };
             adapter.devices[IP] = { mac: MAC, connected: true, wsConnected: false };
             sent = [];
             adapter.postAPI = async (url, values) => {
@@ -133,7 +134,7 @@ describe('WLED adapter', () => {
         beforeEach(() => {
             adapter = createAdapter();
             adapter.instance = 0;
-            adapter.config = { Time_Sync: 30, maxRetries: 5 };
+            adapter.config = { Time_Sync: 30, maxRetries: 5, bundleDelay: 0 };
             adapter.devices[IP] = { mac: MAC, connected: false, wsConnected: false };
             sent = [];
             watchdogRuns = 0;

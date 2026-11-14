@@ -179,6 +179,12 @@ class Wled extends utils.Adapter {
                 // Split state name in segments to be used later
                 const deviceId = id.split('.');
 
+                // States handled by the adapter itself, they are not sent to WLED as they are
+                if (deviceId[3] === 'bundleCommands' && deviceId[4] === undefined) {
+                    await this.setBundleCommands(deviceId[2], state.val !== false && state.val !== 0);
+                    return;
+                }
+
                 // Prepare array's needed to send new states
                 let values = null,
                     rgb_all = null;
@@ -212,6 +218,9 @@ class Wled extends utils.Adapter {
                                 return;
                             }
                             device_ip = device_ip.native.ip;
+
+                            // Commands still waiting to be bundled are sent first, so the order is kept
+                            await this.flushCommands(device_ip);
 
                             // Send raw command to /win endpoint with query parameters
                             const params = new URLSearchParams(state.val);
@@ -425,44 +434,241 @@ class Wled extends utils.Adapter {
                         );
                     }
 
-                    // If websocket is connected, send message by websocket otherwise http-API
-                    if (this.devices[device_ip].wsConnected && ws[device_ip]) {
-                        this.log.debug(`Sending state change by websocket ${JSON.stringify(values)}`);
-
-                        ws[device_ip].send(JSON.stringify(values), error => {
-                            if (error) {
-                                this.log.warn(`Sending command for ${id} to ${device_ip} failed: ${error.message}`);
-                                return;
-                            }
-                            // Set state acknowledgement when the message was sent successfully
-                            this.setState(id, {
-                                val: state.val,
-                                ack: true,
-                            });
-                        });
-                    } else {
-                        this.log.debug(`Sending state change by http-API ${JSON.stringify(values)}`);
-
-                        // Send API Post command
-                        const result = await this.postAPI(`http://${device_ip}/json`, values);
-                        if (!result) {
-                            return;
-                        }
-                        this.log.debug(`API feedback${JSON.stringify(result)}`);
-
-                        if (result.success === true) {
-                            // Set state acknowledgement if  API call was successfully
-                            this.setState(id, {
-                                val: state.val,
-                                ack: true,
-                            });
-                        }
-                    }
+                    await this.sendCommand(device_ip, values, [{ id, val: state.val }]);
                 }
             }
         } catch (error) {
             this.errorHandler(`[onStateChange]`, error);
         }
+    }
+
+    /**
+     * Send a command to a device. Commands for the same device that follow each other within
+     * the bundle delay are merged into one command (#926), unless bundling is switched off for
+     * the device (state bundleCommands) or for the instance (bundleDelay = 0).
+     *
+     * @param {string} deviceIP IP-Address of device
+     * @param {object} values JSON command for the WLED JSON-API
+     * @param {Array<{id: string, val: ioBroker.StateValue}>} acks states to acknowledge when the device accepted the command
+     */
+    async sendCommand(deviceIP, values, acks) {
+        const device = this.devices[deviceIP];
+        if (!device) {
+            return;
+        }
+        const delay = this.bundleDelay();
+        if (delay <= 0 || device.bundleCommands === false) {
+            await this.flushCommands(deviceIP);
+            await this.deliverCommand(deviceIP, values, acks);
+            return;
+        }
+
+        // A command that can not be merged with the waiting one (e.g. a second toggle) sends the waiting one first
+        if (device.pendingCommand && !this.canMergeCommands(device.pendingCommand.values, values)) {
+            await this.flushCommands(deviceIP);
+        }
+        if (!device.pendingCommand) {
+            device.pendingCommand = { values: {}, acks: [] };
+            device.pendingTimer = this.setTimeout(() => {
+                device.pendingTimer = null;
+                this.flushCommands(deviceIP);
+            }, delay);
+        }
+        device.pendingCommand.values = this.mergeCommands(device.pendingCommand.values, values);
+        device.pendingCommand.acks.push(...acks);
+        this.log.debug(`Command for ${deviceIP} waits ${delay} ms to be bundled: ${JSON.stringify(values)}`);
+    }
+
+    /**
+     * Send the command waiting to be bundled for a device at once
+     *
+     * @param {string} deviceIP IP-Address of device
+     */
+    async flushCommands(deviceIP) {
+        const device = this.devices[deviceIP];
+        if (!device || !device.pendingCommand) {
+            return;
+        }
+        if (device.pendingTimer) {
+            this.clearTimeout(device.pendingTimer);
+            device.pendingTimer = null;
+        }
+        const pending = device.pendingCommand;
+        device.pendingCommand = null;
+        try {
+            await this.deliverCommand(deviceIP, pending.values, pending.acks);
+        } catch (error) {
+            this.errorHandler(`[flushCommands]`, error);
+        }
+    }
+
+    /**
+     * Bundle delay in ms from the instance settings, 0 switches bundling off
+     *
+     * @returns {number} delay in ms
+     */
+    bundleDelay() {
+        const delay = Number(this.config?.bundleDelay ?? 50);
+        if (!Number.isFinite(delay) || delay <= 0) {
+            return 0;
+        }
+        return Math.min(delay, 1000);
+    }
+
+    /**
+     * Two commands can be merged unless the same value is set twice with a relative or toggle value
+     * (e.g. "t" or "~10"), or a segment is addressed without id
+     *
+     * @param {object} first command waiting to be sent
+     * @param {object} second new command
+     * @returns {boolean} true when both can be sent as one command
+     */
+    canMergeCommands(first, second) {
+        const segmentsWithId = command => {
+            if (command.seg === undefined) {
+                return true;
+            }
+            const segments = Array.isArray(command.seg) ? command.seg : [command.seg];
+            return segments.every(segment => segment && typeof segment === 'object' && segment.id !== undefined);
+        };
+        if (!segmentsWithId(first) || !segmentsWithId(second)) {
+            return false;
+        }
+        const conflict = (a, b) => {
+            for (const key of Object.keys(b)) {
+                if (!(key in a)) {
+                    continue;
+                }
+                if (key === 'seg') {
+                    const segA = Array.isArray(a.seg) ? a.seg : [a.seg];
+                    const segB = Array.isArray(b.seg) ? b.seg : [b.seg];
+                    for (const segment of segB) {
+                        const match = segA.find(other => String(other.id) === String(segment.id));
+                        if (match && conflict(match, segment)) {
+                            return true;
+                        }
+                    }
+                } else if (this.isPlainObject(a[key]) && this.isPlainObject(b[key])) {
+                    if (conflict(a[key], b[key])) {
+                        return true;
+                    }
+                } else if (typeof a[key] === 'string' || typeof b[key] === 'string') {
+                    return true;
+                }
+            }
+            return false;
+        };
+        return !conflict(first, second);
+    }
+
+    /**
+     * Merge two commands for the WLED JSON-API, later values win.
+     * Segments are merged by their id and always sent as array.
+     *
+     * @param {object} first command waiting to be sent
+     * @param {object} second new command
+     * @returns {object} merged command
+     */
+    mergeCommands(first, second) {
+        const result = { ...first };
+        for (const [key, value] of Object.entries(second)) {
+            if (key === 'seg') {
+                const segments = Array.isArray(result.seg) ? result.seg.map(segment => ({ ...segment })) : [];
+                if (this.isPlainObject(result.seg)) {
+                    segments.push({ ...result.seg });
+                }
+                for (const segment of Array.isArray(value) ? value : [value]) {
+                    const match = segments.find(other => String(other.id) === String(segment.id));
+                    if (match) {
+                        Object.assign(match, segment);
+                    } else {
+                        segments.push({ ...segment });
+                    }
+                }
+                result.seg = segments;
+            } else if (this.isPlainObject(result[key]) && this.isPlainObject(value)) {
+                result[key] = this.mergeCommands(result[key], value);
+            } else {
+                result[key] = value;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @param {unknown} value value to check
+     * @returns {boolean} true for an object that is not an array
+     */
+    isPlainObject(value) {
+        return value !== null && typeof value === 'object' && !Array.isArray(value);
+    }
+
+    /**
+     * Deliver a command to the device by websocket or http-API and acknowledge the states
+     *
+     * @param {string} deviceIP IP-Address of device
+     * @param {object} values JSON command for the WLED JSON-API
+     * @param {Array<{id: string, val: ioBroker.StateValue}>} acks states to acknowledge when the device accepted the command
+     */
+    async deliverCommand(deviceIP, values, acks) {
+        const device = this.devices[deviceIP];
+        if (!device) {
+            return;
+        }
+        const names = acks.map(ack => ack.id).join(', ');
+        const acknowledge = () => {
+            // Only the last value written to a state is acknowledged
+            const latest = new Map();
+            for (const ack of acks) {
+                latest.set(ack.id, ack.val);
+            }
+            for (const [stateId, val] of latest) {
+                this.setState(stateId, { val, ack: true });
+            }
+        };
+
+        // If websocket is connected, send message by websocket otherwise http-API
+        if (device.wsConnected && ws[deviceIP]) {
+            this.log.debug(`Sending state change by websocket ${JSON.stringify(values)}`);
+            ws[deviceIP].send(JSON.stringify(values), error => {
+                if (error) {
+                    this.log.warn(`Sending command for ${names} to ${deviceIP} failed: ${error.message}`);
+                    return;
+                }
+                // Set state acknowledgement when the message was sent successfully
+                acknowledge();
+            });
+            return;
+        }
+
+        this.log.debug(`Sending state change by http-API ${JSON.stringify(values)}`);
+        const result = await this.postAPI(`http://${deviceIP}/json`, values);
+        if (!result) {
+            return;
+        }
+        this.log.debug(`API feedback${JSON.stringify(result)}`);
+        if (result.success === true) {
+            // Set state acknowledgement if  API call was successfully
+            acknowledge();
+        }
+    }
+
+    /**
+     * Switch bundling of commands on or off for one device (state bundleCommands)
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {boolean} enabled true to bundle commands
+     */
+    async setBundleCommands(mac, enabled) {
+        const deviceIP = this.getDeviceIpByMac(mac);
+        if (deviceIP) {
+            this.devices[deviceIP].bundleCommands = enabled;
+            if (!enabled) {
+                await this.flushCommands(deviceIP);
+            }
+        }
+        this.log.info(`Bundling of commands for ${mac} switched ${enabled ? 'on' : 'off'}`);
+        await this.setStateAsync(`${mac}.bundleCommands`, enabled, true);
     }
 
     /**
@@ -993,6 +1199,15 @@ class Wled extends utils.Adapter {
             await this.create_state(`${device_id}.time`, 'time', null);
             await this.create_state(`${device_id}.action`, 'action', '');
             await this.create_state(`${device_id}.rawCommand`, 'rawCommand', '');
+            // Bundling of commands (#926): on for new devices, the value set by the user is kept
+            await this.create_state(`${device_id}.bundleCommands`, 'bundleCommands', null);
+            const bundleState = await this.getStateAsync(`${device_id}.bundleCommands`);
+            if (bundleState === null || bundleState === undefined || bundleState.val === null) {
+                await this.setStateAsync(`${device_id}.bundleCommands`, true, true);
+                this.devices[deviceIP].bundleCommands = true;
+            } else {
+                this.devices[deviceIP].bundleCommands = bundleState.val !== false;
+            }
             // Reboot button (WLED JSON-API command "rb"); hp (Hue sync) and rd (realtime UDP) are created from the state data when the device provides them
             await this.create_state(`${device_id}.rb`, 'rb', null);
 
@@ -1987,6 +2202,12 @@ class Wled extends utils.Adapter {
                 } catch (error) {
                     this.log.warn(`Error closing WebSocket for ${ip}: ${error.message}`);
                 }
+            }
+
+            // Drop commands waiting to be bundled
+            if (this.devices[ip]?.pendingTimer) {
+                this.clearTimeout(this.devices[ip].pendingTimer);
+                this.devices[ip].pendingTimer = null;
             }
 
             // Clean up retry tracking

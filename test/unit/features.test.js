@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { createAdapter } = require('./helpers.js');
+const { createAdapter, MAC, IP } = require('./helpers.js');
 
 describe('WLED adapter 0.10.0 features', () => {
     describe('automatic discovery can be switched off (#897)', () => {
@@ -55,6 +55,171 @@ describe('WLED adapter 0.10.0 features', () => {
         it('returns null when no IPv4 address is known', () => {
             expect(adapter.bonjourAddress({ addresses: ['fe80::1'], referer: { address: 'fe80::2' } })).to.equal(null);
             expect(adapter.bonjourAddress({})).to.equal(null);
+        });
+    });
+
+    describe('bundle commands per device (#926)', () => {
+        let adapter;
+        let sent;
+        let timers;
+        let acked;
+        beforeEach(() => {
+            adapter = createAdapter();
+            adapter.instance = 0;
+            adapter.config = { Time_Sync: 30, maxRetries: 5, bundleDelay: 50 };
+            adapter.devices[IP] = { mac: MAC, connected: true, wsConnected: false, bundleCommands: true };
+            sent = [];
+            acked = [];
+            timers = [];
+            adapter.postAPI = async (_url, values) => {
+                sent.push(values);
+                return { success: true };
+            };
+            adapter.setState = (id, state) => acked.push({ id, val: state.val });
+            adapter.setStateAsync = async (id, val) => acked.push({ id, val });
+            adapter.getForeignObjectAsync = async () => ({ native: { ip: IP } });
+            adapter.setTimeout = (fn, delay) => {
+                timers.push({ fn, delay });
+                return timers.length;
+            };
+            adapter.clearTimeout = () => {};
+        });
+
+        const change = (state, val) => adapter.onStateChange(`wled.0.${MAC}.${state}`, { val, ack: false });
+        const runTimer = async () => {
+            await timers.shift().fn();
+            await new Promise(resolve => setImmediate(resolve));
+        };
+
+        it('sends changes that follow each other as one command after the delay', async () => {
+            await change('on', true);
+            await change('bri', 120);
+            await change('seg.0.fx', 9);
+            await change('seg.1.pal', 4);
+            await change('seg.0.sx', 200);
+            expect(sent).to.be.empty;
+            expect(timers).to.have.length(1);
+            expect(timers[0].delay).to.equal(50);
+            await runTimer();
+            expect(sent).to.deep.equal([
+                {
+                    on: true,
+                    bri: 120,
+                    seg: [
+                        { id: 0, fx: 9, sx: 200 },
+                        { id: 1, pal: 4 },
+                    ],
+                },
+            ]);
+            expect(acked.map(a => a.id)).to.have.members([
+                `wled.0.${MAC}.on`,
+                `wled.0.${MAC}.bri`,
+                `wled.0.${MAC}.seg.0.fx`,
+                `wled.0.${MAC}.seg.1.pal`,
+                `wled.0.${MAC}.seg.0.sx`,
+            ]);
+        });
+
+        it('acknowledges only the last value when a state is written twice', async () => {
+            await change('bri', 10);
+            await change('bri', 20);
+            await runTimer();
+            expect(sent).to.deep.equal([{ bri: 20 }]);
+            expect(acked).to.deep.equal([{ id: `wled.0.${MAC}.bri`, val: 20 }]);
+        });
+
+        it('sends every command at once when bundling is switched off for the device', async () => {
+            adapter.devices[IP].bundleCommands = false;
+            await change('on', true);
+            await change('bri', 120);
+            expect(sent).to.deep.equal([{ on: true }, { bri: 120 }]);
+            expect(timers).to.be.empty;
+        });
+
+        it('sends every command at once when the instance delay is 0', async () => {
+            adapter.config.bundleDelay = 0;
+            await change('on', true);
+            await change('bri', 120);
+            expect(sent).to.deep.equal([{ on: true }, { bri: 120 }]);
+        });
+
+        it('keeps devices independent', async () => {
+            const OTHER_IP = '192.168.0.11';
+            const OTHER_MAC = '112233445566';
+            adapter.devices[OTHER_IP] = { mac: OTHER_MAC, connected: true, wsConnected: false, bundleCommands: false };
+            adapter.getForeignObjectAsync = async id => ({ native: { ip: id.endsWith(OTHER_MAC) ? OTHER_IP : IP } });
+            await change('bri', 50);
+            await adapter.onStateChange(`wled.0.${OTHER_MAC}.bri`, { val: 60, ack: false });
+            expect(sent).to.deep.equal([{ bri: 60 }]);
+            await runTimer();
+            expect(sent).to.deep.equal([{ bri: 60 }, { bri: 50 }]);
+        });
+
+        it('does not merge two toggles, the first one is sent before the second waits', async () => {
+            await change('action', '{"on":"t"}');
+            await change('action', '{"on":"t"}');
+            expect(sent).to.deep.equal([{ on: 't' }]);
+            await runTimer();
+            await runTimer();
+            expect(sent).to.deep.equal([{ on: 't' }, { on: 't' }]);
+        });
+
+        it('sends the waiting command at once when bundling is switched off by state', async () => {
+            await change('bri', 50);
+            await change('bundleCommands', false);
+            expect(sent).to.deep.equal([{ bri: 50 }]);
+            expect(adapter.devices[IP].bundleCommands).to.equal(false);
+            expect(acked).to.deep.include({ id: `${MAC}.bundleCommands`, val: false });
+            await change('bri', 60);
+            expect(sent).to.deep.equal([{ bri: 50 }, { bri: 60 }]);
+        });
+
+        it('sends the waiting command before a raw command to keep the order', async () => {
+            const order = [];
+            adapter.postAPI = async (_url, values) => {
+                order.push(values);
+                return { success: true };
+            };
+            adapter.getForeignObjectAsync = async () => ({ native: { ip: IP } });
+            await change('bri', 50);
+            // The raw command itself goes to the /win endpoint (not awaited here, no network in tests),
+            // the waiting command must have been sent before
+            void change('rawCommand', 'T=1');
+            for (let i = 0; i < 10; i++) {
+                await new Promise(resolve => setImmediate(resolve));
+            }
+            expect(order).to.deep.equal([{ bri: 50 }]);
+        });
+    });
+
+    describe('mergeCommands and canMergeCommands (#926)', () => {
+        const adapter = createAdapter();
+
+        it('merges nested objects and keeps segment ids', () => {
+            expect(
+                adapter.mergeCommands(
+                    { nl: { on: true }, seg: { id: 2, fx: 1 } },
+                    { nl: { dur: 5 }, seg: [{ id: 2, sx: 3 }] },
+                ),
+            ).to.deep.equal({ nl: { on: true, dur: 5 }, seg: [{ id: 2, fx: 1, sx: 3 }] });
+        });
+
+        it('replaces colour arrays instead of merging them', () => {
+            const merged = adapter.mergeCommands(
+                { seg: { id: 0, col: [[1, 2, 3]] } },
+                { seg: { id: 0, col: [[4, 5, 6]] } },
+            );
+            expect(merged.seg[0].col).to.deep.equal([[4, 5, 6]]);
+        });
+
+        it('does not merge relative values or segments without id', () => {
+            expect(adapter.canMergeCommands({ bri: '~10' }, { bri: '~10' })).to.equal(false);
+            expect(adapter.canMergeCommands({ bri: 10 }, { bri: 20 })).to.equal(true);
+            expect(adapter.canMergeCommands({ on: true }, { seg: [{ fx: 3 }] })).to.equal(false);
+            expect(adapter.canMergeCommands({ seg: [{ id: 0, n: 'a' }] }, { seg: [{ id: 0, n: 'b' }] })).to.equal(
+                false,
+            );
+            expect(adapter.canMergeCommands({ seg: [{ id: 0, n: 'a' }] }, { seg: [{ id: 1, n: 'b' }] })).to.equal(true);
         });
     });
 });

@@ -15,5 +15,7 @@
     "Device deleted successfully": "Gerät erfolgreich gelöscht",
     "Failed to delete device": "Gerät konnte nicht gelöscht werden",
     "WLED devices are discovered automatically, if not you can use the ADD Device button.": "WLED-Geräte werden automatisch erkannt. Andernfalls können Sie die Schaltfläche Gerät hinzufügen verwenden.",
-    "wled adapter settings": "Adaptereinstellungen für wled"
+    "wled adapter settings": "Adaptereinstellungen für wled",
+    "Max retry attempts": "Maximale Wiederholungsversuche",
+    "Enable exponential backoff": "Exponentiellen Backoff aktivieren"
 }

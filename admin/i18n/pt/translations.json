@@ -15,5 +15,7 @@
     "Delete device confirmation": "Delete device confirmation",
     "Are you sure you want to delete this device? All associated states and objects will be removed.": "Tem certeza de que deseja excluir este dispositivo? Todos os estados e objetos associados serão removidos.",
     "Device deleted successfully": "Device deleted successfully",
-    "Failed to delete device": "Failed to delete device"
+    "Failed to delete device": "Failed to delete device",
+    "Max retry attempts": "Máximo de tentativas de repetição",
+    "Enable exponential backoff": "Habilitar backoff exponencial"
 }

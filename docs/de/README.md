@@ -10,4 +10,4 @@ Die Dokumentation ist nach den Fragen aufgebaut, die Nutzer im Forum und in den 
 - **[Fehlerbehebung](04.fehlerbehebung/README.md):** Die häufigsten Fehlermeldungen und Verbindungsprobleme und was dagegen hilft.
 - **[Hintergrund](05.hintergrund/README.md):** Wie der Adapter mit den Geräten spricht, kurz erklärt.
 
-<!-- Englische Fassung: ../en/README.md (folgt nach Abnahme der deutschen Fassung) -->
+<!-- Englische Fassung: ../en/README.md -->

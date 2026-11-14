@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="320" viewBox="0 0 760 320" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14">
+  <title>Brightness: percentage alias and WLED value bri</title>
+  <rect width="760" height="320" fill="#ffffff"/>
+  <defs>
+    <marker id="pfeil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+    <linearGradient id="verlauf" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#263238"/>
+      <stop offset="1" stop-color="#ffd54f"/>
+    </linearGradient>
+  </defs>
+
+  <text x="380" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Brightness as a percentage via an alias</text>
+
+  <text x="30" y="72" font-weight="bold" fill="#1565c0">Alias (percent)</text>
+  <text x="30" y="90" fill="#424242" font-size="11">alias.0.WLED.LivingRoom.brightness</text>
+  <rect x="300" y="62" width="420" height="22" rx="4" fill="url(#verlauf)"/>
+  <text x="300" y="102" text-anchor="middle" fill="#212121">0 %</text>
+  <text x="510" y="102" text-anchor="middle" fill="#212121">50 %</text>
+  <text x="720" y="102" text-anchor="middle" fill="#212121">100 %</text>
+
+  <line x1="340" y1="114" x2="340" y2="200" stroke="#37474f" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="352" y="150" fill="#2e7d32" font-weight="bold">Write</text>
+  <text x="352" y="168" fill="#2e7d32" font-family="Consolas, Menlo, monospace" font-size="13">Math.ceil(val * 2.55)</text>
+  <line x1="540" y1="200" x2="540" y2="114" stroke="#37474f" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="552" y="150" fill="#c62828" font-weight="bold">Read</text>
+  <text x="552" y="168" fill="#c62828" font-family="Consolas, Menlo, monospace" font-size="13">Math.round(val / 2.55)</text>
+
+  <text x="30" y="222" font-weight="bold" fill="#1565c0">WLED state</text>
+  <text x="30" y="240" fill="#424242" font-size="11">wled.0.&lt;device&gt;.bri</text>
+  <rect x="300" y="212" width="420" height="22" rx="4" fill="url(#verlauf)"/>
+  <text x="300" y="252" text-anchor="middle" fill="#212121">0</text>
+  <text x="510" y="252" text-anchor="middle" fill="#212121">128</text>
+  <text x="720" y="252" text-anchor="middle" fill="#212121">255</text>
+
+  <text x="380" y="294" text-anchor="middle" fill="#424242">Examples: 1 % → 3 · 50 % → 128 · 100 % → 255. Rounding up stops 1 % from switching the light off.</text>
+</svg>

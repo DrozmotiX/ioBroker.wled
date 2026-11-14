@@ -1,4 +1,8 @@
 # Older changes
+## 0.7.3 (2024-10-26)
+* (HaggardFFM) allow write on segments, solves #688 #706
+* (DutchmanNL) Fixed error when a device is not available Solves #698
+
 ## 0.7.2 (2023-10-31) - Improve online visibility of devices
 * (DutchmanNL) Show online state of device in object tree
 * (DutchmanNL) Bugfix: Update online state correctly in situation connection is lost, fixes #611

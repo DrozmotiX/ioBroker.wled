@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "wled",
-    "version": "0.9.3-beta.0",
+    "version": "0.10.0",
     "news": {
-      "NEXT": {
+      "0.10.0": {
         "en": "New instance settings with device overview, add by IP and device search\nBonjour/mDNS discovery can be switched off\nCommands to the same device are bundled (configurable per device)\nDevice Manager: edit device, take name from WLED\nLight channel for Alexa/Google, usermod values as states, restore last colour/effect\nOffline device reconnects at once when a command is written",
         "de": "Neue Instanz-Einstellungen mit Geräteübersicht, Hinzufügen per IP und Gerätesuche\nBonjour/mDNS-Erkennung abschaltbar\nBefehle an dasselbe Gerät werden gebündelt (je Gerät einstellbar)\nDevice Manager: Gerät bearbeiten, Name von WLED übernehmen\nLicht-Kanal für Alexa/Google, Usermod-Werte als States, letzte Farbe/Effekt wiederherstellen\nOffline-Gerät verbindet sich bei einem Befehl sofort neu",
         "ru": "Новые настройки экземпляра: обзор устройств, добавление по IP и поиск устройств\nОбнаружение Bonjour/mDNS можно отключить\nКоманды одному устройству объединяются (настраивается для каждого устройства)\nDevice Manager: редактирование устройства, имя из WLED\nКанал света для Alexa/Google, значения usermod как состояния, восстановление последнего цвета/эффекта\nОтключённое устройство сразу переподключается при отправке команды",
@@ -93,19 +93,6 @@
         "pl": "Strona internetowa urządzenie w drzewie obiektowym\nBugfix: W związku z tym utracono poprawnie aktualizację systemu online o numerze #611\nZwiększenie jasności do 0 i na fałszywym podczas startu adaptera i jeśli urządzenie nie odłącza #565",
         "uk": "Показати онлайн стан пристрою в дереві об'єкта\nПомилки: Оновити онлайн стан правильно в ситуації з'єднання втрачено, фіксує #611\nВідновити яскравість до 0 і на false під час запуску адаптера і якщо пристрій відключається, закріплює #565",
         "zh-cn": "目标树中的设备在线状况\nBugfix: 最新网上国家对局势的正确状况损失,指示第611号行动\n第565号法令规定,在适应人员开始期间,如果装置不连接,那么光明达到0.和虚假度。"
-      },
-      "0.7.1": {
-        "en": "White color channel implemented, bugfixes",
-        "de": "Weißer Farbkanal implementiert, Bugfixes",
-        "ru": "Реализован канал белого цвета, исправления",
-        "pt": "Canal de cor branca implementado, correções de bugs",
-        "nl": "Wit kleurenkanaal geïmplementeerd, bugfixes",
-        "fr": "Canal de couleur blanche implémenté, corrections de bugs",
-        "it": "Canale di colore bianco implementato, correzioni di bug",
-        "es": "Canal de color blanco implementado, corrección de errores",
-        "pl": "Zaimplementowano kanał koloru białego, poprawki błędów",
-        "uk": "Реалізовано канал білого кольору, виправлено помилки",
-        "zh-cn": "实施白色通道，修复错误"
       }
     },
     "titleLang": {

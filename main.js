@@ -30,6 +30,7 @@ const ws = {}; // Array containing websocket connections
 const warnMessages = {}; // Array containing sentry messages
 const deviceRetryCount = {}; // Array containing retry counts for failed devices
 const deviceRetryDelay = {}; // Array containing current retry delays for failed devices
+const ON_DEMAND_RECONNECT_COOLDOWN = 5000; // Minimum time between two reconnect attempts triggered by commands (ms)
 
 const disableSentry = false; // Ensure to set to true during development !
 
@@ -221,6 +222,10 @@ class Wled extends utils.Adapter {
                                     ack: true,
                                 });
 
+                                // The device answered: forget earlier failed attempts, so the poll below is not skipped
+                                deviceRetryCount[device_ip] = 0;
+                                deviceRetryDelay[device_ip] = this.config.Time_Sync * 1000;
+
                                 // Trigger a device poll to update states after a short delay
                                 this.setTimeout(() => {
                                     this.watchDog(device_ip);
@@ -400,8 +405,17 @@ class Wled extends utils.Adapter {
                 if (values !== null && device_ip !== null) {
                     // Device unknown or offline: the command can not be delivered
                     if (!this.devices[device_ip] || !this.devices[device_ip].connected) {
-                        this.log.warn(`Device ${deviceId[2]} (${device_ip}) is offline, command for ${id} discarded`);
-                        return;
+                        // Try to reach a known device right away instead of waiting for the next watchdog run,
+                        // which can be up to one hour away after several failed attempts
+                        if (!(await this.reconnectOnDemand(device_ip))) {
+                            this.log.warn(
+                                `Device ${deviceId[2]} (${device_ip}) is offline, command for ${id} discarded`,
+                            );
+                            return;
+                        }
+                        this.log.debug(
+                            `Device ${deviceId[2]} (${device_ip}) is reachable again, sending command for ${id}`,
+                        );
                     }
 
                     // If websocket is connected, send message by websocket otherwise http-API
@@ -1324,6 +1338,44 @@ class Wled extends utils.Adapter {
         }
 
         this.devices[ipAddress].segments = current;
+    }
+
+    /**
+     * A command was written for a known device that is not connected: reset its retry counter and
+     * run the watchdog at once, so a device that was switched on again is used without delay.
+     * Attempts are limited to one per device every ON_DEMAND_RECONNECT_COOLDOWN ms, parallel commands share one attempt.
+     *
+     * @param {string} deviceIP IP-Address of device
+     * @returns {Promise<boolean>} true when the device is connected afterwards
+     */
+    async reconnectOnDemand(deviceIP) {
+        const device = this.devices[deviceIP];
+        if (!device) {
+            return false;
+        }
+        if (device.reconnectPromise) {
+            return device.reconnectPromise;
+        }
+        const now = Date.now();
+        if (device.lastOnDemandReconnect && now - device.lastOnDemandReconnect < ON_DEMAND_RECONNECT_COOLDOWN) {
+            return false;
+        }
+        device.lastOnDemandReconnect = now;
+        device.reconnectPromise = (async () => {
+            try {
+                this.log.debug(`Command for offline device ${deviceIP}, trying to reconnect now`);
+                deviceRetryCount[deviceIP] = 0;
+                deviceRetryDelay[deviceIP] = this.config.Time_Sync * 1000;
+                await this.watchDog(deviceIP);
+                return !!this.devices[deviceIP]?.connected;
+            } catch (error) {
+                this.log.debug(`Reconnect attempt for ${deviceIP} failed: ${error}`);
+                return false;
+            } finally {
+                device.reconnectPromise = null;
+            }
+        })();
+        return device.reconnectPromise;
     }
 
     /**

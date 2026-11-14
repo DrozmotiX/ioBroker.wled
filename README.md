@@ -141,7 +141,7 @@ When the adapter crashes or another Code error happens, this error message that 
     Placeholder for the next version (at the beginning of the line):
     ### __WORK IN PROGRESS__
 -->
-### __WORK IN PROGRESS__
+### 0.9.3-beta.0 (2026-11-14)
 * (DutchmanNL) Maintenance: use adapter timer API (this.setTimeout/this.clearTimeout) so all timers are cleared on unload
 * (DutchmanNL) Maintenance: translated the delete device confirmation message into all supported languages
 * (DutchmanNL) Maintenance: raise Node.js to 22, modernise CI and release tooling, update dependencies, resolve repository checker findings
@@ -206,11 +206,6 @@ When the adapter crashes or another Code error happens, this error message that 
 ### 0.7.3 (2024-10-26)
 * (HaggardFFM) allow write on segments, solves #688 #706
 * (DutchmanNL) Fixed error when a device is not available Solves #698
-
-### 0.7.2 (2023-10-31) - Improve online visibility of devices
-* (DutchmanNL) Show online state of device in object tree
-* (DutchmanNL) Bugfix: Update online state correctly in situation connection is lost, fixes #611
-* (DutchmanNL) Reset brightness to 0 and on to false during adapter start and if a device disconnects, fixes #565
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

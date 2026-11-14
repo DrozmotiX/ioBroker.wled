@@ -1,4 +1,9 @@
 # Older changes
+## 0.7.2 (2023-10-31) - Improve online visibility of devices
+* (DutchmanNL) Show online state of device in object tree
+* (DutchmanNL) Bugfix: Update online state correctly in situation connection is lost, fixes #611
+* (DutchmanNL) Reset brightness to 0 and on to false during adapter start and if a device disconnects, fixes #565
+
 ## 0.7.1 (2023-10-02)
 * several fixes by [HaggardFFM](https://github.com/HaggardFFM) fixes #479, #423
 * (DutchmanNL) missing state attribute definitions added

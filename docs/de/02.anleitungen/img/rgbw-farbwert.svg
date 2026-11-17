@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="330" viewBox="0 0 760 330" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14">
+  <title>RGBW-Farbe: HEX-Wert und RGB-Datenpunkt mit Weißkanal</title>
+  <rect width="760" height="330" fill="#ffffff"/>
+  <defs>
+    <marker id="pfeil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Eine Farbe mit Weißkanal (RGBW)</text>
+
+  <text x="30" y="72" font-weight="bold" fill="#1565c0">HEX-Datenpunkt</text>
+  <text x="30" y="90" fill="#424242" font-size="11">seg.0.col.0_HEX</text>
+  <text x="250" y="80" fill="#212121" font-family="Consolas, Menlo, monospace" font-size="22">#</text>
+  <rect x="270" y="58" width="90" height="34" rx="4" fill="#ffcdd2" stroke="#c62828"/>
+  <text x="315" y="81" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="20" fill="#212121">ff</text>
+  <rect x="370" y="58" width="90" height="34" rx="4" fill="#c8e6c9" stroke="#2e7d32"/>
+  <text x="415" y="81" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="20" fill="#212121">78</text>
+  <rect x="470" y="58" width="90" height="34" rx="4" fill="#bbdefb" stroke="#1565c0"/>
+  <text x="515" y="81" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="20" fill="#212121">00</text>
+  <rect x="570" y="58" width="90" height="34" rx="4" fill="#fff8e1" stroke="#ff8f00"/>
+  <text x="615" y="81" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="20" fill="#212121">80</text>
+  <text x="315" y="112" text-anchor="middle" fill="#c62828">Rot</text>
+  <text x="415" y="112" text-anchor="middle" fill="#2e7d32">Grün</text>
+  <text x="515" y="112" text-anchor="middle" fill="#1565c0">Blau</text>
+  <text x="615" y="112" text-anchor="middle" fill="#ff8f00">Weiß</text>
+
+  <line x1="465" y1="124" x2="465" y2="168" stroke="#37474f" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="480" y="144" fill="#424242">der Adapter rechnet um</text>
+  <text x="480" y="162" fill="#424242">(hexadezimal → dezimal)</text>
+
+  <text x="30" y="200" font-weight="bold" fill="#1565c0">RGB-Datenpunkt</text>
+  <text x="30" y="218" fill="#424242" font-size="11">seg.0.col.0</text>
+  <text x="250" y="206" fill="#212121" font-family="Consolas, Menlo, monospace" font-size="22">[</text>
+  <rect x="270" y="184" width="90" height="34" rx="4" fill="#ffcdd2" stroke="#c62828"/>
+  <text x="315" y="207" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="20" fill="#212121">255</text>
+  <rect x="370" y="184" width="90" height="34" rx="4" fill="#c8e6c9" stroke="#2e7d32"/>
+  <text x="415" y="207" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="20" fill="#212121">120</text>
+  <rect x="470" y="184" width="90" height="34" rx="4" fill="#bbdefb" stroke="#1565c0"/>
+  <text x="515" y="207" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="20" fill="#212121">0</text>
+  <rect x="570" y="184" width="90" height="34" rx="4" fill="#fff8e1" stroke="#ff8f00"/>
+  <text x="615" y="207" text-anchor="middle" font-family="Consolas, Menlo, monospace" font-size="20" fill="#212121">128</text>
+  <text x="668" y="206" fill="#212121" font-family="Consolas, Menlo, monospace" font-size="22">]</text>
+
+  <text x="30" y="262" fill="#212121">HEX mit 6 Stellen (ohne Weiß): <tspan font-weight="bold">bis v0.9.2</tspan> setzt der Adapter Weiß auf 255,</text>
+  <text x="30" y="282" fill="#212121"><tspan font-weight="bold">ab v0.9.3</tspan> bleibt der Weißwert, den das Gerät gerade hat.</text>
+  <text x="30" y="310" fill="#424242">Reiner Weißkanal ohne Farbe: [0,0,0,255] oder #000000ff</text>
+</svg>

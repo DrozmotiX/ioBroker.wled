@@ -51,6 +51,8 @@ class Wled extends utils.Adapter {
         this.on('unload', this.onUnload.bind(this));
         this.on('message', this.onMessage.bind(this));
         this.devices = {};
+        // tt and udpn.nn waiting for the next command, per device IP (#961)
+        this.oneShotOptions = {};
         this.effects = {};
         this.palettes = {};
         this.createdStatesDetails = {};
@@ -431,6 +433,13 @@ class Wled extends utils.Adapter {
                 }
                 device_ip = device_ip.native.ip;
 
+                // tt and udpn.nn only apply to the command they are part of, WLED ignores them on their own.
+                // They are kept and sent with the next command to the device (#961)
+                if (values !== null && this.isOneShotOption(deviceId)) {
+                    this.rememberOneShotOption(device_ip, values, { id, val: state.val });
+                    return;
+                }
+
                 // Only make API call when values are correct
                 if (values !== null && device_ip !== null) {
                     // Device unknown or offline: the command can not be delivered
@@ -470,6 +479,7 @@ class Wled extends utils.Adapter {
         if (!device) {
             return;
         }
+        ({ values, acks } = this.takeOneShotOptions(deviceIP, values, acks));
         const delay = this.bundleDelay();
         if (delay <= 0 || device.bundleCommands === false) {
             await this.flushCommands(deviceIP);
@@ -491,6 +501,52 @@ class Wled extends utils.Adapter {
         device.pendingCommand.values = this.mergeCommands(device.pendingCommand.values, values);
         device.pendingCommand.acks.push(...acks);
         this.log.debug(`Command for ${deviceIP} waits ${delay} ms to be bundled: ${JSON.stringify(values)}`);
+    }
+
+    /**
+     * States that WLED applies only to the command they are part of (tt, udpn.nn)
+     *
+     * @param {string[]} deviceId state id split at the dots
+     * @returns {boolean} true for tt and udpn.nn of a device
+     */
+    isOneShotOption(deviceId) {
+        if (deviceId[3] === 'tt' && deviceId[4] === undefined) {
+            return true;
+        }
+        return deviceId[3] === 'udpn' && deviceId[4] === 'nn' && deviceId[5] === undefined;
+    }
+
+    /**
+     * Keep tt or udpn.nn for the next command to the device, a newer value replaces an older one
+     *
+     * @param {string} deviceIP IP-Address of device
+     * @param {object} values option as JSON command, e.g. {tt: 20}
+     * @param {{id: string, val: ioBroker.StateValue}} ack state to acknowledge when the next command was accepted
+     */
+    rememberOneShotOption(deviceIP, values, ack) {
+        const waiting = this.oneShotOptions[deviceIP] || { values: {}, acks: [] };
+        waiting.values = this.mergeCommands(waiting.values, values);
+        waiting.acks = waiting.acks.filter(other => other.id !== ack.id);
+        waiting.acks.push(ack);
+        this.oneShotOptions[deviceIP] = waiting;
+        this.log.debug(`${JSON.stringify(values)} for ${deviceIP} is sent with the next command`);
+    }
+
+    /**
+     * Add the kept tt and udpn.nn to a command and forget them. A value in the command itself wins.
+     *
+     * @param {string} deviceIP IP-Address of device
+     * @param {object} values JSON command for the WLED JSON-API
+     * @param {Array<{id: string, val: ioBroker.StateValue}>} acks states to acknowledge with the command
+     * @returns {{values: object, acks: Array<{id: string, val: ioBroker.StateValue}>}} command with the options
+     */
+    takeOneShotOptions(deviceIP, values, acks) {
+        const waiting = this.oneShotOptions[deviceIP];
+        if (!waiting) {
+            return { values, acks };
+        }
+        delete this.oneShotOptions[deviceIP];
+        return { values: this.mergeCommands(waiting.values, values), acks: [...waiting.acks, ...acks] };
     }
 
     /**

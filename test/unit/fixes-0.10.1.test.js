@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { createAdapter, MAC } = require('./helpers.js');
+const { createAdapter, MAC, IP } = require('./helpers.js');
 const stateAttr = require('../../lib/stateAttr.js');
 
 describe('WLED adapter fixes for 0.10.1', () => {
@@ -76,6 +76,48 @@ describe('WLED adapter fixes for 0.10.1', () => {
             expect(await adapter.receiveGroups(MAC, true)).to.equal(1);
             rgrp = undefined;
             expect(await adapter.receiveGroups(MAC, true)).to.equal(1);
+        });
+    });
+
+    describe('tt and udpn.nn are sent with the next command (#961)', () => {
+        let adapter;
+        let sent;
+        beforeEach(() => {
+            adapter = createAdapter();
+            sent = [];
+            adapter.config = { bundleDelay: 0 };
+            adapter.devices[IP] = { connected: true };
+            adapter.deliverCommand = async (_ip, values, acks) => sent.push({ values, acks });
+        });
+
+        it('recognises only tt and udpn.nn as options for the next command', () => {
+            expect(adapter.isOneShotOption(['wled', '0', MAC, 'tt'])).to.equal(true);
+            expect(adapter.isOneShotOption(['wled', '0', MAC, 'udpn', 'nn'])).to.equal(true);
+            expect(adapter.isOneShotOption(['wled', '0', MAC, 'transition'])).to.equal(false);
+            expect(adapter.isOneShotOption(['wled', '0', MAC, 'udpn', 'send'])).to.equal(false);
+        });
+
+        it('adds the kept options to the next command and acknowledges them with it', async () => {
+            adapter.rememberOneShotOption(IP, { tt: 20 }, { id: 'tt', val: 20 });
+            adapter.rememberOneShotOption(IP, { udpn: { nn: true } }, { id: 'udpn.nn', val: true });
+            await adapter.sendCommand(IP, { on: true, udpn: { send: true } }, [{ id: 'on', val: true }]);
+            expect(sent).to.have.length(1);
+            expect(sent[0].values).to.deep.equal({ tt: 20, udpn: { nn: true, send: true }, on: true });
+            expect(sent[0].acks.map(ack => ack.id)).to.deep.equal(['tt', 'udpn.nn', 'on']);
+        });
+
+        it('forgets the options after one command and lets a value in the command win', async () => {
+            adapter.rememberOneShotOption(IP, { tt: 20 }, { id: 'tt', val: 20 });
+            adapter.rememberOneShotOption(IP, { tt: 5 }, { id: 'tt', val: 5 });
+            await adapter.sendCommand(IP, { bri: 100 }, []);
+            await adapter.sendCommand(IP, { bri: 50 }, []);
+            expect(sent[0].values).to.deep.equal({ tt: 5, bri: 100 });
+            expect(sent[0].acks).to.deep.equal([{ id: 'tt', val: 5 }]);
+            expect(sent[1].values).to.deep.equal({ bri: 50 });
+
+            adapter.rememberOneShotOption(IP, { tt: 20 }, { id: 'tt', val: 20 });
+            await adapter.sendCommand(IP, { tt: 0, bri: 10 }, []);
+            expect(sent[2].values.tt).to.equal(0);
         });
     });
 });

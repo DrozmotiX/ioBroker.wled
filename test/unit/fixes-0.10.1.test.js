@@ -19,4 +19,17 @@ describe('WLED adapter fixes for 0.10.1', () => {
             expect(stateAttr.time.write).to.equal(true);
         });
     });
+
+    describe('effect parameters c1 to c3 are numbers (#957)', () => {
+        it('defines c1 and c2 as writable numbers from 0 to 255 and c3 from 0 to 31', () => {
+            for (const key of ['c1', 'c2', 'c3']) {
+                expect(stateAttr[key].type).to.equal('number');
+                expect(stateAttr[key].write).to.equal(true);
+                expect(stateAttr[key].min).to.equal(0);
+            }
+            expect(stateAttr.c1.max).to.equal(255);
+            expect(stateAttr.c2.max).to.equal(255);
+            expect(stateAttr.c3.max).to.equal(31);
+        });
+    });
 });

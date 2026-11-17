@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="360" viewBox="0 0 760 360" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14">
+  <title>Einzelne LEDs mit dem i-Feld setzen</title>
+  <rect width="760" height="360" fill="#ffffff"/>
+
+  <text x="380" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Einzelne LEDs mit dem Feld „i“ setzen</text>
+
+  <!-- Zeile 1 -->
+  <text x="30" y="66" fill="#212121" font-family="Consolas, Menlo, monospace" font-size="13">"i":["FF0000","00FF00","0000FF"]</text>
+  <text x="30" y="84" fill="#424242" font-size="12">Farben der Reihe nach ab LED 0</text>
+  <g transform="translate(348,52)">
+    <rect x="0" y="0" width="28" height="28" rx="4" fill="#e53935" stroke="#37474f"/>
+    <rect x="34" y="0" width="28" height="28" rx="4" fill="#43a047" stroke="#37474f"/>
+    <rect x="68" y="0" width="28" height="28" rx="4" fill="#1e88e5" stroke="#37474f"/>
+    <rect x="102" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="136" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="170" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="204" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="238" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="272" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="306" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="340" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="374" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+  </g>
+
+  <!-- Zeile 2 -->
+  <text x="30" y="146" fill="#212121" font-family="Consolas, Menlo, monospace" font-size="13">"i":[0,"FF0000",2,"00FF00",4,"0000FF"]</text>
+  <text x="30" y="164" fill="#424242" font-size="12">Nummer der LED, dann ihre Farbe</text>
+  <g transform="translate(348,132)">
+    <rect x="0" y="0" width="28" height="28" rx="4" fill="#e53935" stroke="#37474f"/>
+    <rect x="34" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="68" y="0" width="28" height="28" rx="4" fill="#43a047" stroke="#37474f"/>
+    <rect x="102" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="136" y="0" width="28" height="28" rx="4" fill="#1e88e5" stroke="#37474f"/>
+    <rect x="170" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="204" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="238" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="272" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="306" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="340" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="374" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+  </g>
+
+  <!-- Zeile 3 -->
+  <text x="30" y="226" fill="#212121" font-family="Consolas, Menlo, monospace" font-size="13">"i":[0,4,"FF0000",6,10,"0000FF"]</text>
+  <text x="30" y="244" fill="#424242" font-size="12">Bereich: von LED, bis vor LED, Farbe</text>
+  <g transform="translate(348,212)">
+    <rect x="0" y="0" width="28" height="28" rx="4" fill="#e53935" stroke="#37474f"/>
+    <rect x="34" y="0" width="28" height="28" rx="4" fill="#e53935" stroke="#37474f"/>
+    <rect x="68" y="0" width="28" height="28" rx="4" fill="#e53935" stroke="#37474f"/>
+    <rect x="102" y="0" width="28" height="28" rx="4" fill="#e53935" stroke="#37474f"/>
+    <rect x="136" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="170" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="204" y="0" width="28" height="28" rx="4" fill="#1e88e5" stroke="#37474f"/>
+    <rect x="238" y="0" width="28" height="28" rx="4" fill="#1e88e5" stroke="#37474f"/>
+    <rect x="272" y="0" width="28" height="28" rx="4" fill="#1e88e5" stroke="#37474f"/>
+    <rect x="306" y="0" width="28" height="28" rx="4" fill="#1e88e5" stroke="#37474f"/>
+    <rect x="340" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+    <rect x="374" y="0" width="28" height="28" rx="4" fill="#263238" stroke="#37474f"/>
+  </g>
+
+  <!-- Nummern -->
+  <g transform="translate(348,268)" font-size="11" fill="#424242" text-anchor="middle">
+    <text x="14" y="10">0</text><text x="48" y="10">1</text><text x="82" y="10">2</text><text x="116" y="10">3</text>
+    <text x="150" y="10">4</text><text x="184" y="10">5</text><text x="218" y="10">6</text><text x="252" y="10">7</text>
+    <text x="286" y="10">8</text><text x="320" y="10">9</text><text x="354" y="10">10</text><text x="388" y="10">11</text>
+  </g>
+  <text x="348" y="296" fill="#424242" font-size="12">Nummer der LED im Segment</text>
+
+  <text x="30" y="324" fill="#212121">Beim ersten Befehl werden alle anderen LEDs des Segments schwarz.</text>
+  <text x="30" y="344" fill="#212121">Die Nummern zählen ab dem Anfang des Segments.</text>
+</svg>

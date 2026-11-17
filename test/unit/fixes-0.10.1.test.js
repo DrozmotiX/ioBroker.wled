@@ -120,4 +120,41 @@ describe('WLED adapter fixes for 0.10.1', () => {
             expect(sent[2].values.tt).to.equal(0);
         });
     });
+
+    describe('states under _info are read-only (#962)', () => {
+        let adapter;
+        let created;
+        beforeEach(() => {
+            adapter = createAdapter();
+            created = {};
+            adapter.extendObjectAsync = async (id, obj) => {
+                created[id] = obj.common;
+            };
+            adapter.setStateChangedAsync = async () => {};
+        });
+
+        it('gives info.leds.cct its own attribute and keeps other nested keys', () => {
+            expect(adapter.infoAttribute('leds', 'cct')).to.equal('infoLedsCct');
+            expect(adapter.infoAttribute('leds', 'count')).to.equal('count');
+            expect(adapter.infoAttribute('wifi', 'cct')).to.equal('cct');
+            expect(stateAttr.infoLedsCct.role).to.equal('value');
+            expect(stateAttr.infoLedsCct.write).to.not.equal(true);
+        });
+
+        it('creates _info states read-only even when the key is a writable command', async () => {
+            await adapter.create_state(`${MAC}._info.leds.cct`, adapter.infoAttribute('leds', 'cct'), true);
+            await adapter.create_state(`${MAC}._info.leds.fps`, 'fps', 30);
+            await adapter.create_state(`${MAC}._info.name`, 'name', 'WLED');
+            for (const common of Object.values(created)) {
+                expect(common.write).to.equal(false);
+            }
+            expect(created[`${MAC}._info.leds.cct`].role).to.equal('value');
+        });
+
+        it('keeps the colour temperature command cct writable', async () => {
+            await adapter.create_state(`${MAC}.seg.0.cct`, 'cct', 127);
+            expect(created[`${MAC}.seg.0.cct`].write).to.equal(true);
+            expect(created[`${MAC}.seg.0.cct`].role).to.equal('level.color.temperature');
+        });
+    });
 });

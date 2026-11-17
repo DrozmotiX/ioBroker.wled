@@ -1478,7 +1478,11 @@ class Wled extends utils.Adapter {
                 } else {
                     for (const y in infoStates[i]) {
                         this.log.debug(`State created : ${y} : ${JSON.stringify(infoStates[i][y])}`);
-                        await this.create_state(`${infoStates.mac}._info.${i}.${y}`, y, infoStates[i][y]);
+                        await this.create_state(
+                            `${infoStates.mac}._info.${i}.${y}`,
+                            this.infoAttribute(i, y),
+                            infoStates[i][y],
+                        );
                     }
                 }
             }
@@ -1708,10 +1712,16 @@ class Wled extends utils.Adapter {
      * Attribute definition for a value of the info section. Keys that also exist as a command in the
      * state section get their own read-only definition, e.g. info.time is a text while the command time is a number (#956).
      *
+     * The same applies to info.leds.cct, a flag that is not the colour temperature command cct (#962).
+     *
      * @param {string} key key in the info section of WLED
+     * @param {string} [subKey] key inside a nested object of the info section, e.g. cct in leds
      * @returns {string} name of the attribute definition in stateAttr
      */
-    infoAttribute(key) {
+    infoAttribute(key, subKey) {
+        if (subKey !== undefined) {
+            return key === 'leds' && subKey === 'cct' ? 'infoLedsCct' : subKey;
+        }
         return key === 'time' ? 'infoTime' : key;
     }
 
@@ -2618,6 +2628,10 @@ class Wled extends utils.Adapter {
             common.read = true;
             common.unit = stateAttr[name] !== undefined ? stateAttr[name].unit || '' : '';
             common.write = stateAttr[name] !== undefined ? stateAttr[name].write || false : false;
+            // Nothing in the info object of WLED can be changed (#962)
+            if (stateName.includes('._info.')) {
+                common.write = false;
+            }
 
             if (
                 !this.createdStatesDetails[stateName] ||

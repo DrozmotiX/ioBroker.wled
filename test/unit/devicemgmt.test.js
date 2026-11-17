@@ -86,3 +86,39 @@ describe('Device Manager: edit device (#927, #926)', () => {
         expect(adapter.bundleCalls).to.deep.equal([{ mac: MAC, enabled: false }]);
     });
 });
+
+describe('Device Manager: delete device (#965)', () => {
+    /**
+     * Context that records the confirmation and answers it
+     *
+     * @param {boolean} answer confirmation result
+     */
+    function contextConfirming(answer) {
+        const context = {
+            confirmations: [],
+            showConfirmation: async text => {
+                context.confirmations.push(text);
+                return answer;
+            },
+        };
+        return context;
+    }
+
+    it('names the device by its name with the MAC in brackets', async () => {
+        const { dm } = createDeviceManager({ name: 'Kitchen' });
+        const context = contextConfirming(false);
+        expect(await dm.handleDeleteDevice(ID, context)).to.deep.equal({ refresh: false });
+        expect(context.confirmations[0].de).to.equal(`Möchten Sie das Gerät Kitchen (${MAC}) wirklich löschen?`);
+        expect(context.confirmations[0].en).to.equal(`Do you really want to delete the device Kitchen (${MAC})?`);
+    });
+
+    it('shows only the MAC without a name and deletes by MAC', async () => {
+        const { dm, adapter } = createDeviceManager({ name: '' });
+        const deleted = [];
+        adapter.delDevice = async mac => deleted.push(mac);
+        const context = contextConfirming(true);
+        expect(await dm.handleDeleteDevice(ID, context)).to.deep.equal({ refresh: true });
+        expect(context.confirmations[0].de).to.equal(`Möchten Sie das Gerät ${MAC} wirklich löschen?`);
+        expect(deleted).to.deep.equal([MAC]);
+    });
+});

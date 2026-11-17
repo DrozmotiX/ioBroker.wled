@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { createAdapter } = require('./helpers.js');
+const { createAdapter, MAC } = require('./helpers.js');
 const stateAttr = require('../../lib/stateAttr.js');
 
 describe('WLED adapter fixes for 0.10.1', () => {
@@ -49,6 +49,33 @@ describe('WLED adapter fixes for 0.10.1', () => {
             expect(
                 adapter.canMergeCommands({ seg: { id: 0, col: [[1, 2, 3]] } }, { seg: { id: 0, col: [[4, 5, 6]] } }),
             ).to.equal(true);
+        });
+    });
+
+    describe('udpn.recv also switches the receive groups (#960)', () => {
+        let adapter;
+        let rgrp;
+        beforeEach(() => {
+            adapter = createAdapter();
+            rgrp = undefined;
+            adapter.getStateAsync = async () => (rgrp === undefined ? null : { val: rgrp });
+        });
+
+        it('sends receive group 0 to switch reception off', async () => {
+            rgrp = 3;
+            expect(await adapter.receiveGroups(MAC, false)).to.equal(0);
+        });
+
+        it('keeps the receive groups the device reported when switching on', async () => {
+            rgrp = 5;
+            expect(await adapter.receiveGroups(MAC, true)).to.equal(5);
+        });
+
+        it('uses group 1 when no receive group is known', async () => {
+            rgrp = 0;
+            expect(await adapter.receiveGroups(MAC, true)).to.equal(1);
+            rgrp = undefined;
+            expect(await adapter.receiveGroups(MAC, true)).to.equal(1);
         });
     });
 });

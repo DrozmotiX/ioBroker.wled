@@ -282,6 +282,11 @@ class Wled extends utils.Adapter {
                             },
                         };
                         this.log.debug(`values 5 ${JSON.stringify(values)}`);
+
+                        // WLED 0.15 and newer ignore udpn.recv, reception is switched by the receive groups (#960)
+                        if (deviceId[3] === 'udpn' && deviceId[4] === 'recv') {
+                            values.udpn.rgrp = await this.receiveGroups(deviceId[2], state.val);
+                        }
                     }
 
                     // Handle segments logic
@@ -1625,6 +1630,22 @@ class Wled extends utils.Adapter {
         } catch (error) {
             this.errorHandler(`[handleStates]`, error);
         }
+    }
+
+    /**
+     * Receive groups to send with udpn.recv: 0 switches reception off, otherwise the receive groups
+     * the device reported last, or group 1 (#960)
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {ioBroker.StateValue} receive value written to udpn.recv
+     * @returns {Promise<number>} receive groups for the WLED JSON-API
+     */
+    async receiveGroups(mac, receive) {
+        if (receive === false || receive === 0 || receive === 'false') {
+            return 0;
+        }
+        const current = await this.getStateAsync(`${mac}.udpn.rgrp`);
+        return typeof current?.val === 'number' && current.val > 0 ? current.val : 1;
     }
 
     /**

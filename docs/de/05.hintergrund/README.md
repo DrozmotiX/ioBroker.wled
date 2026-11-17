@@ -12,5 +12,6 @@ Wie der Adapter mit den Geräten spricht, kurz erklärt.
 
 - [Werden States nur bei Änderung geschrieben?](02.werte-und-integrationen.md#states-only-written-they-change)
 - [Brauche ich den MQTT-Adapter für WLED-Presets?](02.werte-und-integrationen.md#need-mqtt-adapter-wled-presets)
+- [Wie bekomme ich Usermod-Werte, Taster, Kontakte oder GPIO-Pins als Datenpunkt?](02.werte-und-integrationen.md#usermod-buttons-gpio-states)
 
 [Zurück zur Übersicht](../README.md)

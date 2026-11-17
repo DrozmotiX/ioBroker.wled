@@ -1409,7 +1409,7 @@ class Wled extends utils.Adapter {
                 if (typeof infoStates[i] !== 'object') {
                     // Default channel creation
                     this.log.debug(`State created : ${i} : ${JSON.stringify(infoStates[i])}`);
-                    await this.create_state(`${infoStates.mac}._info.${i}`, i, infoStates[i]);
+                    await this.create_state(`${infoStates.mac}._info.${i}`, this.infoAttribute(i), infoStates[i]);
                 } else {
                     for (const y in infoStates[i]) {
                         this.log.debug(`State created : ${y} : ${JSON.stringify(infoStates[i][y])}`);
@@ -1621,6 +1621,17 @@ class Wled extends utils.Adapter {
         } catch (error) {
             this.errorHandler(`[handleStates]`, error);
         }
+    }
+
+    /**
+     * Attribute definition for a value of the info section. Keys that also exist as a command in the
+     * state section get their own read-only definition, e.g. info.time is a text while the command time is a number (#956).
+     *
+     * @param {string} key key in the info section of WLED
+     * @returns {string} name of the attribute definition in stateAttr
+     */
+    infoAttribute(key) {
+        return key === 'time' ? 'infoTime' : key;
     }
 
     /**

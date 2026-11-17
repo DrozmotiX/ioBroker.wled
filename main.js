@@ -2628,6 +2628,10 @@ class Wled extends utils.Adapter {
             common.read = true;
             common.unit = stateAttr[name] !== undefined ? stateAttr[name].unit || '' : '';
             common.write = stateAttr[name] !== undefined ? stateAttr[name].write || false : false;
+            // Only the device itself is a light, night light and segments are plain switches (#963)
+            if (name === 'on' && stateName.split('.').length > 2) {
+                common.role = 'switch';
+            }
             // Nothing in the info object of WLED can be changed (#962)
             if (stateName.includes('._info.')) {
                 common.write = false;

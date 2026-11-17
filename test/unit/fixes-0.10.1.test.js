@@ -157,4 +157,27 @@ describe('WLED adapter fixes for 0.10.1', () => {
             expect(created[`${MAC}.seg.0.cct`].role).to.equal('level.color.temperature');
         });
     });
+
+    describe('only the device on has the role switch.light (#963)', () => {
+        let adapter;
+        let created;
+        beforeEach(() => {
+            adapter = createAdapter();
+            created = {};
+            adapter.extendObjectAsync = async (id, obj) => {
+                created[id] = obj.common;
+            };
+            adapter.setStateChangedAsync = async () => {};
+        });
+
+        it('keeps switch.light for the device and gives nl.on and seg.N.on the role switch', async () => {
+            await adapter.create_state(`${MAC}.on`, 'on', true);
+            await adapter.create_state(`${MAC}.nl.on`, 'on', false);
+            await adapter.create_state(`${MAC}.seg.0.on`, 'on', true);
+            expect(created[`${MAC}.on`].role).to.equal('switch.light');
+            expect(created[`${MAC}.nl.on`].role).to.equal('switch');
+            expect(created[`${MAC}.seg.0.on`].role).to.equal('switch');
+            expect(created[`${MAC}.seg.0.on`].write).to.equal(true);
+        });
+    });
 });

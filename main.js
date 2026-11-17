@@ -51,6 +51,8 @@ class Wled extends utils.Adapter {
         this.on('unload', this.onUnload.bind(this));
         this.on('message', this.onMessage.bind(this));
         this.devices = {};
+        // tt and udpn.nn waiting for the next command, per device IP (#961)
+        this.oneShotOptions = {};
         this.effects = {};
         this.palettes = {};
         this.createdStatesDetails = {};
@@ -282,6 +284,11 @@ class Wled extends utils.Adapter {
                             },
                         };
                         this.log.debug(`values 5 ${JSON.stringify(values)}`);
+
+                        // WLED 0.15 and newer ignore udpn.recv, reception is switched by the receive groups (#960)
+                        if (deviceId[3] === 'udpn' && deviceId[4] === 'recv') {
+                            values.udpn.rgrp = await this.receiveGroups(deviceId[2], state.val);
+                        }
                     }
 
                     // Handle segments logic
@@ -426,6 +433,13 @@ class Wled extends utils.Adapter {
                 }
                 device_ip = device_ip.native.ip;
 
+                // tt and udpn.nn only apply to the command they are part of, WLED ignores them on their own.
+                // They are kept and sent with the next command to the device (#961)
+                if (values !== null && this.isOneShotOption(deviceId)) {
+                    this.rememberOneShotOption(device_ip, values, { id, val: state.val });
+                    return;
+                }
+
                 // Only make API call when values are correct
                 if (values !== null && device_ip !== null) {
                     // Device unknown or offline: the command can not be delivered
@@ -465,6 +479,7 @@ class Wled extends utils.Adapter {
         if (!device) {
             return;
         }
+        ({ values, acks } = this.takeOneShotOptions(deviceIP, values, acks));
         const delay = this.bundleDelay();
         if (delay <= 0 || device.bundleCommands === false) {
             await this.flushCommands(deviceIP);
@@ -486,6 +501,52 @@ class Wled extends utils.Adapter {
         device.pendingCommand.values = this.mergeCommands(device.pendingCommand.values, values);
         device.pendingCommand.acks.push(...acks);
         this.log.debug(`Command for ${deviceIP} waits ${delay} ms to be bundled: ${JSON.stringify(values)}`);
+    }
+
+    /**
+     * States that WLED applies only to the command they are part of (tt, udpn.nn)
+     *
+     * @param {string[]} deviceId state id split at the dots
+     * @returns {boolean} true for tt and udpn.nn of a device
+     */
+    isOneShotOption(deviceId) {
+        if (deviceId[3] === 'tt' && deviceId[4] === undefined) {
+            return true;
+        }
+        return deviceId[3] === 'udpn' && deviceId[4] === 'nn' && deviceId[5] === undefined;
+    }
+
+    /**
+     * Keep tt or udpn.nn for the next command to the device, a newer value replaces an older one
+     *
+     * @param {string} deviceIP IP-Address of device
+     * @param {object} values option as JSON command, e.g. {tt: 20}
+     * @param {{id: string, val: ioBroker.StateValue}} ack state to acknowledge when the next command was accepted
+     */
+    rememberOneShotOption(deviceIP, values, ack) {
+        const waiting = this.oneShotOptions[deviceIP] || { values: {}, acks: [] };
+        waiting.values = this.mergeCommands(waiting.values, values);
+        waiting.acks = waiting.acks.filter(other => other.id !== ack.id);
+        waiting.acks.push(ack);
+        this.oneShotOptions[deviceIP] = waiting;
+        this.log.debug(`${JSON.stringify(values)} for ${deviceIP} is sent with the next command`);
+    }
+
+    /**
+     * Add the kept tt and udpn.nn to a command and forget them. A value in the command itself wins.
+     *
+     * @param {string} deviceIP IP-Address of device
+     * @param {object} values JSON command for the WLED JSON-API
+     * @param {Array<{id: string, val: ioBroker.StateValue}>} acks states to acknowledge with the command
+     * @returns {{values: object, acks: Array<{id: string, val: ioBroker.StateValue}>}} command with the options
+     */
+    takeOneShotOptions(deviceIP, values, acks) {
+        const waiting = this.oneShotOptions[deviceIP];
+        if (!waiting) {
+            return { values, acks };
+        }
+        delete this.oneShotOptions[deviceIP];
+        return { values: this.mergeCommands(waiting.values, values), acks: [...waiting.acks, ...acks] };
     }
 
     /**
@@ -526,7 +587,8 @@ class Wled extends utils.Adapter {
 
     /**
      * Two commands can be merged unless the same value is set twice with a relative or toggle value
-     * (e.g. "t" or "~10"), or a segment is addressed without id
+     * (e.g. "t" or "~10"), a segment is addressed without id, or both set individual LEDs (i) of the same segment,
+     * which WLED applies one after the other
      *
      * @param {object} first command waiting to be sent
      * @param {object} second new command
@@ -562,6 +624,9 @@ class Wled extends utils.Adapter {
                         return true;
                     }
                 } else if (typeof a[key] === 'string' || typeof b[key] === 'string') {
+                    return true;
+                } else if (key === 'i') {
+                    // Individual LEDs are sent in parts, a later part must not replace an earlier one
                     return true;
                 }
             }
@@ -1409,11 +1474,15 @@ class Wled extends utils.Adapter {
                 if (typeof infoStates[i] !== 'object') {
                     // Default channel creation
                     this.log.debug(`State created : ${i} : ${JSON.stringify(infoStates[i])}`);
-                    await this.create_state(`${infoStates.mac}._info.${i}`, i, infoStates[i]);
+                    await this.create_state(`${infoStates.mac}._info.${i}`, this.infoAttribute(i), infoStates[i]);
                 } else {
                     for (const y in infoStates[i]) {
                         this.log.debug(`State created : ${y} : ${JSON.stringify(infoStates[i][y])}`);
-                        await this.create_state(`${infoStates.mac}._info.${i}.${y}`, y, infoStates[i][y]);
+                        await this.create_state(
+                            `${infoStates.mac}._info.${i}.${y}`,
+                            this.infoAttribute(i, y),
+                            infoStates[i][y],
+                        );
                     }
                 }
             }
@@ -1621,6 +1690,39 @@ class Wled extends utils.Adapter {
         } catch (error) {
             this.errorHandler(`[handleStates]`, error);
         }
+    }
+
+    /**
+     * Receive groups to send with udpn.recv: 0 switches reception off, otherwise the receive groups
+     * the device reported last, or group 1 (#960)
+     *
+     * @param {string} mac MAC address (device id)
+     * @param {ioBroker.StateValue} receive value written to udpn.recv
+     * @returns {Promise<number>} receive groups for the WLED JSON-API
+     */
+    async receiveGroups(mac, receive) {
+        if (receive === false || receive === 0 || receive === 'false') {
+            return 0;
+        }
+        const current = await this.getStateAsync(`${mac}.udpn.rgrp`);
+        return typeof current?.val === 'number' && current.val > 0 ? current.val : 1;
+    }
+
+    /**
+     * Attribute definition for a value of the info section. Keys that also exist as a command in the
+     * state section get their own read-only definition, e.g. info.time is a text while the command time is a number (#956).
+     *
+     * The same applies to info.leds.cct, a flag that is not the colour temperature command cct (#962).
+     *
+     * @param {string} key key in the info section of WLED
+     * @param {string} [subKey] key inside a nested object of the info section, e.g. cct in leds
+     * @returns {string} name of the attribute definition in stateAttr
+     */
+    infoAttribute(key, subKey) {
+        if (subKey !== undefined) {
+            return key === 'leds' && subKey === 'cct' ? 'infoLedsCct' : subKey;
+        }
+        return key === 'time' ? 'infoTime' : key;
     }
 
     /**
@@ -2526,6 +2628,14 @@ class Wled extends utils.Adapter {
             common.read = true;
             common.unit = stateAttr[name] !== undefined ? stateAttr[name].unit || '' : '';
             common.write = stateAttr[name] !== undefined ? stateAttr[name].write || false : false;
+            // Only the device itself is a light, night light and segments are plain switches (#963)
+            if (name === 'on' && stateName.split('.').length > 2) {
+                common.role = 'switch';
+            }
+            // Nothing in the info object of WLED can be changed (#962)
+            if (stateName.includes('._info.')) {
+                common.write = false;
+            }
 
             if (
                 !this.createdStatesDetails[stateName] ||

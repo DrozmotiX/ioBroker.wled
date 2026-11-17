@@ -32,4 +32,23 @@ describe('WLED adapter fixes for 0.10.1', () => {
             expect(stateAttr.c3.max).to.equal(31);
         });
     });
+
+    describe('bundling keeps individual LED commands apart (#959)', () => {
+        const adapter = createAdapter();
+
+        it('does not merge two commands with i for the same segment', () => {
+            const first = { seg: { id: 0, i: [0, 'FF0000'] } };
+            const second = { seg: { id: 0, i: [1, '00FF00'] } };
+            expect(adapter.canMergeCommands(first, second)).to.equal(false);
+        });
+
+        it('still merges i for different segments and colours of the same segment', () => {
+            expect(
+                adapter.canMergeCommands({ seg: { id: 0, i: [0, 'FF0000'] } }, { seg: { id: 1, i: [0, 'FF0000'] } }),
+            ).to.equal(true);
+            expect(
+                adapter.canMergeCommands({ seg: { id: 0, col: [[1, 2, 3]] } }, { seg: { id: 0, col: [[4, 5, 6]] } }),
+            ).to.equal(true);
+        });
+    });
 });

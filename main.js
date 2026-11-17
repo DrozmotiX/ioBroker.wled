@@ -526,7 +526,8 @@ class Wled extends utils.Adapter {
 
     /**
      * Two commands can be merged unless the same value is set twice with a relative or toggle value
-     * (e.g. "t" or "~10"), or a segment is addressed without id
+     * (e.g. "t" or "~10"), a segment is addressed without id, or both set individual LEDs (i) of the same segment,
+     * which WLED applies one after the other
      *
      * @param {object} first command waiting to be sent
      * @param {object} second new command
@@ -562,6 +563,9 @@ class Wled extends utils.Adapter {
                         return true;
                     }
                 } else if (typeof a[key] === 'string' || typeof b[key] === 'string') {
+                    return true;
+                } else if (key === 'i') {
+                    // Individual LEDs are sent in parts, a later part must not replace an earlier one
                     return true;
                 }
             }

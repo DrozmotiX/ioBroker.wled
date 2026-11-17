@@ -218,11 +218,22 @@ describe('Validation helpers', () => {
                 expect(warnings).to.be.empty;
             });
 
-            it('should accept colors with more than 3 channels (uses first 3)', () => {
+            it('should keep the white channel of RGBW colors', () => {
                 const input = [[255, 128, 64, 32]];
                 const result = validateSegmentColors(input, mockLogger);
-                expect(result).to.deep.equal([[255, 128, 64]]);
+                expect(result).to.deep.equal([[255, 128, 64, 32]]);
                 expect(warnings).to.be.empty;
+            });
+
+            it('should ignore channels after the white channel', () => {
+                const result = validateSegmentColors([[255, 128, 64, 32, 7]], mockLogger);
+                expect(result).to.deep.equal([[255, 128, 64, 32]]);
+            });
+
+            it('should reject an out-of-range white channel', () => {
+                const result = validateSegmentColors([[255, 128, 64, 300]], mockLogger);
+                expect(result).to.equal(null);
+                expect(warnings.join()).to.include('col[0][3]');
             });
         });
 

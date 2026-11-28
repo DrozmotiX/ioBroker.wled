@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="270" viewBox="0 0 760 270" role="img" aria-labelledby="titel beschreibung">
+<title id="titel">Wiederholungen bei einem Offline-Gerät</title>
+<desc id="beschreibung">Zeitachse mit den Voreinstellungen 30 Sekunden, 5 Versuche und Backoff an: Nach dem ersten Fehlversuch prüft der Adapter nach 30 Sekunden, dann nach 60, 120, 240 und 480 Sekunden erneut. Nach 5 Fehlversuchen wartet er eine Stunde und beginnt dann wieder von vorn. Ist das Gerät wieder erreichbar, merkt der Adapter es erst beim nächsten Versuch.</desc>
+<rect x="0" y="0" width="760" height="270" rx="12" fill="#ffffff"/>
+<text x="380" y="28" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">Voreinstellung: Intervall 30 s, 5 Versuche, Backoff an</text>
+<line x1="40" y1="140" x2="600" y2="140" stroke="#1f2933" stroke-width="1.2"/>
+<line x1="600" y1="140" x2="640" y2="140" stroke="#7b8794" stroke-width="1.2" stroke-dasharray="4 4"/>
+<line x1="640" y1="140" x2="730" y2="140" stroke="#1f2933" stroke-width="1.2"/>
+<path d="M68,126 Q100,96 132,126" fill="none" stroke="#4a90d9" stroke-width="2"/>
+<text x="100" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#4a90d9" text-anchor="middle" dominant-baseline="middle">30 s</text>
+<path d="M148,126 Q180,96 212,126" fill="none" stroke="#4a90d9" stroke-width="2"/>
+<text x="180" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#4a90d9" text-anchor="middle" dominant-baseline="middle">60 s</text>
+<path d="M228,126 Q270,96 312,126" fill="none" stroke="#4a90d9" stroke-width="2"/>
+<text x="270" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#4a90d9" text-anchor="middle" dominant-baseline="middle">120 s</text>
+<path d="M328,126 Q385,96 442,126" fill="none" stroke="#4a90d9" stroke-width="2"/>
+<text x="385" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#4a90d9" text-anchor="middle" dominant-baseline="middle">240 s</text>
+<path d="M458,126 Q505,96 552,126" fill="none" stroke="#4a90d9" stroke-width="2"/>
+<text x="505" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#4a90d9" text-anchor="middle" dominant-baseline="middle">480 s</text>
+<path d="M568,126 Q630,96 692,126" fill="none" stroke="#e07b00" stroke-width="2"/>
+<text x="630" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#e07b00" text-anchor="middle" dominant-baseline="middle">1 h</text>
+<circle cx="60" cy="140" r="9" fill="#c0392b"/>
+<text x="60" y="141" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">1</text>
+<text x="60" y="168" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">0</text>
+<circle cx="140" cy="140" r="9" fill="#c0392b"/>
+<text x="140" y="141" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">2</text>
+<text x="140" y="168" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">0:30</text>
+<circle cx="220" cy="140" r="9" fill="#c0392b"/>
+<text x="220" y="141" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">3</text>
+<text x="220" y="168" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">1:30</text>
+<circle cx="320" cy="140" r="9" fill="#c0392b"/>
+<text x="320" y="141" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">4</text>
+<text x="320" y="168" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">3:30</text>
+<circle cx="450" cy="140" r="9" fill="#c0392b"/>
+<text x="450" y="141" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">5</text>
+<text x="450" y="168" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">7:30</text>
+<rect x="553" y="133" width="14" height="14" fill="#e07b00"/>
+<text x="560" y="168" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">15:30</text>
+<circle cx="700" cy="140" r="9" fill="#3e9b4f"/>
+<text x="700" y="141" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">1</text>
+<text x="700" y="168" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="middle" dominant-baseline="middle">75:30</text>
+<text x="40" y="192" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#52606d" text-anchor="start" dominant-baseline="middle">Minuten:Sekunden nach dem ersten Fehlversuch</text>
+<text x="255" y="214" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#c0392b" text-anchor="middle" dominant-baseline="middle">Fehlversuche 1 bis 5: Wartezeit verdoppelt sich, höchstens 10 Minuten</text>
+<text x="560" y="236" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#e07b00" text-anchor="middle" dominant-baseline="middle">Grenze erreicht: Pause 1 Stunde</text>
+<text x="700" y="210" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#3e9b4f" text-anchor="middle" dominant-baseline="middle">Zähler neu,</text>
+<text x="700" y="226" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#3e9b4f" text-anchor="middle" dominant-baseline="middle">Versuch 1</text>
+</svg>

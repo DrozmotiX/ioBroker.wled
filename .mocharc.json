@@ -1,6 +1,12 @@
 {
-  "require": ["test/mocha.setup.js"],
+  "require": [
+    "test/mocha.setup.js"
+  ],
   "spec": [
-    "{!(node_modules|test)/**/*.test.js,*.test.js,test/**/test!(PackageFiles|Startup).js}"
+    "{!(node_modules|test)/**/*.test.js,*.test.js,test/**/test!(PackageFiles|Startup).js}",
+    "test/unit/**/*.test.js"
+  ],
+  "ignore": [
+    "src-admin/**"
   ]
 }

@@ -1,0 +1,128 @@
+{
+  "type": "tabs",
+  "i18n": true,
+  "items": {
+    "_devices": {
+      "type": "panel",
+      "label": "Devices",
+      "items": {
+        "_devicesOverview": {
+          "type": "custom",
+          "url": "custom/customComponents.js",
+          "name": "ConfigCustomWledSet/Components/DevicesOverview",
+          "guiApi": 2,
+          "i18n": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        }
+      }
+    },
+    "_settings": {
+      "type": "panel",
+      "label": "Settings",
+      "items": {
+        "_connectionHeader": {
+          "type": "header",
+          "text": "Connection",
+          "size": 2,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "Time_Sync": {
+          "type": "number",
+          "label": "Polling interval",
+          "help": "Polling interval help",
+          "unit": "s",
+          "min": 1,
+          "max": 65535,
+          "default": 30,
+          "newLine": true,
+          "xs": 12,
+          "sm": 6,
+          "md": 4,
+          "lg": 4,
+          "xl": 4
+        },
+        "maxRetries": {
+          "type": "number",
+          "label": "Max retry attempts",
+          "help": "Max retry attempts help",
+          "min": 0,
+          "max": 20,
+          "default": 5,
+          "xs": 12,
+          "sm": 6,
+          "md": 4,
+          "lg": 4,
+          "xl": 4
+        },
+        "retryBackoff": {
+          "type": "checkbox",
+          "label": "Enable exponential backoff",
+          "help": "Exponential backoff help",
+          "default": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 4,
+          "lg": 4,
+          "xl": 4
+        },
+        "_discoveryHeader": {
+          "type": "header",
+          "text": "Discovery",
+          "size": 2,
+          "newLine": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "autoDiscovery": {
+          "type": "checkbox",
+          "label": "Search devices automatically via Bonjour/mDNS",
+          "help": "Auto discovery help",
+          "default": true,
+          "newLine": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "_commandsHeader": {
+          "type": "header",
+          "text": "Commands",
+          "size": 2,
+          "newLine": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "bundleDelay": {
+          "type": "number",
+          "label": "Delay to bundle commands per device",
+          "help": "Bundle delay help",
+          "unit": "ms",
+          "min": 0,
+          "max": 1000,
+          "default": 50,
+          "newLine": true,
+          "xs": 12,
+          "sm": 6,
+          "md": 4,
+          "lg": 4,
+          "xl": 4
+        }
+      }
+    }
+  }
+}

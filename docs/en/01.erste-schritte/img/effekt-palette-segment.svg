@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="420" viewBox="0 0 760 420" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14">
+  <title>Where effect and palette live in the object tree</title>
+  <rect width="760" height="420" fill="#ffffff"/>
+  <defs>
+    <marker id="pfeil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#37474f"/>
+    </marker>
+  </defs>
+  <text x="380" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Effect and palette belong to the segment</text>
+
+  <g font-family="Consolas, Menlo, monospace" font-size="14" fill="#212121">
+    <text x="40" y="70">wled.0.&lt;device&gt;</text>
+    <text x="70" y="98">├─ on</text>
+    <text x="70" y="122">├─ bri</text>
+    <text x="70" y="146">├─ ps</text>
+    <text x="70" y="170">└─ seg</text>
+    <text x="110" y="198">├─ 0</text>
+    <text x="150" y="226" font-weight="bold" fill="#1565c0">├─ fx</text>
+    <text x="150" y="250" font-weight="bold" fill="#1565c0">├─ pal</text>
+    <text x="150" y="274">├─ sx</text>
+    <text x="150" y="298">├─ ix</text>
+    <text x="150" y="322">└─ col</text>
+    <text x="190" y="346">└─ 0_HEX …</text>
+    <text x="110" y="378">└─ 1 …</text>
+  </g>
+  <text x="160" y="122" fill="#616161" font-size="12">← on, bri, ps apply to the whole device</text>
+  <text x="250" y="274" fill="#616161" font-size="12">speed</text>
+  <text x="250" y="298" fill="#616161" font-size="12">intensity</text>
+  <text x="200" y="378" fill="#616161" font-size="12">another segment with its own fx and pal</text>
+
+  <!-- drop-down list -->
+  <rect x="440" y="186" width="280" height="150" rx="6" fill="#e3f2fd" stroke="#1565c0"/>
+  <text x="456" y="210" font-weight="bold" fill="#0d47a1">Drop-down list in the state</text>
+  <text x="456" y="234" fill="#212121">The number is stored,</text>
+  <text x="456" y="254" fill="#212121">the name from the device is shown.</text>
+  <text x="456" y="284" fill="#212121">Names come from the WLED firmware.</text>
+  <text x="456" y="304" fill="#212121">From v0.9.3 they are read again</text>
+  <text x="456" y="324" fill="#212121">on every connection (#912).</text>
+  <line x1="240" y1="237" x2="436" y2="237" stroke="#37474f" stroke-width="1.5" marker-end="url(#pfeil)"/>
+</svg>

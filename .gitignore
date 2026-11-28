@@ -18,3 +18,9 @@ admin/i18n/*/flat.txt
 
 # commitinfo files
 .commitinfo
+.DS_Store
+
+# Settings page sources (src-admin) build output; the built bundle lives in admin/custom
+src-admin/node_modules
+src-admin/build
+src-admin/.__mf__temp

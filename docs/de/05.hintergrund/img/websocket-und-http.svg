@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="390" viewBox="0 0 760 390" role="img" aria-labelledby="titel beschreibung">
+<title id="titel">WebSocket und HTTP im Vergleich</title>
+<desc id="beschreibung">Oben mit WebSocket: Jede Änderung am Gerät kommt sofort beim Adapter an. Im Takt des Intervalls schickt der Adapter nur ein ping, das Gerät antwortet mit pong. Unten ohne WebSocket: Der Adapter fragt das Gerät im Takt des Intervalls per HTTP ab. Eine Änderung am Gerät kommt erst bei der nächsten Abfrage an.</desc>
+<defs><marker id="p52606d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#52606d"/></marker><marker id="p7b8794" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7b8794"/></marker><marker id="p4a90d9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4a90d9"/></marker></defs>
+<rect x="0" y="0" width="760" height="390" rx="12" fill="#ffffff"/>
+<text x="30" y="28" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start" dominant-baseline="middle">Mit WebSocket</text>
+<text x="30" y="46" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#52606d" text-anchor="start" dominant-baseline="middle">WLED ab 0.12, Normalfall</text>
+<text x="80" y="88" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="end" dominant-baseline="middle">WLED</text>
+<text x="80" y="158" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="end" dominant-baseline="middle">Adapter</text>
+<line x1="95" y1="88" x2="730" y2="88" stroke="#7b8794" stroke-width="1"/>
+<line x1="95" y1="158" x2="730" y2="158" stroke="#7b8794" stroke-width="1"/>
+<line x1="140" y1="152" x2="140" y2="164" stroke="#1f2933" stroke-width="1.5"/>
+<line x1="380" y1="152" x2="380" y2="164" stroke="#1f2933" stroke-width="1.5"/>
+<line x1="620" y1="152" x2="620" y2="164" stroke="#1f2933" stroke-width="1.5"/>
+<text x="260" y="180" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">1 Intervall (30 s)</text>
+<line x1="146" y1="170" x2="374" y2="170" stroke="#52606d" stroke-width="1" marker-start="url(#p52606d)" marker-end="url(#p52606d)"/>
+<line x1="140" y1="156" x2="152" y2="92" stroke="#7b8794" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p7b8794)"/>
+<line x1="164" y1="90" x2="176" y2="154" stroke="#7b8794" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p7b8794)"/>
+<line x1="380" y1="156" x2="392" y2="92" stroke="#7b8794" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p7b8794)"/>
+<line x1="404" y1="90" x2="416" y2="154" stroke="#7b8794" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p7b8794)"/>
+<line x1="620" y1="156" x2="632" y2="92" stroke="#7b8794" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p7b8794)"/>
+<line x1="644" y1="90" x2="656" y2="154" stroke="#7b8794" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p7b8794)"/>
+<text x="152" y="74" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">ping / pong</text>
+<circle cx="250" cy="88" r="6" fill="#e07b00"/>
+<line x1="250" y1="94" x2="250" y2="154" stroke="#4a90d9" stroke-width="2"  marker-end="url(#p4a90d9)"/>
+<text x="250" y="72" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#e07b00" text-anchor="middle" dominant-baseline="middle">Änderung</text>
+<circle cx="470" cy="88" r="6" fill="#e07b00"/>
+<line x1="470" y1="94" x2="470" y2="154" stroke="#4a90d9" stroke-width="2"  marker-end="url(#p4a90d9)"/>
+<text x="470" y="72" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#e07b00" text-anchor="middle" dominant-baseline="middle">Änderung</text>
+<text x="560" y="124" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#4a90d9" text-anchor="middle" dominant-baseline="middle">sofort da</text>
+<text x="30" y="218" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start" dominant-baseline="middle">Ohne WebSocket</text>
+<text x="30" y="236" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#52606d" text-anchor="start" dominant-baseline="middle">WLED älter als 0.12 oder Verbindung getrennt</text>
+<text x="80" y="278" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="end" dominant-baseline="middle">WLED</text>
+<text x="80" y="348" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="end" dominant-baseline="middle">Adapter</text>
+<line x1="95" y1="278" x2="730" y2="278" stroke="#7b8794" stroke-width="1"/>
+<line x1="95" y1="348" x2="730" y2="348" stroke="#7b8794" stroke-width="1"/>
+<line x1="140" y1="342" x2="140" y2="354" stroke="#1f2933" stroke-width="1.5"/>
+<line x1="380" y1="342" x2="380" y2="354" stroke="#1f2933" stroke-width="1.5"/>
+<line x1="620" y1="342" x2="620" y2="354" stroke="#1f2933" stroke-width="1.5"/>
+<text x="260" y="370" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">1 Intervall (30 s)</text>
+<line x1="146" y1="360" x2="374" y2="360" stroke="#52606d" stroke-width="1" marker-start="url(#p52606d)" marker-end="url(#p52606d)"/>
+<line x1="140" y1="346" x2="152" y2="282" stroke="#7b8794" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p7b8794)"/>
+<line x1="164" y1="280" x2="176" y2="344" stroke="#4a90d9" stroke-width="2"  marker-end="url(#p4a90d9)"/>
+<line x1="380" y1="346" x2="392" y2="282" stroke="#7b8794" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p7b8794)"/>
+<line x1="404" y1="280" x2="416" y2="344" stroke="#4a90d9" stroke-width="2"  marker-end="url(#p4a90d9)"/>
+<line x1="620" y1="346" x2="632" y2="282" stroke="#7b8794" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p7b8794)"/>
+<line x1="644" y1="280" x2="656" y2="344" stroke="#4a90d9" stroke-width="2"  marker-end="url(#p4a90d9)"/>
+<text x="152" y="264" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#52606d" text-anchor="middle" dominant-baseline="middle">HTTP-Abfrage</text>
+<circle cx="250" cy="278" r="6" fill="#e07b00"/>
+<text x="250" y="262" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#e07b00" text-anchor="middle" dominant-baseline="middle">Änderung</text>
+<line x1="256" y1="278" x2="400" y2="278" stroke="#e07b00" stroke-width="2" stroke-dasharray="3 3"/>
+<text x="520" y="370" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#4a90d9" text-anchor="middle" dominant-baseline="middle">erst bei der nächsten Abfrage da</text>
+</svg>
